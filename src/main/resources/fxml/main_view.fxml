@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.tracklify.controllers.Main_viewController">
+    <stylesheets>
+        <URL value="@.../styles/main_view.css"/>
+    </stylesheets>
+    
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color:#2c3e50;">
+            <padding>
+                <Insets bottom="15" left="20" top="15" />
+            </padding>
+
+            <Label style="-fx-text-fill:white; -fx-font-size:24px; -fx-font-weight:bold;" text="Tracklify" />
+
+        </HBox>
+    </top>
+
+    
+    <left>
+        <VBox spacing="10" style="-fx-background-color:#34495e;">
+            <padding>
+                <Insets left="15" right="15" top="20" />
+            </padding>
+
+            <Button prefWidth="140" text="Dashboard" />
+            <Button prefWidth="140" text="Mis hábitos" />
+            <Button prefWidth="140" text="Estadísticas" />
+            <Button prefWidth="140" text="Informes" />
+            <Button prefWidth="140" text="Configuración" />
+
+        </VBox>
+    </left>
+
+    
+    <center>
+        <VBox alignment="CENTER" prefHeight="435.0" prefWidth="642.0" spacing="20">
+            <padding>
+                <Insets top="30" />
+            </padding>
+
+            <Label style="-fx-font-size:22px; -fx-font-weight:bold;" text="Bienvenido a Tracklify" />
+
+            <Label style="-fx-font-size:14px;" text="Empieza a mejorar tus hábitos diarios" />
+
+            <Button style="-fx-font-size:14px;" text="Crear nuevo hábito" />
+
+        </VBox>
+    </center>
+
+</BorderPane>
