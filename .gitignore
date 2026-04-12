@@ -1,0 +1,6 @@
+nbproject/private/
+nbactions.xml
+
+.gradle/
+build/
+target/

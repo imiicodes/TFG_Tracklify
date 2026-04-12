@@ -7,7 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
 
-public class Main_viewController implements Initializable {
+public class MainViewController implements Initializable {
 
     @FXML
     private TextField campoUsuario;

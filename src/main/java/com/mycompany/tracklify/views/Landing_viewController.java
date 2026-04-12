@@ -4,23 +4,26 @@
  */
 package com.mycompany.tracklify.views;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-import javafx.fxml.Initializable;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-/**
- * FXML Controller class
- *
- * @author imii
- */
-public class Landing_viewController implements Initializable {
+public class Landing_viewController {
 
-    /**
-     * Initializes the controller class.
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }    
-    
+    @FXML
+    public void irALogin(ActionEvent event) throws Exception {
+        FXMLLoader loader = new FXMLLoader(
+            getClass().getResource("/fxml/login_view.fxml")
+        );
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(loader.load()));
+    }
+
+    @FXML
+    public void irARegistro(ActionEvent event) {
+        // TODO: implementar cuando tengas registro_view.fxml
+    }
 }

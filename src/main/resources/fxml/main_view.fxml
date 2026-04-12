@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
@@ -6,53 +7,109 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
 
-<BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.tracklify.controllers.Main_viewController">
+<BorderPane
+    prefWidth="800"
+    prefHeight="540"
+    styleClass="root-pane"
+    xmlns="http://javafx.com/javafx/21"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.mycompany.tracklify.controllers.MainViewController">
+
     <stylesheets>
-        <URL value="@.../styles/main_view.css"/>
+        <URL value="@/styles/main_view.css"/>
     </stylesheets>
-    
+
+    <!-- ── TOPBAR ── -->
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color:#2c3e50;">
+        <HBox alignment="CENTER_LEFT" styleClass="topbar" spacing="10">
             <padding>
-                <Insets bottom="15" left="20" top="15" />
+                <Insets top="14" right="24" bottom="14" left="24"/>
             </padding>
-
-            <Label style="-fx-text-fill:white; -fx-font-size:24px; -fx-font-weight:bold;" text="Tracklify" />
-
+            <Label text="✦ Tracklify" styleClass="topbar-titulo"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="TU" styleClass="topbar-avatar"/>
         </HBox>
     </top>
 
-    
+    <!-- ── SIDEBAR ── -->
     <left>
-        <VBox spacing="10" style="-fx-background-color:#34495e;">
+        <VBox styleClass="sidebar" spacing="6">
             <padding>
-                <Insets left="15" right="15" top="20" />
+                <Insets top="20" right="12" bottom="20" left="12"/>
             </padding>
-
-            <Button prefWidth="140" text="Dashboard" />
-            <Button prefWidth="140" text="Mis hábitos" />
-            <Button prefWidth="140" text="Estadísticas" />
-            <Button prefWidth="140" text="Informes" />
-            <Button prefWidth="140" text="Configuración" />
-
+            <Button text="⬡  Dashboard"    styleClass="nav-item, nav-activo" prefWidth="136"/>
+            <Button text="◈  Mis hábitos"  styleClass="nav-item" prefWidth="136"/>
+            <Button text="◎  Estadísticas" styleClass="nav-item" prefWidth="136"/>
+            <Button text="◷  Informes"     styleClass="nav-item" prefWidth="136"/>
+            <Button text="⚙  Configuración" styleClass="nav-item" prefWidth="136"/>
         </VBox>
     </left>
 
-    
+    <!-- ── CONTENIDO CENTRAL ── -->
     <center>
-        <VBox alignment="CENTER" prefHeight="435.0" prefWidth="642.0" spacing="20">
+        <VBox styleClass="contenido" spacing="16">
             <padding>
-                <Insets top="30" />
+                <Insets top="28" right="28" bottom="0" left="24"/>
             </padding>
 
-            <Label style="-fx-font-size:22px; -fx-font-weight:bold;" text="Bienvenido a Tracklify" />
+            <!-- Saludo -->
+            <VBox spacing="4">
+                <Label text="Bienvenido a Tracklify ✦" styleClass="titulo-bienvenida"/>
+                <Label text="Empieza a mejorar tus hábitos diarios" styleClass="subtitulo-bienvenida"/>
+            </VBox>
 
-            <Label style="-fx-font-size:14px;" text="Empieza a mejorar tus hábitos diarios" />
+            <!-- Tarjetas de resumen -->
+            <HBox spacing="12">
+                <VBox styleClass="tarjeta-stat" prefWidth="120">
+                    <Label text="7"            styleClass="stat-num"/>
+                    <Label text="Hábitos activos" styleClass="stat-label"/>
+                </VBox>
+                <VBox styleClass="tarjeta-stat" prefWidth="120">
+                    <Label text="85%"          styleClass="stat-num"/>
+                    <Label text="Tasa de éxito"  styleClass="stat-label"/>
+                </VBox>
+                <VBox styleClass="tarjeta-stat" prefWidth="120">
+                    <Label text="14"           styleClass="stat-num"/>
+                    <Label text="Racha actual"   styleClass="stat-label"/>
+                </VBox>
+            </HBox>
 
-            <Button style="-fx-font-size:14px;" text="Crear nuevo hábito" />
+            <!-- Sección hábitos del día -->
+            <Label text="Hábitos de hoy" styleClass="seccion-titulo"/>
+
+            <VBox spacing="8">
+                <HBox styleClass="habito-fila" alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Meditación matutina" styleClass="habito-nombre" HBox.hgrow="ALWAYS"/>
+                    <Label text="Pendiente" styleClass="badge-pendiente"/>
+                </HBox>
+                <HBox styleClass="habito-fila" alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Leer 30 minutos" styleClass="habito-nombre" HBox.hgrow="ALWAYS"/>
+                    <Label text="Pendiente" styleClass="badge-pendiente"/>
+                </HBox>
+                <HBox styleClass="habito-fila" alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Ejercicio diario" styleClass="habito-nombre" HBox.hgrow="ALWAYS"/>
+                    <Label text="🔥 14 días" styleClass="habito-racha"/>
+                </HBox>
+            </VBox>
+
+            <!-- Botón nuevo hábito -->
+            <Button text="+ Crear nuevo hábito" styleClass="btn-primary" prefHeight="38"/>
 
         </VBox>
     </center>
+
+    <!-- ── FOOTER ── -->
+    <bottom>
+        <HBox styleClass="footer" alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="10" right="24" bottom="10" left="24"/>
+            </padding>
+            <Label text="Tu progreso, tu historia." styleClass="footer-texto"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Tracklify v1.0" styleClass="footer-version"/>
+        </HBox>
+    </bottom>
 
 </BorderPane>

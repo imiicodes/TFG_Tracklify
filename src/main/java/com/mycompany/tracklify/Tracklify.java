@@ -1,5 +1,6 @@
 package com.mycompany.tracklify;
 
+import com.mycompany.tracklify.database.ConexionBD;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -11,7 +12,7 @@ public class Tracklify extends Application {
     public void start(Stage stage) throws Exception {
 
         FXMLLoader loader = new FXMLLoader(
-            getClass().getResource("/com/mycompany/tracklify/views/main_view.fxml")
+        getClass().getResource("/fxml/landing_view.fxml")
         );
 
         Scene scene = new Scene(loader.load());
@@ -22,6 +23,7 @@ public class Tracklify extends Application {
     }
 
     public static void main(String[] args) {
+        ConexionBD.conectar();
         launch();
     }
 }

@@ -3,5 +3,167 @@
  */
 
 .mainFxmlClass {
+/* ── Raíz ── */
+.root-pane {
+    -fx-background-color: #F6EEFF;
+}
 
+/* ── Topbar ── */
+.topbar {
+    -fx-background-color: #93588F;
+}
+
+.topbar-titulo {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Georgia";
+}
+
+.topbar-avatar {
+    -fx-background-color: #DEA9FF;
+    -fx-text-fill: #3A2B3F;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 50;
+    -fx-min-width: 32px;
+    -fx-min-height: 32px;
+    -fx-alignment: center;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+    -fx-background-color: #7A4578;
+}
+
+.nav-item {
+    -fx-background-color: transparent;
+    -fx-text-fill: #F3D9F5;
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 8 12 8 12;
+}
+
+.nav-item:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-text-fill: white;
+}
+
+.nav-activo {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* ── Contenido ── */
+.contenido {
+    -fx-background-color: #F6EEFF;
+}
+
+.titulo-bienvenida {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #93588F;
+    -fx-font-family: "Georgia";
+}
+
+.subtitulo-bienvenida {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7E6A8A;
+}
+
+/* ── Tarjetas de estadísticas ── */
+.tarjeta-stat {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-color: #EDE3F6;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 12 16 12 16;
+    -fx-spacing: 4;
+}
+
+.stat-num {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #93588F;
+    -fx-font-family: "Georgia";
+}
+
+.stat-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #7E6A8A;
+}
+
+/* ── Sección ── */
+.seccion-titulo {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #93588F;
+    -fx-padding: 4 0 0 0;
+}
+
+/* ── Filas de hábitos ── */
+.habito-fila {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #EDE3F6;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 10 14 10 14;
+}
+
+.habito-nombre {
+    -fx-font-size: 13px;
+    -fx-text-fill: #3A2B3F;
+}
+
+.habito-racha {
+    -fx-font-size: 12px;
+    -fx-text-fill: #93588F;
+}
+
+.badge-pendiente {
+    -fx-background-color: #F6EEFF;
+    -fx-text-fill: #93588F;
+    -fx-font-size: 11px;
+    -fx-background-radius: 20;
+    -fx-padding: 3 10 3 10;
+}
+
+/* ── Botón principal ── */
+.btn-primary {
+    -fx-background-color: #93588F;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-padding: 0 20 0 20;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #7A4578;
+    -fx-effect: dropshadow(gaussian, rgba(147,88,143,0.3), 10, 0.2, 0, 3);
+}
+
+/* ── Footer ── */
+.footer {
+    -fx-background-color: white;
+    -fx-border-color: #EDE3F6;
+    -fx-border-width: 1 0 0 0;
+}
+
+.footer-texto {
+    -fx-font-size: 11px;
+    -fx-text-fill: #C4AADB;
+}
+
+.footer-version {
+    -fx-font-size: 10px;
+    -fx-text-fill: #D8C5E8;
+}
 }
