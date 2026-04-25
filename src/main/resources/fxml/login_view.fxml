@@ -44,7 +44,9 @@
             fx:id="campoPassword"
             promptText="Contraseña"
             styleClass="campo"
-            maxWidth="240"/>
+            maxWidth="240"
+            onAction="#iniciarSesion"/>
+
 
         <!-- Mensaje error/éxito -->
         <Label fx:id="labelMensaje" styleClass="label-mensaje" wrapText="true" maxWidth="240"/>

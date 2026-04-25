@@ -3,15 +3,20 @@
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
 <BorderPane
-    prefWidth="800"
-    prefHeight="540"
+    prefWidth="860"
+    prefHeight="580"
     styleClass="root-pane"
     xmlns="http://javafx.com/javafx/21"
     xmlns:fx="http://javafx.com/fxml/1"
@@ -21,7 +26,7 @@
         <URL value="@/styles/main_view.css"/>
     </stylesheets>
 
-    <!-- ── TOPBAR ── -->
+    <!-- TOPBAR -->
     <top>
         <HBox alignment="CENTER_LEFT" styleClass="topbar" spacing="10">
             <padding>
@@ -29,78 +34,126 @@
             </padding>
             <Label text="✦ Tracklify" styleClass="topbar-titulo"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Label text="TU" styleClass="topbar-avatar"/>
+            <Button text="Cerrar sesión" styleClass="btn-logout" onAction="#cerrarSesion"/>
         </HBox>
     </top>
 
-    <!-- ── SIDEBAR ── -->
+    <!-- SIDEBAR -->
     <left>
         <VBox styleClass="sidebar" spacing="6">
             <padding>
                 <Insets top="20" right="12" bottom="20" left="12"/>
             </padding>
-            <Button text="⬡  Dashboard"    styleClass="nav-item, nav-activo" prefWidth="136"/>
-            <Button text="◈  Mis hábitos"  styleClass="nav-item" prefWidth="136"/>
-            <Button text="◎  Estadísticas" styleClass="nav-item" prefWidth="136"/>
-            <Button text="◷  Informes"     styleClass="nav-item" prefWidth="136"/>
+            <Button text="⬡  Dashboard"     styleClass="nav-item, nav-activo" prefWidth="136"/>
+            <Button text="◈  Mis hábitos"   styleClass="nav-item" prefWidth="136"/>
+            <Button text="◎  Estadísticas"  styleClass="nav-item" prefWidth="136"/>
+            <Button text="◷  Informes"      styleClass="nav-item" prefWidth="136"/>
             <Button text="⚙  Configuración" styleClass="nav-item" prefWidth="136"/>
         </VBox>
     </left>
 
-    <!-- ── CONTENIDO CENTRAL ── -->
+    <!-- CONTENIDO CENTRAL con scroll -->
     <center>
-        <VBox styleClass="contenido" spacing="16">
-            <padding>
-                <Insets top="28" right="28" bottom="0" left="24"/>
-            </padding>
+        <ScrollPane fitToWidth="true" styleClass="scroll-contenido">
+            <VBox styleClass="contenido" spacing="14">
+                <padding>
+                    <Insets top="24" right="28" bottom="16" left="24"/>
+                </padding>
 
-            <!-- Saludo -->
-            <VBox spacing="4">
-                <Label text="Bienvenido a Tracklify ✦" styleClass="titulo-bienvenida"/>
-                <Label text="Empieza a mejorar tus hábitos diarios" styleClass="subtitulo-bienvenida"/>
+                <!-- Saludo -->
+                <VBox spacing="3">
+                    <Label fx:id="labelBienvenida" text="Bienvenido ✦" styleClass="titulo-bienvenida"/>
+                    <Label text="Empieza a mejorar tus hábitos diarios" styleClass="subtitulo-bienvenida"/>
+                </VBox>
+
+                <!-- Tarjetas estadísticas -->
+                <HBox spacing="12">
+                    <VBox styleClass="tarjeta-stat" prefWidth="120">
+                        <Label fx:id="labelTareasActivas" text="—" styleClass="stat-num"/>
+                        <Label text="Hábitos activos" styleClass="stat-label"/>
+                    </VBox>
+                    <VBox styleClass="tarjeta-stat" prefWidth="120">
+                        <Label fx:id="labelPorcentaje" text="—" styleClass="stat-num"/>
+                        <Label text="Tasa de éxito" styleClass="stat-label"/>
+                    </VBox>
+                    <VBox styleClass="tarjeta-stat" prefWidth="120">
+                        <Label fx:id="labelRacha" text="—" styleClass="stat-num"/>
+                        <Label text="Racha actual" styleClass="stat-label"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Hábitos de hoy -->
+                <Label text="Hábitos de hoy" styleClass="seccion-titulo"/>
+                <VBox fx:id="contenedorTareas" spacing="7"/>
+
+                <!-- Botón abrir formulario -->
+                <Button text="+ Crear nuevo hábito"
+                        styleClass="btn-primary"
+                        prefHeight="38"
+                        onAction="#mostrarFormularioNuevaTarea"/>
+
+                <!-- PANEL FORMULARIO NUEVA TAREA -->
+                <VBox fx:id="panelNuevaTarea" styleClass="panel-nueva-tarea" spacing="10">
+                    <padding>
+                        <Insets top="16" right="16" bottom="16" left="16"/>
+                    </padding>
+
+                    <Label text="Crear nueva tarea" styleClass="panel-titulo"/>
+                    <Separator/>
+
+                    <Label text="Nombre:" styleClass="campo-label"/>
+                    <TextField fx:id="campoNombreTarea"
+                               promptText="Nombre del hábito"
+                               styleClass="campo"/>
+
+                    <Label text="Descripción:" styleClass="campo-label"/>
+                    <TextField fx:id="campoDescripcionTarea"
+                               promptText="Descripción (opcional)"
+                               styleClass="campo"/>
+
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="Frecuencia:" styleClass="campo-label"/>
+                        <ComboBox fx:id="comboFrecuencia" prefWidth="140"/>
+                    </HBox>
+
+                    <!-- Fila día: visible solo en semanal/mensual -->
+                    <HBox fx:id="filaDia" spacing="12" alignment="CENTER_LEFT">
+                        <Label text="Día:" styleClass="campo-label"/>
+                        <ComboBox fx:id="comboDia" prefWidth="160"/>
+                    </HBox>
+
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Label text="Hora:" styleClass="campo-label"/>
+                        <Spinner fx:id="spinnerHora" prefWidth="72" editable="true"/>
+                        <Label text=":" styleClass="campo-label"/>
+                        <Spinner fx:id="spinnerMinutos" prefWidth="72" editable="true"/>
+                    </HBox>
+
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <Button text="Guardar"
+                                styleClass="btn-primary"
+                                prefHeight="34" prefWidth="100"
+                                onAction="#guardarNuevaTarea"/>
+                        <Button text="Cancelar"
+                                styleClass="btn-cancelar"
+                                prefHeight="34" prefWidth="100"
+                                onAction="#cancelarNuevaTarea"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Próximos recordatorios -->
+                <Label text="Próximos recordatorios" styleClass="seccion-titulo"/>
+                <VBox fx:id="contenedorRecordatorios" styleClass="panel-recordatorios" spacing="0">
+                    <padding>
+                        <Insets top="10" right="14" bottom="10" left="14"/>
+                    </padding>
+                </VBox>
+
             </VBox>
-
-            <!-- Tarjetas de resumen -->
-            <HBox spacing="12">
-                <VBox styleClass="tarjeta-stat" prefWidth="120">
-                    <Label text="7"            styleClass="stat-num"/>
-                    <Label text="Hábitos activos" styleClass="stat-label"/>
-                </VBox>
-                <VBox styleClass="tarjeta-stat" prefWidth="120">
-                    <Label text="85%"          styleClass="stat-num"/>
-                    <Label text="Tasa de éxito"  styleClass="stat-label"/>
-                </VBox>
-                <VBox styleClass="tarjeta-stat" prefWidth="120">
-                    <Label text="14"           styleClass="stat-num"/>
-                    <Label text="Racha actual"   styleClass="stat-label"/>
-                </VBox>
-            </HBox>
-
-            <!-- Sección hábitos del día -->
-            <Label text="Hábitos de hoy" styleClass="seccion-titulo"/>
-
-            <VBox spacing="8">
-                <HBox styleClass="habito-fila" alignment="CENTER_LEFT" spacing="10">
-                    <Label text="Meditación matutina" styleClass="habito-nombre" HBox.hgrow="ALWAYS"/>
-                    <Label text="Pendiente" styleClass="badge-pendiente"/>
-                </HBox>
-                <HBox styleClass="habito-fila" alignment="CENTER_LEFT" spacing="10">
-                    <Label text="Leer 30 minutos" styleClass="habito-nombre" HBox.hgrow="ALWAYS"/>
-                    <Label text="Pendiente" styleClass="badge-pendiente"/>
-                </HBox>
-                <HBox styleClass="habito-fila" alignment="CENTER_LEFT" spacing="10">
-                    <Label text="Ejercicio diario" styleClass="habito-nombre" HBox.hgrow="ALWAYS"/>
-                    <Label text="🔥 14 días" styleClass="habito-racha"/>
-                </HBox>
-            </VBox>
-
-            <!-- Botón nuevo hábito -->
-            <Button text="+ Crear nuevo hábito" styleClass="btn-primary" prefHeight="38"/>
-
-        </VBox>
+        </ScrollPane>
     </center>
 
-    <!-- ── FOOTER ── -->
+    <!-- FOOTER -->
     <bottom>
         <HBox styleClass="footer" alignment="CENTER_LEFT">
             <padding>
