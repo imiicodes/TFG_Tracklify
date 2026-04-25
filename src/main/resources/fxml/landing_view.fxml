@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane style="-fx-background-color:#F6EEFF;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.tracklify.views.Landing_viewController">
+<StackPane style="-fx-background-color:#F6EEFF;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.tracklify.views.Landing_viewController">
     <stylesheets>
         <URL value="@/styles/landing_view.css" />
     </stylesheets>

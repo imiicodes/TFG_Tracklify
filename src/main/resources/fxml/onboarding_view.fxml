@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    onboarding_view.fxml
+    Vista del proceso de onboarding de Tracklify.
+
+    Muestra una secuencia de 5 preguntas de personalización que se presentan
+    únicamente la primera vez que un usuario accede tras registrarse.
+
+    Estructura de la vista:
+      - StackPane raíz con fondo lavanda (#F6EEFF)
+      - VBox tarjeta central (card-onboarding) con tres zonas:
+          1. Cabecera: logo, indicador de paso y barra de progreso
+          2. Cuerpo (ScrollPane): texto de pregunta, opciones y botón "Ver más"
+          3. Pie: botón "Saltar" y botón "Siguiente / Finalizar"
+
+    Controlador: com.mycompany.tracklify.controllers.OnboardingController
+    CSS:         /styles/onboarding_view.css
+    Paleta:      #93588F (morado), #DEA9FF (lila), #F6EEFF (fondo lavanda)
+-->
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!--
+    StackPane raíz
+    - Centra la tarjeta horizontalmente y verticalmente.
+    - prefWidth/prefHeight definen el tamaño de la ventana.
+    - styleClass="root-onboarding" aplica el fondo lavanda desde el CSS.
+-->
+<StackPane
+    prefWidth="700"
+    prefHeight="560"
+    styleClass="root-onboarding"
+    xmlns="http://javafx.com/javafx/21"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.mycompany.tracklify.controllers.OnboardingController">
+
+    <!-- Hoja de estilos de la vista -->
+    <stylesheets>
+        <URL value="@/styles/onboarding_view.css"/>
+    </stylesheets>
+
+    <!--
+        VBox principal — tarjeta blanca centrada
+        - maxWidth limita el ancho para que no ocupe toda la pantalla.
+        - prefHeight garantiza que la tarjeta tenga altura suficiente
+          para que el ScrollPane interno no colapse a 0px.
+        - spacing="0" porque las tres zonas (cabecera, cuerpo, pie)
+          se separan con sus propios paddings internos.
+    -->
+    <VBox styleClass="card-onboarding" maxWidth="580" prefHeight="520" spacing="0">
+
+        <!-- ══════════════════════════════════════════════
+             ZONA 1 — CABECERA
+             Muestra el logo, el indicador textual del paso
+             actual ("Pregunta X de 5") y la barra de
+             progreso con puntos. Todo se construye
+             dinámicamente desde OnboardingController.
+             ══════════════════════════════════════════════ -->
+        <VBox styleClass="cabecera" spacing="6" alignment="CENTER">
+            <padding>
+                <Insets top="28" right="32" bottom="20" left="32"/>
+            </padding>
+
+            <!-- Logo de la aplicación (estático) -->
+            <Label text="✦ Tracklify" styleClass="logo-onboarding"/>
+
+            <!--
+                Indicador textual del paso actual.
+                fx:id="labelPaso" — actualizado por OnboardingController.mostrarPregunta()
+                con el texto "Pregunta X de 5".
+            -->
+            <Label fx:id="labelPaso" text="Pregunta 1 de 5" styleClass="label-paso"/>
+
+            <!--
+                Barra de progreso visual con puntos (●).
+                fx:id="barraProgreso" — OnboardingController.actualizarBarraProgreso()
+                añade dinámicamente un Label por cada pregunta,
+                aplicando los estilos punto-progreso, punto-activo o punto-completado.
+            -->
+            <HBox fx:id="barraProgreso" alignment="CENTER" spacing="8"/>
+        </VBox>
+
+        <!-- ══════════════════════════════════════════════
+             ZONA 2 — CUERPO (con scroll)
+             Contiene el texto de la pregunta, los botones
+             de opción y el botón "Ver más".
+             VBox.vgrow="ALWAYS" hace que el ScrollPane
+             ocupe todo el espacio vertical disponible
+             entre la cabecera y el pie.
+             fitToWidth="true" hace que el contenido interno
+             se ajuste al ancho del ScrollPane.
+             ══════════════════════════════════════════════ -->
+        <ScrollPane
+            fitToWidth="true"
+            fitToHeight="false"
+            styleClass="scroll-onboarding"
+            VBox.vgrow="ALWAYS">
+
+            <!--
+                VBox interior del ScrollPane.
+                minHeight="300" garantiza espacio mínimo visible
+                incluso si las opciones aún no se han cargado.
+                alignment="CENTER" centra la pregunta y las opciones.
+            -->
+            <VBox spacing="20" alignment="CENTER" minHeight="300">
+                <padding>
+                    <Insets top="20" right="40" bottom="20" left="40"/>
+                </padding>
+
+                <!--
+                    Texto de la pregunta actual — grande y centrado.
+                    fx:id="labelPregunta" — actualizado en cada llamada a
+                    OnboardingController.mostrarPregunta() con el texto
+                    correspondiente a la pregunta activa.
+                    wrapText="true" permite que preguntas largas ocupen
+                    varias líneas sin desbordarse.
+                -->
+                <Label
+                    fx:id="labelPregunta"
+                    text=""
+                    styleClass="pregunta-texto"
+                    wrapText="true"
+                    maxWidth="500"
+                    alignment="CENTER"
+                    textAlignment="CENTER"/>
+
+                <!--
+                    Contenedor de botones de opción (ToggleButton).
+                    fx:id="contenedorOpciones" — OnboardingController.mostrarPregunta()
+                    limpia y rellena este FlowPane con un ToggleButton por opción.
+                    hgap/vgap separan los botones horizontalmente y verticalmente.
+                    prefWrapLength controla el ancho máximo antes de hacer salto de línea,
+                    logrando la distribución en dos columnas de ~230px cada una.
+                -->
+                <FlowPane
+                    fx:id="contenedorOpciones"
+                    hgap="10"
+                    vgap="10"
+                    alignment="CENTER"
+                    prefWrapLength="480"/>
+
+                <!--
+                    Botón "Ver más opciones".
+                    fx:id="btnVerMas" — se oculta automáticamente si la pregunta
+                    tiene 6 o menos opciones (OPCIONES_INICIALES).
+                    Al pulsarlo llama a OnboardingController.verMas() que hace
+                    visibles los botones ocultos (índices >= 6) y se oculta a sí mismo.
+                -->
+                <Button
+                    fx:id="btnVerMas"
+                    text="Ver más opciones ↓"
+                    styleClass="btn-ver-mas"
+                    onAction="#verMas"/>
+
+                <!--
+                    Etiqueta de validación.
+                    visible="false" por defecto — solo aparece cuando:
+                    - El usuario intenta avanzar sin seleccionar ninguna opción.
+                    - El usuario intenta seleccionar más de 3 opciones (MAX_SELECCIONES).
+                    fx:id="labelValidacion" — gestionada por OnboardingController.mostrarValidacion()
+                -->
+                <Label
+                    fx:id="labelValidacion"
+                    text=""
+                    styleClass="label-validacion"
+                    wrapText="true"
+                    maxWidth="400"
+                    visible="false"/>
+
+            </VBox>
+        </ScrollPane>
+
+        <!-- ══════════════════════════════════════════════
+             ZONA 3 — PIE DE NAVEGACIÓN
+             Contiene dos botones separados por un Region:
+               - "Saltar" a la izquierda: omite la pregunta actual
+                 sin guardar respuestas (llama a OnboardingController.saltar()).
+               - "Siguiente →" / "Finalizar" a la derecha: valida que
+                 haya al menos 1 opción seleccionada, guarda las respuestas
+                 en BD y avanza a la siguiente pregunta, o finaliza el
+                 onboarding si es la última (llama a OnboardingController.siguiente()).
+             ══════════════════════════════════════════════ -->
+        <HBox styleClass="pie-onboarding" alignment="CENTER_RIGHT" spacing="12">
+            <padding>
+                <Insets top="16" right="32" bottom="24" left="32"/>
+            </padding>
+
+            <!--
+                Botón "Saltar" — alineado a la izquierda.
+                fx:id="btnSkip" — no cambia de texto entre preguntas.
+                Llama a OnboardingController.saltar() que avanza sin guardar
+                ninguna respuesta para la pregunta actual.
+            -->
+            <Button
+                fx:id="btnSkip"
+                text="Saltar"
+                styleClass="btn-skip"
+                onAction="#saltar"/>
+
+            <!-- Separador flexible que empuja el botón Siguiente a la derecha -->
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!--
+                Botón "Siguiente →" / "Finalizar" — alineado a la derecha.
+                fx:id="btnSiguiente" — OnboardingController.mostrarPregunta()
+                cambia su texto a "Finalizar" cuando se muestra la última pregunta.
+                Llama a OnboardingController.siguiente() que valida, guarda y avanza.
+            -->
+            <Button
+                fx:id="btnSiguiente"
+                text="Siguiente →"
+                styleClass="btn-siguiente"
+                prefHeight="40"
+                prefWidth="140"
+                onAction="#siguiente"/>
+
+        </HBox>
+
+    </VBox>
+
+</StackPane>

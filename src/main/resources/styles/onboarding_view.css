@@ -1,0 +1,161 @@
+/* ════════════════════════════════════════════════════
+   onboarding.css — Estilos del onboarding de Tracklify
+   Paleta: #93588F (morado), #DEA9FF (lila), #F6EEFF (fondo)
+   ════════════════════════════════════════════════════ */
+
+/* ── Fondo general ── */
+.root-onboarding {
+    -fx-background-color: #F6EEFF;
+}
+
+/* ── Tarjeta central ── */
+.card-onboarding {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-border-color: #EDE3F6;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(147,88,143,0.15), 30, 0.1, 0, 8);
+}
+
+/* ── Cabecera ── */
+.cabecera {
+    -fx-background-color: #F6EEFF;
+    -fx-background-radius: 20 20 0 0;
+    -fx-border-color: transparent transparent #EDE3F6 transparent;
+    -fx-border-width: 1;
+}
+
+/* ── Logo ── */
+.logo-onboarding {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #93588F;
+    -fx-font-family: "Georgia";
+}
+
+/* ── Indicador de paso ── */
+.label-paso {
+    -fx-font-size: 12px;
+    -fx-text-fill: #7E6A8A;
+}
+
+/* ── Puntos de la barra de progreso ── */
+.punto-progreso {
+    -fx-font-size: 10px;
+    -fx-text-fill: #DEA9FF;
+}
+.punto-activo {
+    -fx-text-fill: #93588F;
+    -fx-font-size: 14px;
+}
+.punto-completado {
+    -fx-text-fill: #7A4578;
+}
+
+/* ── ScrollPane transparente ── */
+.scroll-onboarding {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background: transparent;
+}
+.scroll-onboarding > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* ── Texto de la pregunta ── */
+.pregunta-texto {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #3A2B3F;
+    -fx-font-family: "Georgia";
+    -fx-padding: 10 0 6 0;
+}
+
+/* ── Botones de opción (sin seleccionar) ── */
+.opcion-btn {
+    -fx-background-color: #F6EEFF;
+    -fx-text-fill: #3A2B3F;
+    -fx-font-size: 13px;
+    -fx-background-radius: 30;
+    -fx-border-color: #DEA9FF;
+    -fx-border-radius: 30;
+    -fx-border-width: 1.5;
+    -fx-cursor: hand;
+    -fx-padding: 8 18 8 18;
+    -fx-pref-width: 230;
+    -fx-wrap-text: true;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+.opcion-btn:hover {
+    -fx-background-color: #EDE3F6;
+    -fx-border-color: #93588F;
+}
+
+/* ── Botones de opción seleccionados ── */
+.opcion-btn.opcion-activa {
+    -fx-background-color: #93588F;
+    -fx-text-fill: white;
+    -fx-border-color: #93588F;
+}
+.opcion-btn.opcion-activa:hover {
+    -fx-background-color: #7A4578;
+    -fx-border-color: #7A4578;
+}
+
+/* ── Botón Ver más ── */
+.btn-ver-mas {
+    -fx-background-color: transparent;
+    -fx-text-fill: #93588F;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 4 0 4 0;
+    -fx-underline: true;
+}
+.btn-ver-mas:hover {
+    -fx-text-fill: #7A4578;
+}
+
+/* ── Mensaje de validación ── */
+.label-validacion {
+    -fx-font-size: 12px;
+    -fx-text-fill: #C0392B;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+/* ── Pie de la tarjeta ── */
+.pie-onboarding {
+    -fx-border-color: #EDE3F6 transparent transparent transparent;
+    -fx-border-width: 1;
+}
+
+/* ── Botón Siguiente / Finalizar ── */
+.btn-siguiente {
+    -fx-background-color: #93588F;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+}
+.btn-siguiente:hover {
+    -fx-background-color: #7A4578;
+    -fx-effect: dropshadow(gaussian, rgba(147,88,143,0.35), 10, 0.2, 0, 3);
+}
+
+/* ── Botón Saltar ── */
+.btn-skip {
+    -fx-background-color: transparent;
+    -fx-text-fill: #C4AADB;
+    -fx-font-size: 13px;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+.btn-skip:hover {
+    -fx-text-fill: #7E6A8A;
+    -fx-underline: true;
+}
