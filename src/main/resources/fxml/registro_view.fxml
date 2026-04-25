@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+
+<StackPane
+    prefWidth="459"
+    prefHeight="540"
+    style="-fx-background-color:#F6EEFF;"
+    xmlns="http://javafx.com/javafx/21"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.mycompany.tracklify.controllers.RegistroController">
+
+    <stylesheets>
+        <URL value="@/styles/registro_view.css"/>
+    </stylesheets>
+
+    <VBox alignment="CENTER" spacing="0" maxWidth="320">
+        <padding>
+            <Insets top="30" right="40" bottom="30" left="40"/>
+        </padding>
+
+        <!-- Título -->
+        <Label text="Crear cuenta" styleClass="titulo"/>
+
+        <!-- Subtítulo -->
+        <Label text="Únete a Tracklify hoy" styleClass="subtitulo"/>
+
+        <!-- Separador decorativo -->
+        <HBox alignment="CENTER" style="-fx-padding: 12 0 20 0;">
+            <Rectangle width="40" height="2"
+                style="-fx-fill:#DEA9FF; -fx-arc-width:2; -fx-arc-height:2;"/>
+        </HBox>
+
+        <!-- Campo nombre -->
+        <Label text="NOMBRE" styleClass="campo-label"/>
+        <TextField
+            fx:id="campoNombre"
+            promptText="Tu nombre completo"
+            styleClass="campo"
+            maxWidth="260"/>
+
+        <VBox style="-fx-padding: 0 0 10 0;"/>
+
+        <!-- Campo email -->
+        <Label text="CORREO ELECTRÓNICO" styleClass="campo-label"/>
+        <TextField
+            fx:id="campoEmail"
+            promptText="tu@email.com"
+            styleClass="campo"
+            maxWidth="260"/>
+
+        <VBox style="-fx-padding: 0 0 10 0;"/>
+
+        <!-- Campo contraseña -->
+        <Label text="CONTRASEÑA" styleClass="campo-label"/>
+        <PasswordField
+            fx:id="campoPassword"
+            promptText="Mínimo 6 caracteres"
+            styleClass="campo"
+            maxWidth="260"/>
+
+        <VBox style="-fx-padding: 0 0 10 0;"/>
+
+        <!-- Campo confirmar contraseña -->
+        <Label text="CONFIRMAR CONTRASEÑA" styleClass="campo-label"/>
+        <PasswordField
+            fx:id="campoConfirmar"
+            promptText="Repite tu contraseña"
+            styleClass="campo"
+            maxWidth="260"/>
+
+        <!-- Mensaje feedback -->
+        <Label fx:id="labelMensaje" styleClass="label-mensaje"
+            wrapText="true" maxWidth="260"
+            style="-fx-padding: 8 0 0 0;"/>
+
+        <!-- Botón registro -->
+        <Button
+            text="Crear cuenta"
+            styleClass="btn-primary"
+            maxWidth="260"
+            prefHeight="40"
+            style="-fx-padding: 0;"
+            onAction="#registrar"
+        />
+
+        <!-- Volver al login -->
+        <Button
+            text="¿Ya tienes cuenta? Inicia sesión"
+            styleClass="btn-link"
+            onAction="#irALogin"/>
+
+    </VBox>
+
+</StackPane>

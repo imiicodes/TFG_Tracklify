@@ -23,7 +23,11 @@ public class Landing_viewController {
     }
 
     @FXML
-    public void irARegistro(ActionEvent event) {
-        // TODO: implementar cuando tengas registro_view.fxml
+    public void irARegistro(ActionEvent event) throws Exception {
+        FXMLLoader loader = new FXMLLoader(
+            getClass().getResource("/fxml/registro_view.fxml")
+        );
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(loader.load()));
     }
 }
