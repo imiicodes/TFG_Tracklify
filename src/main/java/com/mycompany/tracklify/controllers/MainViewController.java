@@ -385,10 +385,10 @@ public class MainViewController implements Initializable {
 
         ContextMenu menu = new ContextMenu();
 
-        MenuItem renombrar = new MenuItem("✎  Renombrar");
+        MenuItem renombrar = new MenuItem("Renombrar");
         renombrar.setOnAction(e -> mostrarDialogoRenombrar(tarea, nombre, badge));
 
-        MenuItem borrar = new MenuItem("✕  Borrar hábito");
+        MenuItem borrar = new MenuItem("Borrar hábito");
         borrar.setStyle("-fx-text-fill: #C0392B;");
         borrar.setOnAction(e -> {
             tareaDAO.eliminar(tarea.getIdTarea());

@@ -98,7 +98,7 @@
                         <Insets top="16" right="16" bottom="16" left="16"/>
                     </padding>
 
-                    <Label text="Crear nueva tarea" styleClass="panel-titulo"/>
+                    <Label text="Crear nuevo hábito" styleClass="panel-titulo"/>
                     <Separator/>
 
                     <Label text="Nombre:" styleClass="campo-label"/>
