@@ -24,6 +24,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  * Controlador del panel de administración ({@code admin_view.fxml}).
@@ -314,7 +315,7 @@ public class AdminViewController implements Initializable {
         Usuario nuevoUsuario = new Usuario();
         nuevoUsuario.setNombreUsuario(nombre);
         nuevoUsuario.setEmailUsuario(email);
-        nuevoUsuario.setPasswordUsuario(password);
+        nuevoUsuario.setPasswordUsuario(BCrypt.hashpw(password, BCrypt.gensalt(10)));
         nuevoUsuario.setRolId(1); // rol_id = 1 → usuario estándar
 
         boolean exito = usuarioDAO.registrar(nuevoUsuario);

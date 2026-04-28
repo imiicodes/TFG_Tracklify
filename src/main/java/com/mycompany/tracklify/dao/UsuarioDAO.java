@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  * Clase de acceso a datos (DAO) para la entidad {@link Usuario}.
@@ -32,23 +33,28 @@ public class UsuarioDAO {
      */
     public Usuario login(String email, String password) {
 
-        String sql = "SELECT * FROM usuarios WHERE email_usuario = ? AND password_usuario = ?";
-
+        //String sql = "SELECT * FROM usuarios WHERE email_usuario = ? AND password_usuario = ?";
+        String sql = "SELECT * FROM usuarios WHERE email_usuario = ?";
+        
         try (Connection conexion = ConexionBD.conectar();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ps.setString(1, email);
-            ps.setString(2, password);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                Usuario u = new Usuario();
-                u.setIdUsuario(rs.getInt("id_usuario"));
-                u.setNombreUsuario(rs.getString("nombre_usuario"));
-                u.setEmailUsuario(rs.getString("email_usuario"));
-                u.setPasswordUsuario(rs.getString("password_usuario"));
-                u.setRolId(rs.getInt("rol_id"));
-                return u;
+                String hashGuardado = rs.getString("password_usuario");
+
+                // Verificamos la contraseña con BCrypt
+                if (BCrypt.checkpw(password, hashGuardado)) {
+                    Usuario u = new Usuario();
+                    u.setIdUsuario(rs.getInt("id_usuario"));
+                    u.setNombreUsuario(rs.getString("nombre_usuario"));
+                    u.setEmailUsuario(rs.getString("email_usuario"));
+                    u.setPasswordUsuario(hashGuardado);
+                    u.setRolId(rs.getInt("rol_id"));
+                    return u;
+                }
             }
 
         } catch (Exception e) {

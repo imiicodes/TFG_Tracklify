@@ -2,6 +2,8 @@ package com.mycompany.tracklify.controllers;
 
 import com.mycompany.tracklify.dao.UsuarioDAO;
 import com.mycompany.tracklify.models.Usuario;
+import com.mycompany.tracklify.utils.PasswordUtils;
+import org.mindrot.jbcrypt.BCrypt;
 import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -37,7 +39,7 @@ public class RegistroController {
 
     /** Campo para la contraseña. */
     @FXML private PasswordField campoPassword;
-
+    
     /** Campo para confirmar la contraseña. */
     @FXML private PasswordField campoConfirmar;
 
@@ -96,7 +98,8 @@ public class RegistroController {
         Usuario usuario = new Usuario();
         usuario.setNombreUsuario(nombre);
         usuario.setEmailUsuario(email);
-        usuario.setPasswordUsuario(password);
+        //usuario.setPasswordUsuario(password); sin hash
+        usuario.setPasswordUsuario(org.mindrot.jbcrypt.BCrypt.hashpw(password, org.mindrot.jbcrypt.BCrypt.gensalt(10)));
         usuario.setRolId(1);
 
         boolean exito = usuarioDAO.registrar(usuario);
