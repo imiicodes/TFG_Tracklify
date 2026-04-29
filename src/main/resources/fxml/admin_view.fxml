@@ -14,8 +14,8 @@
 <?import javafx.scene.control.PasswordField?>
 
 <BorderPane
-    prefWidth="860"
-    prefHeight="560"
+    prefWidth="800"
+    prefHeight="480"
     styleClass="root-pane"
     xmlns="http://javafx.com/javafx/21"
     xmlns:fx="http://javafx.com/fxml/1"

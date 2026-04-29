@@ -15,8 +15,8 @@
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane
-    prefWidth="860"
-    prefHeight="580"
+    prefWidth="800"
+    prefHeight="480"
     styleClass="root-pane"
     xmlns="http://javafx.com/javafx/21"
     xmlns:fx="http://javafx.com/fxml/1"

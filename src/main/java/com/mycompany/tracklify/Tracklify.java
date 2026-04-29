@@ -20,6 +20,10 @@ public class Tracklify extends Application {
         stage.setTitle("Tracklify");
         stage.setScene(scene);
         stage.show();
+        stage.setMinWidth(800);
+        stage.setMinHeight(480);
+        stage.setResizable(true);
+        stage.centerOnScreen();
     }
 
     public static void main(String[] args) {

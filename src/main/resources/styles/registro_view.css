@@ -35,11 +35,13 @@
     -fx-border-color: #DEA9FF;
     -fx-border-radius: 8;
     -fx-border-width: 1.5;
-    -fx-padding: 8 12 8 12;
+    -fx-padding: 7 10 7 10;
     -fx-font-size: 13px;
     -fx-text-fill: #3A2B3F;
     -fx-prompt-text-fill: #C4AADB;
     -fx-background-insets: 0;
+    -fx-max-width: infinity;  /* ← se adapta al ancho */
+
 }
 
 .campo .text-field,
@@ -65,11 +67,12 @@
 .btn-primary {
     -fx-background-color: #93588F;
     -fx-text-fill: white;
-    -fx-font-size: 14px;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
     -fx-background-radius: 8;
     -fx-cursor: hand;
-    -fx-margin-top: 10px;
+    -fx-max-width: infinity;  /* ← se adapta al ancho */
+    -fx-padding: 0;
 }
 
 .btn-primary:hover {

@@ -12,8 +12,8 @@
 <?import javafx.scene.shape.Rectangle?>
 
 <StackPane
-    prefWidth="459"
-    prefHeight="540"
+    prefWidth="800"
+    prefHeight="480"
     style="-fx-background-color:#F6EEFF;"
     xmlns="http://javafx.com/javafx/21"
     xmlns:fx="http://javafx.com/fxml/1"

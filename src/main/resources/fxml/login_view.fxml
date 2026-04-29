@@ -12,8 +12,8 @@
 <?import javafx.scene.layout.HBox?>
 
 <StackPane
-    prefWidth="459"
-    prefHeight="291"
+    prefWidth="800"
+    prefHeight="480"
     style="-fx-background-color:#F3E8FF;"
     xmlns="http://javafx.com/javafx/21"
     xmlns:fx="http://javafx.com/fxml/1"
