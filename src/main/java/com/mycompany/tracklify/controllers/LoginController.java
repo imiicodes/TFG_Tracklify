@@ -4,11 +4,13 @@ import com.mycompany.tracklify.dao.OnboardingDAO;
 import com.mycompany.tracklify.dao.UsuarioDAO;
 import com.mycompany.tracklify.models.Usuario;
 import com.mycompany.tracklify.utils.SessionManager;
+import java.util.prefs.Preferences;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -20,16 +22,15 @@ import javafx.stage.Stage;
  * <p>Gestiona la autenticación del usuario contra la base de datos y,
  * una vez verificadas las credenciales, decide a qué vista navegar
  * en función del rol y del estado del onboarding:</p>
- *
  * <ul>
  *   <li>Rol administrador ({@code rol_id = 2}) → {@code admin_view.fxml}</li>
  *   <li>Usuario con {@code onboarding_completado = 0} → {@code onboarding_view.fxml}</li>
  *   <li>Usuario con {@code onboarding_completado = 1} → {@code main_view.fxml}</li>
  * </ul>
  *
- * <p>El usuario autenticado se almacena en {@link SessionManager} para que
- * esté disponible globalmente en el resto de controladores sin necesidad
- * de pasarlo como parámetro entre vistas.</p>
+ * <p>Si el usuario marca "Recordar sesión", las credenciales se persisten
+ * en las preferencias del SO mediante {@link Preferences} y se rellenan
+ * automáticamente en el siguiente arranque.</p>
  *
  * @author Tracklify
  * @version 1.0
@@ -40,54 +41,72 @@ import javafx.stage.Stage;
 public class LoginController {
 
     /**
-     * Campo de texto donde el usuario introduce su correo electrónico.
-     * Vinculado al elemento {@code fx:id="campoEmail"} del FXML.
+     * Campo de texto para el correo electrónico.
+     * Vinculado a {@code fx:id="campoEmail"} del FXML.
      */
     @FXML private TextField campoEmail;
 
     /**
-     * Campo de contraseña donde el usuario introduce su clave de acceso.
-     * El texto se enmascara automáticamente por ser {@link PasswordField}.
-     * Vinculado al elemento {@code fx:id="campoPassword"} del FXML.
+     * Campo de contraseña enmascarado.
+     * Vinculado a {@code fx:id="campoPassword"} del FXML.
      */
     @FXML private PasswordField campoPassword;
 
     /**
-     * Etiqueta informativa que muestra mensajes de error o estado al usuario
-     * (campos vacíos, credenciales incorrectas, error al cargar vista).
-     * Vinculada al elemento {@code fx:id="labelMensaje"} del FXML.
+     * Etiqueta para mostrar mensajes de error o estado.
+     * Vinculada a {@code fx:id="labelMensaje"} del FXML.
      */
     @FXML private Label labelMensaje;
 
     /**
-     * DAO para realizar la consulta de autenticación contra la tabla
-     * {@code usuarios} de la base de datos.
+     * Checkbox "Recordar sesión".
+     * Vinculado a {@code fx:id="checkRecordar"} del FXML.
      */
+    @FXML private CheckBox checkRecordar;
+
+    /** Nodo de preferencias del SO para persistir las credenciales recordadas. */
+    private static final Preferences PREFS =
+        Preferences.userNodeForPackage(LoginController.class);
+
+    /** Clave para guardar el email en preferencias. */
+    private static final String PREF_EMAIL    = "recordar_email";
+
+    /** Clave para guardar la contraseña en preferencias. */
+    private static final String PREF_PASSWORD = "recordar_password";
+
+    /** Clave para guardar el estado del checkbox en preferencias. */
+    private static final String PREF_RECORDAR = "recordar_sesion";
+
+    /** DAO para autenticación contra la tabla {@code usuarios}. */
     private UsuarioDAO usuarioDAO = new UsuarioDAO();
 
-    /**
-     * DAO para comprobar si el usuario autenticado ya ha completado
-     * el proceso de onboarding ({@code onboarding_completado}).
-     */
+    /** DAO para comprobar el estado del onboarding del usuario. */
     private OnboardingDAO onboardingDAO = new OnboardingDAO();
 
     /**
-     * Gestiona el evento de inicio de sesión al pulsar el botón "Iniciar sesión".
+     * Se ejecuta automáticamente al cargar la vista.
      *
-     * <p>El proceso sigue estos pasos en orden:</p>
-     * <ol>
-     *   <li>Valida que los campos de email y contraseña no estén vacíos.</li>
-     *   <li>Consulta la BD mediante {@link UsuarioDAO#login(String, String)}.</li>
-     *   <li>Si las credenciales son correctas, guarda el usuario en {@link SessionManager}.</li>
-     *   <li>Determina la vista de destino según el rol y el estado del onboarding.</li>
-     *   <li>Carga la vista destino y la muestra en el mismo {@link Stage}.</li>
-     * </ol>
+     * <p>Si el usuario marcó "Recordar sesión" en un login anterior,
+     * rellena los campos con sus credenciales guardadas y marca el checkbox.</p>
+     */
+    @FXML
+    public void initialize() {
+        boolean recordar = PREFS.getBoolean(PREF_RECORDAR, false);
+        if (recordar) {
+            campoEmail.setText(PREFS.get(PREF_EMAIL, ""));
+            campoPassword.setText(PREFS.get(PREF_PASSWORD, ""));
+            checkRecordar.setSelected(true);
+        }
+    }
+
+    /**
+     * Gestiona el inicio de sesión al pulsar "Iniciar sesión".
      *
-     * <p>Si las credenciales son incorrectas o algún campo está vacío,
-     * se muestra el mensaje correspondiente en {@code labelMensaje}
-     * sin navegar a ninguna otra vista.</p>
+     * <p>Valida los campos, gestiona las preferencias de recordar sesión,
+     * autentica al usuario y navega a la vista correspondiente según rol
+     * y estado del onboarding.</p>
      *
-     * @param event el evento de acción generado al pulsar el botón "Iniciar sesión"
+     * @param event evento generado al pulsar el botón
      */
     @FXML
     public void iniciarSesion(ActionEvent event) {
@@ -95,18 +114,32 @@ public class LoginController {
         String email    = campoEmail.getText().trim();
         String password = campoPassword.getText();
 
-        // Validación básica: ningún campo puede estar vacío
+        // Validación: ningún campo puede estar vacío
         if (email.isEmpty() || password.isEmpty()) {
-            labelMensaje.setText("Por favor rellena todos los campos.");
+            labelMensaje.setStyle("-fx-text-fill: #B5368A;");
+            labelMensaje.setText("Debe introducir su email y contraseña completos.");
             return;
         }
 
-        // Consultamos la BD con las credenciales introducidas
+        // Gestionamos la preferencia de recordar sesión
+        if (checkRecordar.isSelected()) {
+            // Guardamos las credenciales en las preferencias del SO
+            PREFS.put(PREF_EMAIL, email);
+            PREFS.put(PREF_PASSWORD, password);
+            PREFS.putBoolean(PREF_RECORDAR, true);
+        } else {
+            // Si desmarcó el checkbox, borramos los datos guardados
+            PREFS.remove(PREF_EMAIL);
+            PREFS.remove(PREF_PASSWORD);
+            PREFS.putBoolean(PREF_RECORDAR, false);
+        }
+
+        // Autenticación contra la BD
         Usuario usuario = usuarioDAO.login(email, password);
 
         if (usuario != null) {
 
-            // Guardamos el usuario autenticado en la sesión global
+            // Guardamos el usuario en la sesión global
             SessionManager.getInstancia().setUsuarioActual(usuario);
 
             try {
@@ -114,44 +147,34 @@ public class LoginController {
                 String destino;
 
                 if (SessionManager.getInstancia().esAdministrador()) {
-                    // Rol administrador: accede al panel de gestión del sistema
                     destino = "/fxml/admin_view.fxml";
-
                 } else if (!onboardingDAO.haCompletadoOnboarding(usuario.getIdUsuario())) {
-                    // Usuario nuevo: onboarding_completado = 0, mostramos el onboarding
                     destino = "/fxml/onboarding_view.fxml";
-
                 } else {
-                    // Usuario existente: onboarding ya completado, accede al dashboard
                     destino = "/fxml/main_view.fxml";
                 }
 
-                // Cargamos y mostramos la vista de destino
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(destino));
                 stage.setScene(new Scene(loader.load()));
                 stage.show();
 
             } catch (Exception e) {
                 e.printStackTrace();
+                labelMensaje.setStyle("-fx-text-fill: #B5368A;");
                 labelMensaje.setText("Error al cargar la vista.");
             }
 
         } else {
-            // Credenciales incorrectas: informamos al usuario sin revelar cuál es el error
+            labelMensaje.setStyle("-fx-text-fill: #B5368A;");
             labelMensaje.setText("Credenciales incorrectas. Inténtalo de nuevo.");
         }
     }
 
     /**
-     * Navega de vuelta a la pantalla de inicio (landing) al pulsar "← Volver".
+     * Navega de vuelta a la landing al pulsar "← Volver".
      *
-     * <p>No cierra la sesión porque en este punto el usuario aún
-     * no ha iniciado sesión. Simplemente descarga el FXML de la landing
-     * y lo establece como escena del {@link Stage} actual.</p>
-     *
-     * @param event el evento de acción generado al pulsar el botón "← Volver"
-     * @throws Exception si el archivo {@code landing_view.fxml} no se encuentra
-     *                   o no puede cargarse correctamente
+     * @param event evento generado al pulsar el botón
+     * @throws Exception si el FXML no se puede cargar
      */
     @FXML
     public void volverALanding(ActionEvent event) throws Exception {

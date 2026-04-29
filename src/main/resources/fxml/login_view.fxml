@@ -8,6 +8,8 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.layout.HBox?>
 
 <StackPane
     prefWidth="459"
@@ -50,7 +52,13 @@
 
         <!-- Mensaje error/éxito -->
         <Label fx:id="labelMensaje" styleClass="label-mensaje" wrapText="true" maxWidth="240"/>
-
+        
+        <!-- Checkbox Recordar sesión -->
+        <HBox alignment="CENTER_LEFT" spacing="8" maxWidth="240">
+            <CheckBox fx:id="checkRecordar" styleClass="check-recordar"/>
+            <Label text="Recordar sesión"
+                   style="-fx-font-size: 12px; -fx-text-fill: #7E6A8A; -fx-padding: 2 0 0 0;"/>
+        </HBox>
         <!-- Botón principal -->
         <Button
             text="Iniciar sesión"
@@ -64,6 +72,7 @@
             text="← Volver"
             styleClass="btn-volver"
             onAction="#volverALanding"/>
+        
 
     </VBox>
 
