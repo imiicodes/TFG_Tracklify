@@ -71,6 +71,33 @@ public class UsuarioDAO {
     }
 
     /**
+     * Comprueba si el correo ya está registrado (ignora mayúsculas y espacios alrededor).
+     *
+     * @param email correo a comprobar
+     * @return {@code true} si existe un usuario con ese email
+     */
+    public boolean existeEmail(String email) {
+
+        if (email == null || email.isBlank()) {
+            return false;
+        }
+
+        String sql = "SELECT 1 FROM usuarios WHERE LOWER(TRIM(email_usuario)) = LOWER(?) LIMIT 1";
+
+        try (Connection con = ConexionBD.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, email.trim());
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
      * Registra un usuario y crea su perfil básico con el nombre indicado.
      *
      * @param usuario      datos de acceso (email, contraseña hasheada, rol)

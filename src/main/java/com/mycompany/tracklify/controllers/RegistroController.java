@@ -2,6 +2,8 @@ package com.mycompany.tracklify.controllers;
 
 import com.mycompany.tracklify.dao.UsuarioDAO;
 import com.mycompany.tracklify.models.Usuario;
+import java.util.List;
+import java.util.Locale;
 import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,6 +30,22 @@ import javafx.util.Duration;
  * @see UsuarioDAO
  */
 public class RegistroController {
+
+    private static final List<String> DOMINIOS_VALIDOS = List.of(
+        "gmail.com",
+        "outlook.com",
+        "hotmail.com",
+        "hotmail.es",
+        "yahoo.com",
+        "yahoo.es",
+        "icloud.com",
+        "live.com",
+        "live.es",
+        "msn.com",
+        "protonmail.com",
+        "tutanota.com",
+        "ufv.es"
+    );
 
     /** Campo para el nombre completo del nuevo usuario. */
     @FXML private TextField campoNombre;
@@ -85,10 +103,24 @@ public class RegistroController {
             return;
         }
 
-        // Validación: formato básico de email
-        if (!email.contains("@") || !email.contains(".")) {
+        int arroba = email.lastIndexOf('@');
+        String dominio = arroba >= 0 && arroba < email.length() - 1
+            ? email.substring(arroba + 1).trim().toLowerCase(Locale.ROOT)
+            : "";
+        if (dominio.isEmpty()) {
             labelMensaje.setStyle("-fx-text-fill: #B5368A;");
             labelMensaje.setText("El correo electrónico no es válido.");
+            return;
+        }
+        if (!esDominioValido(email)) {
+            labelMensaje.setStyle("-fx-text-fill: #B5368A;");
+            labelMensaje.setText("Por favor usa un correo de un proveedor conocido (Gmail, Outlook, etc.).");
+            return;
+        }
+
+        if (usuarioDAO.existeEmail(email)) {
+            labelMensaje.setStyle("-fx-text-fill: #B5368A;");
+            labelMensaje.setText("Ese correo ya está registrado.");
             return;
         }
 
@@ -122,8 +154,26 @@ public class RegistroController {
 
         } else {
             labelMensaje.setStyle("-fx-text-fill: #B5368A;");
-            labelMensaje.setText("Ese correo ya está registrado.");
+            labelMensaje.setText("No se pudo completar el registro. Inténtalo de nuevo o contacta con soporte.");
         }
+    }
+
+    /**
+     * Comprueba que la parte dominio del correo esté en la lista de proveedores aceptados.
+     *
+     * @param email dirección completa (se usa la parte tras la última {@code @})
+     * @return {@code true} si el dominio está permitido
+     */
+    private boolean esDominioValido(String email) {
+        if (email == null || email.isBlank()) {
+            return false;
+        }
+        int at = email.lastIndexOf('@');
+        if (at < 0 || at >= email.length() - 1) {
+            return false;
+        }
+        String dominio = email.substring(at + 1).trim().toLowerCase(Locale.ROOT);
+        return !dominio.isEmpty() && DOMINIOS_VALIDOS.contains(dominio);
     }
 
     /**
