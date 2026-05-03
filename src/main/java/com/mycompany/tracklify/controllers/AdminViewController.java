@@ -1,12 +1,18 @@
 package com.mycompany.tracklify.controllers;
 
+import com.mycompany.tracklify.dao.BaneoUsuarioDAO;
+import com.mycompany.tracklify.dao.BloqueoIpDAO;
 import com.mycompany.tracklify.dao.PerfilDAO;
 import com.mycompany.tracklify.dao.UsuarioDAO;
+import com.mycompany.tracklify.models.BaneoUsuario;
+import com.mycompany.tracklify.models.BloqueoIpVigente;
 import com.mycompany.tracklify.models.Perfil;
 import com.mycompany.tracklify.models.Usuario;
+import com.mycompany.tracklify.utils.BloqueoIpService;
 import com.mycompany.tracklify.utils.SessionManager;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -24,6 +30,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import org.mindrot.jbcrypt.BCrypt;
@@ -62,9 +69,30 @@ public class AdminViewController implements Initializable {
     @FXML
     private TableColumn<Usuario, Integer> colRol;
 
+    @FXML
+    private TableView<BloqueoIpVigente> tablaIpsBloqueadas;
+
+    @FXML
+    private TableColumn<BloqueoIpVigente, String> colIpAddr;
+
+    @FXML
+    private TableColumn<BloqueoIpVigente, Integer> colIpIntentos;
+
+    @FXML
+    private TableColumn<BloqueoIpVigente, String> colIpUltIntento;
+
+    @FXML
+    private TableColumn<BloqueoIpVigente, String> colIpBloqueadaHasta;
+
     private UsuarioDAO usuarioDAO = new UsuarioDAO();
 
     private PerfilDAO perfilDAO = new PerfilDAO();
+
+    private BaneoUsuarioDAO baneoUsuarioDAO = new BaneoUsuarioDAO();
+
+    private BloqueoIpDAO bloqueoIpDAO = new BloqueoIpDAO();
+
+    private BloqueoIpService bloqueoIpService = new BloqueoIpService();
 
     @FXML
     private TextField campoNuevoNombre;
@@ -99,8 +127,133 @@ public class AdminViewController implements Initializable {
         colEmail.setCellValueFactory(new PropertyValueFactory<>("emailUsuario"));
         colRol.setCellValueFactory(new PropertyValueFactory<>("rolId"));
 
+        colIpAddr.setCellValueFactory(new PropertyValueFactory<>("ipAddress"));
+        colIpIntentos.setCellValueFactory(new PropertyValueFactory<>("intentosFallidos"));
+        colIpUltIntento.setCellValueFactory(cd -> {
+            var f = cd.getValue().getFechaUltIntento();
+            return new ReadOnlyStringWrapper(f != null ? f.toString() : "—");
+        });
+        colIpBloqueadaHasta.setCellValueFactory(cd -> {
+            var h = cd.getValue().getBloqueadaHasta();
+            return new ReadOnlyStringWrapper(h != null ? h.toString() : "—");
+        });
+
         cargarUsuarios();
         cargarEstadisticasGlobales();
+        cargarIpsBloqueadas();
+    }
+
+    /**
+     * Recarga la tabla de IPs con bloqueo temporal vigente.
+     */
+    private void cargarIpsBloqueadas() {
+        List<BloqueoIpVigente> ips = bloqueoIpDAO.obtenerBloqueosVigentes();
+        tablaIpsBloqueadas.setItems(FXCollections.observableArrayList(ips));
+    }
+
+    /**
+     * Abre un diálogo para el motivo y registra un baneo permanente del usuario seleccionado,
+     * desactivando su cuenta.
+     */
+    @FXML
+    public void banearUsuario(ActionEvent event) {
+
+        Usuario seleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
+        Usuario adminActual = SessionManager.getInstancia().getUsuarioActual();
+
+        if (seleccionado == null) {
+            mostrarAlerta("Selección requerida", "Selecciona un usuario en la tabla.");
+            return;
+        }
+        if (adminActual == null) {
+            return;
+        }
+        if (seleccionado.getIdUsuario() == adminActual.getIdUsuario()) {
+            mostrarAlerta("Acción no permitida", "No puedes banear tu propia cuenta.");
+            return;
+        }
+        if (baneoUsuarioDAO.estaActualmenteBaneado(seleccionado.getIdUsuario())) {
+            mostrarAlerta("Sin cambios", "Este usuario ya tiene un baneo activo.");
+            return;
+        }
+
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Banear usuario");
+        dialog.setHeaderText("Indica el motivo del baneo (obligatorio).");
+        dialog.setContentText("Motivo:");
+
+        Optional<String> resultado = dialog.showAndWait();
+        if (resultado.isEmpty()) {
+            return;
+        }
+        String motivo = resultado.get().trim();
+        if (motivo.isEmpty()) {
+            mostrarAlerta("Motivo requerido", "Debes escribir un motivo para el baneo.");
+            return;
+        }
+
+        boolean ok = baneoUsuarioDAO.banear(seleccionado.getIdUsuario(), adminActual.getIdUsuario(), motivo);
+        if (ok) {
+            mostrarAlerta("Éxito", "Usuario baneado y cuenta desactivada.");
+            cargarUsuarios();
+            cargarEstadisticasGlobales();
+        } else {
+            mostrarAlerta("Error", "No se pudo registrar el baneo.");
+        }
+    }
+
+    /**
+     * Localiza el baneo activo del usuario seleccionado y lo cierra, reactivando la cuenta.
+     */
+    @FXML
+    public void desbanearUsuario(ActionEvent event) {
+
+        Usuario seleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
+        Usuario adminActual = SessionManager.getInstancia().getUsuarioActual();
+
+        if (seleccionado == null) {
+            mostrarAlerta("Selección requerida", "Selecciona un usuario en la tabla.");
+            return;
+        }
+        if (adminActual == null) {
+            return;
+        }
+
+        Optional<Integer> idBaneo = baneoUsuarioDAO.obtenerBaneosActivos().stream()
+            .filter(b -> b.getIdUsuario() == seleccionado.getIdUsuario())
+            .map(BaneoUsuario::getIdBaneo)
+            .findFirst();
+
+        if (idBaneo.isEmpty()) {
+            mostrarAlerta("Sin baneo activo", "El usuario seleccionado no tiene un baneo activo.");
+            return;
+        }
+
+        boolean ok = baneoUsuarioDAO.desbanear(idBaneo.get(), adminActual.getIdUsuario());
+        if (ok) {
+            mostrarAlerta("Éxito", "Baneo revocado y cuenta reactivada.");
+            cargarUsuarios();
+            cargarEstadisticasGlobales();
+        } else {
+            mostrarAlerta("Error", "No se pudo desbanear al usuario.");
+        }
+    }
+
+    /**
+     * Invoca {@link BloqueoIpService#registrarExito(String)} sobre la IP seleccionada para quitar el bloqueo temporal.
+     */
+    @FXML
+    public void desbloquearIp(ActionEvent event) {
+
+        BloqueoIpVigente fila = tablaIpsBloqueadas.getSelectionModel().getSelectedItem();
+        if (fila == null || fila.getIpAddress() == null || fila.getIpAddress().isBlank()) {
+            mostrarAlerta("Selección requerida", "Selecciona una IP en la tabla de IPs bloqueadas.");
+            return;
+        }
+
+        bloqueoIpService.registrarExito(fila.getIpAddress());
+        mostrarAlerta("Éxito", "Bloqueo de IP eliminado.");
+        cargarIpsBloqueadas();
     }
 
     private void cargarUsuarios() {

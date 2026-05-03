@@ -1,10 +1,14 @@
 package com.mycompany.tracklify.dao;
 
 import com.mycompany.tracklify.database.ConexionBD;
+import com.mycompany.tracklify.models.BloqueoIpVigente;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Acceso a datos para la tabla {@code bloqueos_ip} (intentos fallidos y ventana de bloqueo).
@@ -80,5 +84,37 @@ public class BloqueoIpDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Obtiene las IPs con bloqueo temporal aún vigente ({@code bloqueada_hasta > NOW()}).
+     *
+     * @return lista de filas para mostrar en administración
+     */
+    public List<BloqueoIpVigente> obtenerBloqueosVigentes() {
+
+        List<BloqueoIpVigente> lista = new ArrayList<>();
+        String sql = "SELECT ip_address, intentos_fallidos, fecha_ult_intento, bloqueada_hasta "
+            + "FROM bloqueos_ip WHERE bloqueada_hasta > NOW() ORDER BY bloqueada_hasta DESC";
+
+        try (Connection con = ConexionBD.conectar();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Timestamp tUlt = rs.getTimestamp("fecha_ult_intento");
+                Timestamp tHasta = rs.getTimestamp("bloqueada_hasta");
+                lista.add(new BloqueoIpVigente(
+                    rs.getString("ip_address"),
+                    rs.getInt("intentos_fallidos"),
+                    tUlt != null ? tUlt.toLocalDateTime() : null,
+                    tHasta != null ? tHasta.toLocalDateTime() : null
+                ));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
     }
 }

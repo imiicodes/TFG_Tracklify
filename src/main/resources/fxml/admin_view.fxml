@@ -104,10 +104,26 @@
             <Label fx:id="labelMensajeAdmin" styleClass="label-mensaje" wrapText="true"/>
 
             <!-- Botones de acción -->
-            <HBox spacing="10" style="-fx-padding: 0 0 16 0;">
+            <HBox spacing="10" style="-fx-padding: 0 0 8 0;">
                 <Button text="⬆ Hacer administrador" styleClass="btn-primary" onAction="#hacerAdmin" prefHeight="36"/>
                 <Button text="⬇ Quitar administrador" styleClass="btn-secondary" onAction="#quitarAdmin" prefHeight="36"/>
                 <Button text="✕ Eliminar usuario" styleClass="btn-danger" onAction="#eliminarUsuario" prefHeight="36"/>
+                <Button text="⛔ Banear usuario" styleClass="btn-danger" onAction="#banearUsuario" prefHeight="36"/>
+                <Button text="✓ Desbanear" styleClass="btn-secondary" onAction="#desbanearUsuario" prefHeight="36"/>
+            </HBox>
+
+            <Label text="IPs bloqueadas" styleClass="seccion-titulo"/>
+
+            <TableView fx:id="tablaIpsBloqueadas" styleClass="tabla-usuarios" prefHeight="160">
+                <columns>
+                    <TableColumn fx:id="colIpAddr" text="IP" prefWidth="140"/>
+                    <TableColumn fx:id="colIpIntentos" text="Intentos" prefWidth="80"/>
+                    <TableColumn fx:id="colIpUltIntento" text="Último intento" prefWidth="160"/>
+                    <TableColumn fx:id="colIpBloqueadaHasta" text="Bloqueada hasta" prefWidth="160"/>
+                </columns>
+            </TableView>
+            <HBox spacing="10" style="-fx-padding: 0 0 16 0;">
+                <Button text="Desbloquear IP" styleClass="btn-primary" onAction="#desbloquearIp" prefHeight="36"/>
             </HBox>
 
         </VBox>
