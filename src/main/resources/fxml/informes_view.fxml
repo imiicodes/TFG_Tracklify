@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            style="-fx-background-color: #F6EEFF;">
+
+    <top>
+        <VBox style="-fx-background-color: linear-gradient(to right, #7A4578, #93588F);">
+            <padding>
+                <Insets top="18" right="24" bottom="18" left="24"/>
+            </padding>
+            <Label text="Informes" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+        </VBox>
+    </top>
+
+    <center>
+        <StackPane style="-fx-background-color: #F6EEFF;">
+            <Label text="Próximamente" style="-fx-text-fill: #6B4A6E; -fx-font-size: 16px;"/>
+        </StackPane>
+    </center>
+</BorderPane>

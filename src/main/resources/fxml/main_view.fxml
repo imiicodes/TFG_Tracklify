@@ -4,7 +4,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -22,7 +22,6 @@
         <URL value="@/styles/main_view.css"/>
     </stylesheets>
 
-    <!-- TOPBAR -->
     <top>
         <HBox alignment="CENTER_LEFT" styleClass="topbar" spacing="10">
             <padding>
@@ -34,73 +33,34 @@
         </HBox>
     </top>
 
-    <!-- SIDEBAR -->
     <left>
         <VBox styleClass="sidebar" spacing="6">
             <padding>
                 <Insets top="20" right="12" bottom="20" left="12"/>
             </padding>
-            <Button text="⬡  Dashboard"     styleClass="nav-item, nav-activo" prefWidth="136"/>
-            <Button text="◈  Mis hábitos"   styleClass="nav-item" prefWidth="136"/>
-            <Button text="◎  Estadísticas"  styleClass="nav-item" prefWidth="136"/>
-            <Button text="◷  Informes"      styleClass="nav-item" prefWidth="136"/>
-            <Button text="⚙  Configuración" styleClass="nav-item" prefWidth="136"/>
+            <Button fx:id="btnNavDashboard" text="⬡  Dashboard" styleClass="sidebar-item" prefWidth="160"
+                    onAction="#mostrarDashboard"/>
+            <Button fx:id="btnNavMisHabitos" text="◈  Mis hábitos" styleClass="sidebar-item" prefWidth="160"
+                    onAction="#mostrarMisHabitos"/>
+            <Button fx:id="btnNavCalendario" text="◉  Calendario" styleClass="sidebar-item" prefWidth="160"
+                    onAction="#mostrarCalendario"/>
+            <Button fx:id="btnNavEstadisticas" text="◎  Estadísticas" styleClass="sidebar-item" prefWidth="160"
+                    onAction="#mostrarEstadisticas"/>
+            <Button fx:id="btnNavInformes" text="◷  Informes" styleClass="sidebar-item" prefWidth="160"
+                    onAction="#mostrarInformes"/>
+            <Button fx:id="btnNavConfiguracion" text="⚙  Configuración" styleClass="sidebar-item" prefWidth="160"
+                    onAction="#mostrarConfiguracion"/>
         </VBox>
     </left>
 
-    <!-- CONTENIDO CENTRAL con scroll -->
     <center>
-        <ScrollPane fitToWidth="true" styleClass="scroll-contenido">
-            <VBox styleClass="contenido" spacing="14">
-                <padding>
-                    <Insets top="24" right="28" bottom="16" left="24"/>
-                </padding>
-
-                <!-- Saludo -->
-                <VBox spacing="3">
-                    <Label fx:id="labelBienvenida" text="Bienvenido ✦" styleClass="titulo-bienvenida"/>
-                    <Label text="Empieza a mejorar tus hábitos diarios" styleClass="subtitulo-bienvenida"/>
-                </VBox>
-
-                <!-- Tarjetas estadísticas -->
-                <HBox spacing="12">
-                    <VBox styleClass="tarjeta-stat" prefWidth="120">
-                        <Label fx:id="labelTareasActivas" text="—" styleClass="stat-num"/>
-                        <Label text="Hábitos activos" styleClass="stat-label"/>
-                    </VBox>
-                    <VBox styleClass="tarjeta-stat" prefWidth="120">
-                        <Label fx:id="labelPorcentaje" text="—" styleClass="stat-num"/>
-                        <Label text="Tasa de éxito" styleClass="stat-label"/>
-                    </VBox>
-                    <VBox styleClass="tarjeta-stat" prefWidth="120">
-                        <Label fx:id="labelRacha" text="—" styleClass="stat-num"/>
-                        <Label text="Racha actual" styleClass="stat-label"/>
-                    </VBox>
-                </HBox>
-
-                <!-- Hábitos de hoy -->
-                <Label text="Hábitos de hoy" styleClass="seccion-titulo"/>
-                <VBox fx:id="contenedorTareas" spacing="7"/>
-
-                <!-- Asistente de creación de hábito (vista dedicada) -->
-                <Button text="+ Crear nuevo hábito"
-                        styleClass="btn-primary"
-                        prefHeight="38"
-                        onAction="#navegarCrearHabito"/>
-
-                <!-- Próximos recordatorios -->
-                <Label text="Próximos recordatorios" styleClass="seccion-titulo"/>
-                <VBox fx:id="contenedorRecordatorios" styleClass="panel-recordatorios" spacing="0">
-                    <padding>
-                        <Insets top="10" right="14" bottom="10" left="14"/>
-                    </padding>
-                </VBox>
-
-            </VBox>
-        </ScrollPane>
+        <AnchorPane fx:id="contenidoPrincipal" style="-fx-background-color: #F6EEFF;">
+            <padding>
+                <Insets top="0" right="0" bottom="0" left="0"/>
+            </padding>
+        </AnchorPane>
     </center>
 
-    <!-- FOOTER -->
     <bottom>
         <HBox styleClass="footer" alignment="CENTER_LEFT">
             <padding>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.mycompany.tracklify.controllers.MisHabitosController"
+      spacing="0" style="-fx-background-color: #F6EEFF;" VBox.vgrow="ALWAYS">
+
+    <stylesheets>
+        <URL value="@/styles/main_view.css"/>
+    </stylesheets>
+
+    <VBox spacing="12" style="-fx-background-color: #F6EEFF;" VBox.vgrow="ALWAYS">
+        <padding>
+            <Insets top="20" right="24" bottom="8" left="24"/>
+        </padding>
+
+        <HBox alignment="CENTER_LEFT" spacing="16">
+            <Label text="Mis hábitos"
+                   style="-fx-text-fill: #7A4578; -fx-font-size: 22px; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnNuevoHabito" text="+ Nuevo hábito" onAction="#irACrearHabito"
+                    style="-fx-background-color: #93588F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 8 16 8 16; -fx-cursor: hand;"/>
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #F6EEFF;">
+            <padding>
+                <Insets top="0" right="0" bottom="4" left="0"/>
+            </padding>
+            <Button fx:id="btnFiltroTodos" text="Todos" onAction="#filtrarTodos" styleClass="filtro-pill"/>
+            <Button fx:id="btnFiltroActivos" text="Activos" onAction="#filtrarActivos" styleClass="filtro-pill"/>
+            <Button fx:id="btnFiltrosPausados" text="Pausados" onAction="#filtrarPausados" styleClass="filtro-pill"/>
+            <Button fx:id="btnFiltroCompletados" text="Completados" onAction="#filtrarCompletados" styleClass="filtro-pill"/>
+        </HBox>
+
+        <VBox spacing="0" style="-fx-background-color: #F6EEFF;" VBox.vgrow="ALWAYS">
+            <padding>
+                <Insets top="4" right="16" bottom="16" left="16"/>
+            </padding>
+            <ScrollPane fx:id="scrollLista" fitToWidth="true" styleClass="scroll-contenido" VBox.vgrow="ALWAYS">
+                <VBox fx:id="listaHabitos" spacing="10">
+                    <padding>
+                        <Insets top="4" right="8" bottom="16" left="8"/>
+                    </padding>
+                </VBox>
+            </ScrollPane>
+            <VBox fx:id="estadoVacio" alignment="CENTER" spacing="14" visible="false" managed="false">
+                <padding>
+                    <Insets top="40" right="24" bottom="40" left="24"/>
+                </padding>
+                <Label text="Todavía no tienes hábitos"
+                       style="-fx-text-fill: #6B4A6E; -fx-font-size: 16px;"/>
+                <Button text="Crear mi primer hábito" onAction="#irACrearHabito"
+                        style="-fx-background-color: #7A4578; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20 10 20; -fx-cursor: hand;"/>
+            </VBox>
+        </VBox>
+    </VBox>
+</VBox>

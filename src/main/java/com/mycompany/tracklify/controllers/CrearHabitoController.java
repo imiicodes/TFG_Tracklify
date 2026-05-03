@@ -19,10 +19,7 @@ import java.util.stream.Collectors;
 import javafx.beans.InvalidationListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -31,7 +28,6 @@ import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 /**
@@ -39,7 +35,8 @@ import javafx.util.StringConverter;
  *
  * <p>Gestiona la carga de periodos desde la base de datos, el modo duración indefinida,
  * la validación, la persistencia mediante {@link HabitoDAO} y el primer recordatorio
- * vía {@link NotificacionDAO}.</p>
+ * vía {@link NotificacionDAO}. El retorno a otra vista lo define el padre con
+ * {@link #setOnVolver(Runnable)}.</p>
  *
  * @author Tracklify
  */
@@ -138,6 +135,27 @@ public class CrearHabitoController implements Initializable {
 
     /** Evita precargar antes de que los controles FXML existan. */
     private boolean vistaLista = false;
+
+    /** Acción al guardar o volver: recarga la vista correcta en el marco principal. */
+    private Runnable onVolver;
+
+    /**
+     * Define el callback que el controlador padre ejecuta al guardar o al pulsar «Volver».
+     *
+     * @param onVolver tarea sin argumentos (típicamente {@code cargarVista} del host)
+     */
+    public void setOnVolver(Runnable onVolver) {
+        this.onVolver = onVolver;
+    }
+
+    /**
+     * Invoca el callback de retorno si el padre lo configuró.
+     */
+    private void ejecutarVolver() {
+        if (onVolver != null) {
+            onVolver.run();
+        }
+    }
 
     /**
      * Inicializa combos, spinners, conversores y escuchas para actualizar el resumen en vivo.
@@ -368,11 +386,7 @@ public class CrearHabitoController implements Initializable {
             String msg = "Recordatorio: " + nombre;
             notificacionDAO.insertarRecordatorioHabito(idUsuario, idNuevo, msg, primera);
         }
-        try {
-            irAMain(event);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ejecutarVolver();
     }
 
     /**
@@ -382,11 +396,7 @@ public class CrearHabitoController implements Initializable {
      */
     @FXML
     public void volver(ActionEvent event) {
-        try {
-            irAMain(event);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ejecutarVolver();
     }
 
     /**
@@ -430,19 +440,6 @@ public class CrearHabitoController implements Initializable {
         labelEjemploDuracion.setText(textoEjemploDuracion(dv, pd));
         labelEjemploNotif.setText(textoEjemploNotif(nv, pn));
         labelEjemploObjetivo.setText(textoEjemploObjetivo(ov, po));
-    }
-
-    /**
-     * Sustituye la escena actual por el dashboard principal.
-     *
-     * @param event evento con origen en un nodo de la escena actual
-     * @throws Exception si falla la carga de {@code main_view.fxml}
-     */
-    private void irAMain(ActionEvent event) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main_view.fxml"));
-        Scene scene = new Scene(loader.load());
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(scene);
     }
 
     /**

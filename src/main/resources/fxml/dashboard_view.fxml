@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" styleClass="scroll-contenido"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.mycompany.tracklify.controllers.DashboardViewController">
+
+    <stylesheets>
+        <URL value="@/styles/main_view.css"/>
+    </stylesheets>
+
+    <VBox styleClass="contenido" spacing="14">
+        <padding>
+            <Insets top="24" right="28" bottom="16" left="24"/>
+        </padding>
+
+        <VBox spacing="3">
+            <Label fx:id="labelBienvenida" text="Bienvenido" styleClass="titulo-bienvenida"/>
+            <Label text="Empieza a mejorar tus hábitos diarios" styleClass="subtitulo-bienvenida"/>
+        </VBox>
+
+        <HBox spacing="12">
+            <VBox styleClass="tarjeta-stat" prefWidth="120">
+                <Label fx:id="labelTareasActivas" text="—" styleClass="stat-num"/>
+                <Label text="Hábitos activos" styleClass="stat-label"/>
+            </VBox>
+            <VBox styleClass="tarjeta-stat" prefWidth="120">
+                <Label fx:id="labelPorcentaje" text="—" styleClass="stat-num"/>
+                <Label text="Tasa de éxito" styleClass="stat-label"/>
+            </VBox>
+            <VBox styleClass="tarjeta-stat" prefWidth="120">
+                <Label fx:id="labelRacha" text="—" styleClass="stat-num"/>
+                <Label text="Racha actual" styleClass="stat-label"/>
+            </VBox>
+        </HBox>
+
+        <Label text="Hábitos de hoy" styleClass="seccion-titulo"/>
+        <VBox fx:id="contenedorTareas" spacing="7"/>
+
+        <Button text="+ Crear nuevo hábito"
+                styleClass="btn-primary"
+                prefHeight="38"
+                onAction="#onCrearNuevoHabito"/>
+
+        <Label text="Próximos recordatorios" styleClass="seccion-titulo"/>
+        <VBox fx:id="contenedorRecordatorios" styleClass="panel-recordatorios" spacing="0">
+            <padding>
+                <Insets top="10" right="14" bottom="10" left="14"/>
+            </padding>
+        </VBox>
+    </VBox>
+</ScrollPane>

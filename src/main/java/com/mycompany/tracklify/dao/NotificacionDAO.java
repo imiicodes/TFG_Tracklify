@@ -35,8 +35,8 @@ public class NotificacionDAO {
     public boolean insertar(Notificacion notificacion) {
 
         String sql = "INSERT INTO notificaciones "
-                   + "(id_usuario, mensaje_notificacion, estado_notificacion, fecha_programada) "
-                   + "VALUES (?, ?, 0, ?)";
+                   + "(id_usuario, mensaje, estado, fecha_programada) "
+                   + "VALUES (?, ?, 'PENDIENTE', ?)";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -76,8 +76,8 @@ public class NotificacionDAO {
                                                 LocalDateTime fechaProgramada) {
 
         String sql = "INSERT INTO notificaciones "
-            + "(id_usuario, id_habito, mensaje_notificacion, estado_notificacion, fecha_programada) "
-            + "VALUES (?, ?, ?, 0, ?)";
+            + "(id_usuario, id_habito, mensaje, estado, fecha_programada) "
+            + "VALUES (?, ?, ?, 'PENDIENTE', ?)";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -103,7 +103,7 @@ public class NotificacionDAO {
      * llama a este método cada minuto. Devuelve notificaciones que cumplan:</p>
      * <ul>
      *   <li>Pertenecen al usuario indicado</li>
-     *   <li>No están completadas ({@code estado_notificacion = 0})</li>
+     *   <li>No están completadas ({@code estado = 0})</li>
      *   <li>Su {@code fecha_programada} ya ha llegado (es pasada o presente)</li>
      *   <li>No están actualmente pospuestas ({@code pospuesta_hasta} es NULL
      *       o ya ha pasado su tiempo de posposición)</li>
@@ -120,7 +120,7 @@ public class NotificacionDAO {
         // y que no estén pospuestas activamente ni completadas
         String sql = "SELECT * FROM notificaciones "
                    + "WHERE id_usuario = ? "
-                   + "AND estado_notificacion = 0 "
+                   + "AND estado = 'PENDIENTE' "
                    + "AND fecha_programada <= NOW() "
                    + "AND (pospuesta_hasta IS NULL OR pospuesta_hasta <= NOW())";
 
@@ -173,7 +173,7 @@ public class NotificacionDAO {
     }
 
     /**
-     * Marca una notificación como completada ({@code estado_notificacion = 1}).
+     * Marca una notificación como completada ({@code estado = 1}).
      *
      * <p>Se llama cuando el usuario pulsa "Completado" en el pop-up.
      * Una notificación completada no vuelve a aparecer.</p>
@@ -184,7 +184,7 @@ public class NotificacionDAO {
     public boolean marcarComoCompletada(int idNotificacion) {
 
         String sql = "UPDATE notificaciones "
-                   + "SET estado_notificacion = 1 "
+                   + "SET estado = 'LEIDA' "
                    + "WHERE id_notificacion = ?";
 
         try (Connection con = ConexionBD.conectar();
@@ -268,8 +268,8 @@ public class NotificacionDAO {
         Notificacion n = new Notificacion();
         n.setIdNotificacion(rs.getInt("id_notificacion"));
         n.setUsuarioId(rs.getInt("id_usuario"));
-        n.setMensajeNotificacion(rs.getString("mensaje_notificacion"));
-        n.setEstadoNotificacion(rs.getBoolean("estado_notificacion"));
+        n.setMensajeNotificacion(rs.getString("mensaje"));
+        n.setEstadoNotificacion(rs.getString("estado").equals("LEIDA") || rs.getString("estado").equals("ENVIADA"));
 
         // Convertimos Timestamp a LocalDateTime (puede ser null)
         Timestamp fechaProg = rs.getTimestamp("fecha_programada");
