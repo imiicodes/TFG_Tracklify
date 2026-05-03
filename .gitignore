@@ -4,3 +4,5 @@ nbactions.xml
 .gradle/
 build/
 target/
+
+.claude/
