@@ -61,6 +61,42 @@ public class NotificacionDAO {
     }
 
     /**
+     * Inserta el primer recordatorio asociado a un hábito recién creado.
+     *
+     * <p>Persiste {@code id_habito} en la columna correspondiente; el mensaje se guarda tal cual,
+     * sin prefijos con el identificador.</p>
+     *
+     * @param idUsuario        destinatario
+     * @param idHabito         hábito relacionado ({@code id_habito} en la tabla)
+     * @param mensaje          texto del recordatorio
+     * @param fechaProgramada  primera ejecución programada
+     * @return {@code true} si el insert fue correcto
+     */
+    public boolean insertarRecordatorioHabito(int idUsuario, int idHabito, String mensaje,
+                                                LocalDateTime fechaProgramada) {
+
+        String sql = "INSERT INTO notificaciones "
+            + "(id_usuario, id_habito, mensaje_notificacion, estado_notificacion, fecha_programada) "
+            + "VALUES (?, ?, ?, 0, ?)";
+
+        try (Connection con = ConexionBD.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idUsuario);
+            ps.setInt(2, idHabito);
+            ps.setString(3, mensaje);
+            ps.setTimestamp(4, Timestamp.valueOf(fechaProgramada));
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al insertar recordatorio de hábito: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
      * Obtiene las notificaciones pendientes que deben dispararse ahora mismo.
      *
      * <p>El scheduler {@link com.mycompany.tracklify.utils.NotificacionScheduler}

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Acceso JDBC a la tabla {@code habitos}: consulta, alta con clave generada, actualización y borrado.
  *
  * @author imii
  */
@@ -64,6 +65,12 @@ public class HabitoDAO {
         }
     }
 
+    /**
+     * Obtiene un hábito por su identificador.
+     *
+     * @param idHabito clave primaria
+     * @return el hábito o {@code null}
+     */
     public Habito obtenerPorId(int idHabito) {
         String sql = "SELECT * FROM habitos WHERE id_habito = ?";
 
@@ -83,6 +90,12 @@ public class HabitoDAO {
         return null;
     }
 
+    /**
+     * Lista todos los hábitos de un usuario.
+     *
+     * @param idUsuario propietario
+     * @return lista, posiblemente vacía
+     */
     public List<Habito> obtenerPorUsuario(int idUsuario) {
         List<Habito> lista = new ArrayList<>();
         String sql = "SELECT * FROM habitos WHERE id_usuario = ?";
@@ -103,14 +116,20 @@ public class HabitoDAO {
         return lista;
     }
 
-    public boolean insertar(Habito habito) {
+    /**
+     * Inserta un hábito y devuelve el identificador generado.
+     *
+     * @param habito datos a persistir
+     * @return {@code id_habito} generado, o {@code 0} si falla
+     */
+    public int insertar(Habito habito) {
         String sql = "INSERT INTO habitos (id_usuario, id_categoria, nombre_habito, descripcion_habito, "
             + "duracion_valor, duracion_periodo_id, fecha_inicio, fecha_fin, "
             + "notif_frecuencia_valor, notif_frecuencia_id, objetivo_veces, objetivo_periodo_id, estado) "
             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = ConexionBD.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, habito.getIdUsuario());
             setIntegerOrNull(ps, 2, habito.getIdCategoria());
@@ -126,7 +145,48 @@ public class HabitoDAO {
             setIntegerOrNull(ps, 12, habito.getObjetivoPeriodoId());
             ps.setString(13, habito.getEstado() != null ? habito.getEstado() : "ACTIVO");
 
-            return ps.executeUpdate() > 0;
+            if (ps.executeUpdate() <= 0) {
+                return 0;
+            }
+
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    return keys.getInt(1);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * Indica si ya existe otro hábito con el mismo nombre para el usuario (comparación sin mayúsculas).
+     *
+     * @param idUsuario      propietario
+     * @param nombre         nombre a comprobar
+     * @param excluirIdHabito si no es {@code null}, se ignora ese id (modo edición)
+     * @return {@code true} si hay duplicado
+     */
+    public boolean existeOtroHabitoMismoNombre(int idUsuario, String nombre, Integer excluirIdHabito) {
+
+        String sql = "SELECT 1 FROM habitos WHERE id_usuario = ? AND LOWER(TRIM(nombre_habito)) = LOWER(TRIM(?)) ";
+        if (excluirIdHabito != null) {
+            sql += "AND id_habito <> ? ";
+        }
+        sql += "LIMIT 1";
+
+        try (Connection con = ConexionBD.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idUsuario);
+            ps.setString(2, nombre);
+            if (excluirIdHabito != null) {
+                ps.setInt(3, excluirIdHabito);
+            }
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -134,6 +194,12 @@ public class HabitoDAO {
         }
     }
 
+    /**
+     * Actualiza una fila de hábito existente.
+     *
+     * @param habito datos a persistir (incluye {@code id_habito})
+     * @return {@code true} si se modificó al menos una fila
+     */
     public boolean actualizar(Habito habito) {
         String sql = "UPDATE habitos SET id_usuario=?, id_categoria=?, nombre_habito=?, descripcion_habito=?, "
             + "duracion_valor=?, duracion_periodo_id=?, fecha_inicio=?, fecha_fin=?, "
@@ -166,6 +232,12 @@ public class HabitoDAO {
         }
     }
 
+    /**
+     * Elimina un hábito por identificador.
+     *
+     * @param idHabito clave primaria
+     * @return {@code true} si se borró una fila
+     */
     public boolean eliminar(int idHabito) {
         String sql = "DELETE FROM habitos WHERE id_habito = ?";
 

@@ -54,6 +54,22 @@ public class EstadisticaDAO {
         return lista;
     }
 
+    /**
+     * Obtiene la fila de agregados del usuario desde la vista {@code v_resumen_usuario}.
+     *
+     * <p>Columnas esperadas y mapeo a {@link ResumenUsuario}:</p>
+     * <ul>
+     *   <li>{@code id_usuario} → identificador</li>
+     *   <li>{@code nombre_usuario} → nombre para saludo o informes</li>
+     *   <li>{@code total_habitos_activos} → hábitos activos del usuario</li>
+     *   <li>{@code total_cumplimientos} → total de cumplimientos registrados</li>
+     *   <li>{@code habitos_completados_hoy} → hábitos distintos completados en el día actual</li>
+     *   <li>{@code tasa_exito_global} → ratio o porcentaje de éxito (0–1 o 0–100 según la vista)</li>
+     * </ul>
+     *
+     * @param idUsuario propietario de los datos
+     * @return DTO con los agregados o {@code null} si no hay fila para ese usuario
+     */
     public ResumenUsuario obtenerResumenUsuario(int idUsuario) {
         String sql = "SELECT * FROM v_resumen_usuario WHERE id_usuario = ?";
 

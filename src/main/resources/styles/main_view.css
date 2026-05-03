@@ -257,3 +257,79 @@
     -fx-font-size: 10px;
     -fx-text-fill: #D8C5E8;
 }
+
+/* ── Asistente crear / editar hábito ── */
+.paso-circulo {
+    -fx-background-color: #7A4578;
+    -fx-background-radius: 50%;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-alignment: center;
+    -fx-min-width: 32px;
+    -fx-min-height: 32px;
+    -fx-max-width: 32px;
+    -fx-max-height: 32px;
+}
+.tarjeta-habito {
+    -fx-background-color: rgba(243, 217, 245, 0.92);
+    -fx-background-radius: 12px;
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(122, 69, 120, 0.12), 8, 0.2, 0, 2);
+}
+.chip-resumen {
+    -fx-background-color: #EDD6F0;
+    -fx-text-fill: #7A4578;
+    -fx-border-color: #93588F;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-padding: 3px 10px;
+    -fx-font-size: 12px;
+}
+.btn-crear-habito {
+    -fx-background-color: #7A4578;
+    -fx-text-fill: white;
+    -fx-background-radius: 8px;
+    -fx-padding: 12px;
+    -fx-font-size: 15px;
+    -fx-cursor: hand;
+}
+.btn-crear-habito:hover {
+    -fx-background-color: #93588F;
+}
+.btn-indefinido {
+    -fx-border-color: #7A4578;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-background-color: #F6EEFF;
+    -fx-text-fill: #7A4578;
+    -fx-cursor: hand;
+}
+.btn-indefinido:hover {
+    -fx-border-color: #93588F;
+}
+.btn-indefinido-activo {
+    -fx-background-color: #7A4578;
+    -fx-text-fill: white;
+    -fx-border-color: #7A4578;
+}
+.banner-recordatorio {
+    -fx-background-color: #F3D9F5;
+    -fx-border-color: transparent transparent transparent #93588F;
+    -fx-border-width: 0 0 0 4px;
+    -fx-background-radius: 8px;
+}
+.tarjeta-resumen {
+    -fx-background-color: #F6EEFF;
+    -fx-border-color: #93588F;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-padding: 20px;
+}
+.resumen-flujo .text {
+    -fx-fill: #6B4A6E;
+    -fx-font-size: 13px;
+}

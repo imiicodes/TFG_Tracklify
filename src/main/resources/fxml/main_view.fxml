@@ -3,12 +3,8 @@
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.Spinner?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -86,60 +82,11 @@
                 <Label text="Hábitos de hoy" styleClass="seccion-titulo"/>
                 <VBox fx:id="contenedorTareas" spacing="7"/>
 
-                <!-- Botón abrir formulario -->
+                <!-- Asistente de creación de hábito (vista dedicada) -->
                 <Button text="+ Crear nuevo hábito"
                         styleClass="btn-primary"
                         prefHeight="38"
-                        onAction="#mostrarFormularioNuevaTarea"/>
-
-                <!-- PANEL FORMULARIO NUEVA TAREA -->
-                <VBox fx:id="panelNuevaTarea" styleClass="panel-nueva-tarea" spacing="10">
-                    <padding>
-                        <Insets top="16" right="16" bottom="16" left="16"/>
-                    </padding>
-
-                    <Label text="Crear nuevo hábito" styleClass="panel-titulo"/>
-                    <Separator/>
-
-                    <Label text="Nombre:" styleClass="campo-label"/>
-                    <TextField fx:id="campoNombreTarea"
-                               promptText="Nombre del hábito"
-                               styleClass="campo"/>
-
-                    <Label text="Descripción:" styleClass="campo-label"/>
-                    <TextField fx:id="campoDescripcionTarea"
-                               promptText="Descripción (opcional)"
-                               styleClass="campo"/>
-
-                    <HBox spacing="12" alignment="CENTER_LEFT">
-                        <Label text="Frecuencia:" styleClass="campo-label"/>
-                        <ComboBox fx:id="comboFrecuencia" prefWidth="140"/>
-                    </HBox>
-
-                    <!-- Fila día: visible solo en semanal/mensual -->
-                    <HBox fx:id="filaDia" spacing="12" alignment="CENTER_LEFT">
-                        <Label text="Día:" styleClass="campo-label"/>
-                        <ComboBox fx:id="comboDia" prefWidth="160"/>
-                    </HBox>
-
-                    <HBox spacing="8" alignment="CENTER_LEFT">
-                        <Label text="Hora:" styleClass="campo-label"/>
-                        <Spinner fx:id="spinnerHora" prefWidth="72" editable="true"/>
-                        <Label text=":" styleClass="campo-label"/>
-                        <Spinner fx:id="spinnerMinutos" prefWidth="72" editable="true"/>
-                    </HBox>
-
-                    <HBox spacing="10" alignment="CENTER_RIGHT">
-                        <Button text="Guardar"
-                                styleClass="btn-primary"
-                                prefHeight="34" prefWidth="100"
-                                onAction="#guardarNuevaTarea"/>
-                        <Button text="Cancelar"
-                                styleClass="btn-cancelar"
-                                prefHeight="34" prefWidth="100"
-                                onAction="#cancelarNuevaTarea"/>
-                    </HBox>
-                </VBox>
+                        onAction="#navegarCrearHabito"/>
 
                 <!-- Próximos recordatorios -->
                 <Label text="Próximos recordatorios" styleClass="seccion-titulo"/>

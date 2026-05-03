@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.TextFlow?>
+
+<BorderPane prefWidth="820" prefHeight="640" style="-fx-background-color: #F6EEFF;"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.mycompany.tracklify.controllers.CrearHabitoController">
+
+    <stylesheets>
+        <URL value="@/styles/main_view.css"/>
+    </stylesheets>
+
+    <top>
+        <VBox spacing="4" style="-fx-background-color: linear-gradient(to right, #7A4578, #93588F);">
+            <padding>
+                <Insets top="16" right="20" bottom="16" left="20"/>
+            </padding>
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Button fx:id="btnVolver" text="Volver" onAction="#volver"
+                        style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 8; -fx-cursor: hand; -fx-min-width: 72;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <VBox alignment="CENTER" spacing="4">
+                    <Label text="Crear nuevo hábito"
+                           style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;"/>
+                    <Label text="Configura tu hábito en 4 simples pasos"
+                           style="-fx-text-fill: rgba(255,255,255,0.82); -fx-font-size: 13px;"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Region prefWidth="44"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-contenido" BorderPane.alignment="CENTER">
+            <VBox spacing="18" style="-fx-background-color: #F6EEFF;">
+                <padding>
+                    <Insets top="20" right="24" bottom="28" left="24"/>
+                </padding>
+
+                <!-- Tarjeta 1 -->
+                <HBox styleClass="tarjeta-habito" spacing="18" alignment="TOP_LEFT">
+                    <VBox spacing="10" minWidth="220">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="1" styleClass="paso-circulo" alignment="CENTER" minWidth="32" minHeight="32" maxWidth="32" maxHeight="32"/>
+                        </HBox>
+                        <Label text="¿Cuál es tu hábito?" style="-fx-text-fill: #2D1B2E; -fx-font-size: 16px; -fx-font-weight: bold;" wrapText="true"/>
+                        <Label text="Escribe el nombre de tu hábito" style="-fx-text-fill: #6B4A6E; -fx-font-size: 12px;" wrapText="true"/>
+                    </VBox>
+                    <VBox spacing="8" HBox.hgrow="ALWAYS">
+                        <TextField fx:id="campoNombreHabito" promptText="Ej: Leer, Hacer ejercicio, Tomar agua..."
+                                   style="-fx-background-color: white; -fx-border-color: #93588F; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: #2D1B2E; -fx-padding: 10;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Tarjeta 2 -->
+                <HBox styleClass="tarjeta-habito" spacing="18" alignment="TOP_LEFT">
+                    <VBox spacing="10" minWidth="220">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="2" styleClass="paso-circulo" alignment="CENTER" minWidth="32" minHeight="32" maxWidth="32" maxHeight="32"/>
+                        </HBox>
+                        <Label text="¿Durante cuánto tiempo quieres mantener este hábito?" style="-fx-text-fill: #2D1B2E; -fx-font-size: 15px; -fx-font-weight: bold;" wrapText="true"/>
+                        <Label text="Selecciona el período de tiempo" style="-fx-text-fill: #6B4A6E; -fx-font-size: 12px;" wrapText="true"/>
+                    </VBox>
+                    <VBox spacing="10" HBox.hgrow="ALWAYS">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Spinner fx:id="spinnerDuracionValor" editable="true" prefWidth="90"/>
+                            <ComboBox fx:id="comboDuracionPeriodo" prefWidth="130"/>
+                            <Button fx:id="btnIndefinido" text="Indefinido" onAction="#btnIndefinidoClick" styleClass="btn-indefinido"/>
+                        </HBox>
+                        <Label fx:id="labelEjemploDuracion" style="-fx-text-fill: #93588F; -fx-font-size: 11px;" wrapText="true"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Tarjeta 3 -->
+                <HBox styleClass="tarjeta-habito" spacing="18" alignment="TOP_LEFT">
+                    <VBox spacing="10" minWidth="220">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="3" styleClass="paso-circulo" alignment="CENTER" minWidth="32" minHeight="32" maxWidth="32" maxHeight="32"/>
+                        </HBox>
+                        <Label text="¿Cada cuánto quieres que te avise?" style="-fx-text-fill: #2D1B2E; -fx-font-size: 15px; -fx-font-weight: bold;" wrapText="true"/>
+                        <Label text="Elige la frecuencia de las notificaciones" style="-fx-text-fill: #6B4A6E; -fx-font-size: 12px;" wrapText="true"/>
+                    </VBox>
+                    <VBox spacing="10" HBox.hgrow="ALWAYS">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Spinner fx:id="spinnerNotifValor" editable="true" prefWidth="90"/>
+                            <ComboBox fx:id="comboNotifPeriodo" prefWidth="130"/>
+                        </HBox>
+                        <HBox styleClass="banner-recordatorio" alignment="CENTER_LEFT">
+                            <padding>
+                                <Insets top="12" right="12" bottom="12" left="12"/>
+                            </padding>
+                            <Label text="Te enviaremos recordatorios para que no olvides tu hábito" wrapText="true"
+                                   style="-fx-text-fill: #6B4A6E; -fx-font-size: 12px;"/>
+                        </HBox>
+                        <Label fx:id="labelEjemploNotif" style="-fx-text-fill: #93588F; -fx-font-size: 11px;" wrapText="true"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Tarjeta 4 -->
+                <HBox styleClass="tarjeta-habito" spacing="18" alignment="TOP_LEFT">
+                    <VBox spacing="10" minWidth="220">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="4" styleClass="paso-circulo" alignment="CENTER" minWidth="32" minHeight="32" maxWidth="32" maxHeight="32"/>
+                        </HBox>
+                        <Label text="¿Cuál es tu objetivo?" style="-fx-text-fill: #2D1B2E; -fx-font-size: 15px; -fx-font-weight: bold;" wrapText="true"/>
+                        <Label text="Define cuántas veces quieres completar tu hábito" style="-fx-text-fill: #6B4A6E; -fx-font-size: 12px;" wrapText="true"/>
+                    </VBox>
+                    <VBox spacing="10" HBox.hgrow="ALWAYS">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Spinner fx:id="spinnerObjetivoVeces" editable="true" prefWidth="90"/>
+                            <ComboBox fx:id="comboObjetivoPeriodo" prefWidth="130"/>
+                        </HBox>
+                        <Label fx:id="labelEjemploObjetivo" style="-fx-text-fill: #93588F; -fx-font-size: 11px;" wrapText="true"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Resumen -->
+                <HBox styleClass="tarjeta-resumen" spacing="14" alignment="TOP_LEFT">
+                    <Label text="" alignment="CENTER" styleClass="paso-circulo" minWidth="36" minHeight="36" maxWidth="36" maxHeight="36"
+                           style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                    <VBox spacing="10" HBox.hgrow="ALWAYS">
+                        <Label text="Resumen de tu hábito" style="-fx-text-fill: #7A4578; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+                        <TextFlow fx:id="textFlowResumen" lineSpacing="4" styleClass="resumen-flujo"/>
+                        <Separator style="-fx-opacity: 0.4;"/>
+                        <Button fx:id="btnCrearHabito" text="Crear hábito" onAction="#crearHabito" maxWidth="Infinity" styleClass="btn-crear-habito"/>
+                        <Label text="Podrás editarlo después si lo necesitas" style="-fx-text-fill: #6B4A6E; -fx-font-size: 11px;"/>
+                        <Label fx:id="labelError" style="-fx-text-fill: #C0392B; -fx-font-size: 12px;" wrapText="true" managed="false" visible="false"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

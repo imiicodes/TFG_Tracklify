@@ -4,22 +4,21 @@ import com.mycompany.tracklify.dao.EstadisticaDAO;
 import com.mycompany.tracklify.dao.HabitoDAO;
 import com.mycompany.tracklify.dao.NotificacionDAO;
 import com.mycompany.tracklify.dao.PerfilDAO;
+import com.mycompany.tracklify.dao.RegistroHabitoDAO;
 import com.mycompany.tracklify.models.Habito;
 import com.mycompany.tracklify.models.Notificacion;
 import com.mycompany.tracklify.models.Perfil;
+import com.mycompany.tracklify.models.RegistroHabito;
 import com.mycompany.tracklify.models.ResumenUsuario;
 import com.mycompany.tracklify.models.Usuario;
 import com.mycompany.tracklify.utils.NotificacionScheduler;
 import com.mycompany.tracklify.utils.RachaService;
 import com.mycompany.tracklify.utils.SessionManager;
 import java.net.URL;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -28,9 +27,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 /**
  * Controlador del dashboard principal del usuario ({@code main_view.fxml}).
@@ -39,9 +39,8 @@ import javafx.util.Duration;
  * de entrada del sistema de notificaciones: al inicializarse arranca el
  * {@link NotificacionScheduler} y al cerrar sesión lo detiene.</p>
  *
- * <p>Cuando el usuario guarda un nuevo hábito, este controlador calcula
- * automáticamente la primera fecha de notificación y la persiste en BD
- * mediante {@link NotificacionDAO}.</p>
+ * <p>La creación guiada de hábitos se realiza en {@link CrearHabitoController}
+ * ({@code crear_habito_view.fxml}); al volver a esta vista se recargan listas y estadísticas.</p>
  *
  * @author Tracklify
  * @version 1.0
@@ -71,32 +70,6 @@ public class MainViewController implements Initializable {
     /** Contenedor de la sección "Próximos recordatorios". */
     @FXML private VBox contenedorRecordatorios;
 
-    // ── Campos FXML del formulario de nueva tarea ──────────────────────────
-
-    /** Panel del formulario (oculto por defecto). */
-    @FXML private VBox panelNuevaTarea;
-
-    /** Campo de nombre de la nueva tarea. */
-    @FXML private TextField campoNombreTarea;
-
-    /** Campo de descripción de la nueva tarea. */
-    @FXML private TextField campoDescripcionTarea;
-
-    /** Selector de frecuencia (Diaria / Semanal / Mensual). */
-    @FXML private ComboBox<String> comboFrecuencia;
-
-    /** Spinner de hora de notificación (0-23). */
-    @FXML private Spinner<Integer> spinnerHora;
-
-    /** Spinner de minutos de notificación (0-59). */
-    @FXML private Spinner<Integer> spinnerMinutos;
-
-    /** Fila del selector de día (visible solo en Semanal/Mensual). */
-    @FXML private HBox filaDia;
-
-    /** Selector de día de la semana o del mes. */
-    @FXML private ComboBox<String> comboDia;
-
     // ── DAOs ──────────────────────────────────────────────────────────────
 
     /** DAO para operaciones sobre hábitos. */
@@ -114,6 +87,9 @@ public class MainViewController implements Initializable {
      * cargar los próximos recordatorios en el dashboard.
      */
     private NotificacionDAO notificacionDAO = new NotificacionDAO();
+
+    /** DAO para registros diarios de cumplimiento de hábitos. */
+    private final RegistroHabitoDAO registroHabitoDAO = new RegistroHabitoDAO();
 
     // ── Inicialización ─────────────────────────────────────────────────────
 
@@ -145,137 +121,37 @@ public class MainViewController implements Initializable {
             NotificacionScheduler.getInstancia().iniciar(usuario.getIdUsuario());
         }
 
-        // Configuramos el formulario de nueva tarea
-        configurarFormulario();
-
-        // Cargamos los próximos recordatorios desde la BD
         cargarProximosRecordatorios();
     }
 
     /**
-     * Configura los controles del formulario de nueva tarea:
-     * opciones del ComboBox de frecuencia, valores por defecto de los
-     * spinners y listener para mostrar/ocultar el selector de día.
-     */
-    private void configurarFormulario() {
-
-        comboFrecuencia.getItems().addAll("Diaria", "Semanal", "Mensual");
-        comboFrecuencia.setValue("Diaria");
-
-        spinnerHora.setValueFactory(
-            new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, 8)
-        );
-        spinnerMinutos.setValueFactory(
-            new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, 0)
-        );
-
-        filaDia.setVisible(false);
-        filaDia.setManaged(false);
-
-        comboFrecuencia.setOnAction(e ->
-            actualizarSelectorDia(comboFrecuencia, comboDia, filaDia)
-        );
-
-        panelNuevaTarea.setVisible(false);
-        panelNuevaTarea.setManaged(false);
-    }
-
-    // ── Gestión del formulario de nueva tarea ──────────────────────────────
-
-    /**
-     * Muestra u oculta el formulario de nueva tarea.
+     * Navega al asistente de creación de hábito en cuatro pasos.
      *
      * @param event evento del botón "+ Crear nuevo hábito"
+     * @throws Exception si falla la carga del FXML
      */
     @FXML
-    public void mostrarFormularioNuevaTarea(ActionEvent event) {
-        boolean visible = panelNuevaTarea.isVisible();
-        panelNuevaTarea.setVisible(!visible);
-        panelNuevaTarea.setManaged(!visible);
-        if (!visible) {
-            campoNombreTarea.clear();
-            campoDescripcionTarea.clear();
-            comboFrecuencia.setValue("Diaria");
-            spinnerHora.getValueFactory().setValue(8);
-            spinnerMinutos.getValueFactory().setValue(0);
-            filaDia.setVisible(false);
-            filaDia.setManaged(false);
-        }
+    public void navegarCrearHabito(ActionEvent event) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/crear_habito_view.fxml"));
+        Scene scene = new Scene(loader.load());
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(scene);
     }
 
     /**
-     * Guarda la nueva tarea en BD y crea automáticamente su primera notificación.
+     * Abre el asistente en modo edición tras asignar el hábito en el controlador destino.
      *
-     * <p>Tras validar el nombre, calcula la próxima fecha de disparo de la
-     * notificación a partir de la frecuencia y hora configuradas, inserta
-     * la tarea y la notificación en la BD, y recarga la lista visible.</p>
-     *
-     * @param event evento del botón "Guardar"
+     * @param habito hábito a modificar
+     * @param anchor nodo con escena activa (por ejemplo la fila del listado)
+     * @throws Exception si falla la carga del FXML
      */
-    @FXML
-    public void guardarNuevaTarea(ActionEvent event) {
-
-        String nombre = campoNombreTarea.getText().trim();
-        if (nombre.isEmpty()) {
-            campoNombreTarea.setStyle("-fx-border-color: #C0392B; -fx-border-radius: 8;");
-            return;
-        }
-        campoNombreTarea.setStyle("");
-
-        String frecuencia = construirFrecuencia(
-            comboFrecuencia.getValue(),
-            comboDia.isVisible() ? comboDia.getValue() : null,
-            spinnerHora.getValue(),
-            spinnerMinutos.getValue()
-        );
-
-        String userDesc = campoDescripcionTarea.getText().trim();
-        String descripcionCombinada = userDesc.isEmpty()
-            ? frecuencia
-            : userDesc + "\n" + frecuencia;
-
-        Habito nueva = new Habito();
-        nueva.setIdUsuario(SessionManager.getInstancia().getUsuarioActual().getIdUsuario());
-        nueva.setNombreHabito(nombre);
-        nueva.setDescripcionHabito(descripcionCombinada);
-        nueva.setFechaInicio(LocalDate.now());
-        nueva.setEstado("ACTIVO");
-
-        boolean habitoGuardado = habitoDAO.insertar(nueva);
-
-        if (habitoGuardado) {
-
-            // Calculamos la primera fecha de notificación y la creamos en BD
-            LocalDateTime fechaNotificacion = calcularProximaFecha(
-                comboFrecuencia.getValue(),
-                comboDia.isVisible() ? comboDia.getValue() : null,
-                spinnerHora.getValue(),
-                spinnerMinutos.getValue()
-            );
-
-            Notificacion notif = new Notificacion();
-            notif.setUsuarioId(SessionManager.getInstancia().getUsuarioActual().getIdUsuario());
-            notif.setMensajeNotificacion("¡Hora de tu hábito: " + nombre + "!");
-            notif.setFechaProgramada(fechaNotificacion);
-            notificacionDAO.insertar(notif);
-
-            // Recargamos la vista
-            cargarTareas(SessionManager.getInstancia().getUsuarioActual().getIdUsuario());
-            cargarProximosRecordatorios();
-            panelNuevaTarea.setVisible(false);
-            panelNuevaTarea.setManaged(false);
-        }
-    }
-
-    /**
-     * Cancela la creación y oculta el formulario.
-     *
-     * @param event evento del botón "Cancelar"
-     */
-    @FXML
-    public void cancelarNuevaTarea(ActionEvent event) {
-        panelNuevaTarea.setVisible(false);
-        panelNuevaTarea.setManaged(false);
+    private void abrirEditorHabito(Habito habito, Node anchor) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/crear_habito_view.fxml"));
+        Scene scene = new Scene(loader.load());
+        CrearHabitoController ctrl = loader.getController();
+        ctrl.setHabitoAEditar(habito);
+        Stage stage = (Stage) anchor.getScene().getWindow();
+        stage.setScene(scene);
     }
 
     // ── Carga de datos ─────────────────────────────────────────────────────
@@ -287,7 +163,6 @@ public class MainViewController implements Initializable {
      */
     private void cargarTareas(int idUsuario) {
         List<Habito> habitos = habitoDAO.obtenerPorUsuario(idUsuario);
-        labelTareasActivas.setText(String.valueOf(habitos.size()));
         contenedorTareas.getChildren().clear();
 
         if (habitos.isEmpty()) {
@@ -361,19 +236,32 @@ public class MainViewController implements Initializable {
      * @param idUsuario identificador del usuario
      */
     private void cargarEstadisticas(int idUsuario) {
+        refrescarEstadisticas(idUsuario);
+    }
+
+    /**
+     * Actualiza las tres tarjetas del dashboard: hábitos activos y agregados desde
+     * {@code v_resumen_usuario}, tasa de éxito y racha máxima entre hábitos activos.
+     *
+     * @param idUsuario identificador del usuario
+     */
+    private void refrescarEstadisticas(int idUsuario) {
         ResumenUsuario resumen = estadisticaDAO.obtenerResumenUsuario(idUsuario);
+        int maxRacha = 0;
+        for (Habito h : habitoDAO.obtenerPorUsuario(idUsuario)) {
+            maxRacha = Math.max(maxRacha, rachaService.calcularRachaActual(h.getIdHabito()));
+        }
         if (resumen != null) {
+            labelTareasActivas.setText(String.valueOf(resumen.getTotalHabitosActivos()));
             double tasa = resumen.getTasaExitoGlobal();
             double porcentaje = (tasa >= 0 && tasa <= 1.0) ? tasa * 100.0 : tasa;
             labelPorcentaje.setText(String.format("%.0f%%", porcentaje));
-            int maxRacha = 0;
-            for (Habito h : habitoDAO.obtenerPorUsuario(idUsuario)) {
-                maxRacha = Math.max(maxRacha, rachaService.calcularRachaActual(h.getIdHabito()));
-            }
             labelRacha.setText(maxRacha + " días");
         } else {
+            List<Habito> hlist = habitoDAO.obtenerPorUsuario(idUsuario);
+            labelTareasActivas.setText(String.valueOf(hlist.size()));
             labelPorcentaje.setText("0%");
-            labelRacha.setText("0 días");
+            labelRacha.setText(maxRacha + " días");
         }
     }
 
@@ -405,6 +293,15 @@ public class MainViewController implements Initializable {
 
         ContextMenu menu = new ContextMenu();
 
+        MenuItem editar = new MenuItem("Editar");
+        editar.setOnAction(e -> {
+            try {
+                abrirEditorHabito(habito, fila);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
         MenuItem renombrar = new MenuItem("Renombrar");
         renombrar.setOnAction(e -> mostrarDialogoRenombrar(habito, nombre, badge));
 
@@ -413,29 +310,49 @@ public class MainViewController implements Initializable {
         borrar.setOnAction(e -> {
             habitoDAO.eliminar(habito.getIdHabito());
             contenedorTareas.getChildren().remove(fila);
-            actualizarContadorTareas();
+            Usuario u = SessionManager.getInstancia().getUsuarioActual();
+            if (u != null) {
+                refrescarEstadisticas(u.getIdUsuario());
+            }
         });
 
-        menu.getItems().addAll(renombrar, new SeparatorMenuItem(), borrar);
+        menu.getItems().addAll(editar, renombrar, new SeparatorMenuItem(), borrar);
         btnMenu.setOnAction(e -> menu.show(btnMenu, javafx.geometry.Side.BOTTOM, 0, 0));
 
-        // Al completar: tachar y desaparecer en 3 minutos
+        boolean completadoHoy = registroHabitoDAO.obtenerRegistroCompleadoHoy(habito.getIdHabito()) != null;
+        checkbox.setSelected(completadoHoy);
+        aplicarEstiloFilaHabitoCompletado(nombre, badge, completadoHoy);
+
+        final int idHabito = habito.getIdHabito();
         checkbox.setOnAction(e -> {
-            if (checkbox.isSelected()) {
-                nombre.setStyle("-fx-strikethrough: true; -fx-text-fill: #C4AADB;");
-                badge.setOpacity(0.4);
-                btnMenu.setVisible(false);
-                PauseTransition pausa = new PauseTransition(Duration.seconds(180));
-                pausa.setOnFinished(ev -> {
-                    contenedorTareas.getChildren().remove(fila);
-                    actualizarContadorTareas();
-                });
-                pausa.play();
-            } else {
-                nombre.setStyle("");
-                badge.setOpacity(1.0);
-                btnMenu.setVisible(true);
+            Usuario usuarioAct = SessionManager.getInstancia().getUsuarioActual();
+            if (usuarioAct == null) {
+                checkbox.setSelected(!checkbox.isSelected());
+                return;
             }
+            int idUsuario = usuarioAct.getIdUsuario();
+            boolean deseado = checkbox.isSelected();
+            boolean ok;
+            if (deseado) {
+                RegistroHabito pendiente = registroHabitoDAO.obtenerRegistroHoy(idHabito, "PENDIENTE");
+                if (pendiente != null) {
+                    ok = registroHabitoDAO.cerrarSesion(pendiente.getIdRegistro(), LocalDateTime.now(), 0);
+                } else {
+                    LocalDateTime ahora = LocalDateTime.now();
+                    RegistroHabito nuevo = new RegistroHabito(
+                        0, idHabito, ahora, ahora, 0, "COMPLETADO", true, null, null, null);
+                    ok = registroHabitoDAO.insertarConTimestamp(nuevo);
+                }
+            } else {
+                RegistroHabito hecho = registroHabitoDAO.obtenerRegistroCompleadoHoy(idHabito);
+                ok = hecho != null && registroHabitoDAO.actualizarEstado(hecho.getIdRegistro(), "PENDIENTE");
+            }
+            if (!ok) {
+                checkbox.setSelected(!deseado);
+                return;
+            }
+            aplicarEstiloFilaHabitoCompletado(nombre, badge, checkbox.isSelected());
+            refrescarEstadisticas(idUsuario);
         });
 
         fila.getChildren().addAll(checkbox, nombre, badge, btnMenu);
@@ -443,70 +360,6 @@ public class MainViewController implements Initializable {
     }
 
     // ── Utilidades ─────────────────────────────────────────────────────────
-
-    /**
-     * Calcula la próxima fecha de disparo de una notificación a partir
-     * de la frecuencia, día y hora configurados por el usuario.
-     *
-     * <p>Lógica de cálculo:</p>
-     * <ul>
-     *   <li><strong>Diaria</strong>: hoy a la hora indicada. Si ya pasó, mañana.</li>
-     *   <li><strong>Semanal</strong>: el próximo día de la semana indicado a esa hora.</li>
-     *   <li><strong>Mensual</strong>: el próximo día del mes indicado a esa hora.</li>
-     * </ul>
-     *
-     * @param frecuencia tipo de frecuencia ("Diaria", "Semanal", "Mensual")
-     * @param dia        día de la semana o del mes, o {@code null} si es diaria
-     * @param hora       hora de notificación (0-23)
-     * @param minutos    minutos de notificación (0-59)
-     * @return la próxima {@link LocalDateTime} en la que debe dispararse
-     */
-    private LocalDateTime calcularProximaFecha(String frecuencia, String dia,
-                                                int hora, int minutos) {
-        LocalDateTime ahora = LocalDateTime.now();
-        LocalTime horaNotif = LocalTime.of(hora, minutos);
-
-        switch (frecuencia) {
-            case "Diaria": {
-                // Hoy a la hora indicada; si ya pasó, mañana
-                LocalDateTime candidata = LocalDate.now().atTime(horaNotif);
-                return candidata.isAfter(ahora) ? candidata : candidata.plusDays(1);
-            }
-            case "Semanal": {
-                // Próximo día de la semana indicado
-                java.time.DayOfWeek diaSemana = parsearDiaSemana(dia);
-                LocalDate hoy = LocalDate.now();
-                LocalDate proximoDia = hoy.with(
-                    java.time.temporal.TemporalAdjusters.nextOrSame(diaSemana)
-                );
-                LocalDateTime candidata = proximoDia.atTime(horaNotif);
-                // Si es hoy mismo y ya pasó la hora, ir al siguiente ciclo
-                if (!candidata.isAfter(ahora)) {
-                    candidata = candidata.plusWeeks(1);
-                }
-                return candidata;
-            }
-            case "Mensual": {
-                // Próximo día del mes indicado
-                int numeroDia = parsearNumeroDia(dia);
-                LocalDate hoy = LocalDate.now();
-                LocalDate candidataFecha;
-                try {
-                    candidataFecha = LocalDate.of(hoy.getYear(), hoy.getMonth(), numeroDia);
-                } catch (Exception e) {
-                    // Si el día no existe en el mes (ej: 31 de febrero), usamos el último día
-                    candidataFecha = hoy.withDayOfMonth(hoy.lengthOfMonth());
-                }
-                LocalDateTime candidata = candidataFecha.atTime(horaNotif);
-                if (!candidata.isAfter(ahora)) {
-                    candidata = candidata.plusMonths(1);
-                }
-                return candidata;
-            }
-            default:
-                return ahora.plusHours(1);
-        }
-    }
 
     /**
      * Convierte el nombre de un día de la semana en castellano a {@link java.time.DayOfWeek}.
@@ -659,35 +512,20 @@ public class MainViewController implements Initializable {
     }
 
     /**
-     * Actualiza el selector de día según la frecuencia elegida.
+     * Aplica tachado y opacidad al nombre y badge cuando el hábito figura completado hoy.
      *
-     * @param cbFrecuencia  ComboBox de frecuencia
-     * @param cbDia         ComboBox de día
-     * @param contenedorDia nodo contenedor del día para controlar visibilidad
+     * @param nombre  etiqueta del nombre del hábito
+     * @param badge   etiqueta secundaria (horario / frecuencia)
+     * @param hecho   {@code true} si está completado
      */
-    private void actualizarSelectorDia(ComboBox<String> cbFrecuencia,
-                                        ComboBox<String> cbDia,
-                                        Region contenedorDia) {
-        String frec = cbFrecuencia.getValue();
-        boolean mostrar = frec.equals("Semanal") || frec.equals("Mensual");
-        contenedorDia.setVisible(mostrar);
-        contenedorDia.setManaged(mostrar);
-        cbDia.getItems().clear();
-        if (frec.equals("Semanal")) {
-            cbDia.getItems().addAll("Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo");
-        } else if (frec.equals("Mensual")) {
-            for (int i = 1; i <= 31; i++) cbDia.getItems().add("Día " + i);
+    private void aplicarEstiloFilaHabitoCompletado(Label nombre, Label badge, boolean hecho) {
+        if (hecho) {
+            nombre.setStyle("-fx-strikethrough: true; -fx-text-fill: #C4AADB;");
+            badge.setOpacity(0.4);
+        } else {
+            nombre.setStyle("");
+            badge.setOpacity(1.0);
         }
-        if (!cbDia.getItems().isEmpty()) cbDia.setValue(cbDia.getItems().get(0));
-    }
-
-    /**
-     * Actualiza el contador de hábitos activos visibles en las tarjetas.
-     */
-    private void actualizarContadorTareas() {
-        long count = contenedorTareas.getChildren().stream()
-            .filter(n -> n instanceof HBox).count();
-        labelTareasActivas.setText(String.valueOf(count));
     }
 
     /**
