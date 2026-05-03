@@ -2,8 +2,6 @@ package com.mycompany.tracklify.controllers;
 
 import com.mycompany.tracklify.dao.UsuarioDAO;
 import com.mycompany.tracklify.models.Usuario;
-import com.mycompany.tracklify.utils.PasswordUtils;
-import org.mindrot.jbcrypt.BCrypt;
 import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -94,17 +92,14 @@ public class RegistroController {
             return;
         }
 
-        // Construimos el usuario con rol estándar (rol_id = 1)
         Usuario usuario = new Usuario();
-        usuario.setNombreUsuario(nombre);
         usuario.setEmailUsuario(email);
-        //usuario.setPasswordUsuario(password); sin hash
         usuario.setPasswordUsuario(org.mindrot.jbcrypt.BCrypt.hashpw(password, org.mindrot.jbcrypt.BCrypt.gensalt(10)));
-        usuario.setRolId(1);
+        usuario.setRolId(2);
 
-        boolean exito = usuarioDAO.registrar(usuario);
+        int idGenerado = usuarioDAO.registrar(usuario, nombre);
 
-        if (exito) {
+        if (idGenerado > 0) {
             labelMensaje.setStyle("-fx-text-fill: #3A8F5F;");
             labelMensaje.setText("¡Cuenta creada! Redirigiendo al login...");
 

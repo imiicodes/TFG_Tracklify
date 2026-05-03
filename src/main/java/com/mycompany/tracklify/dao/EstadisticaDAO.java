@@ -5,40 +5,47 @@
 package com.mycompany.tracklify.dao;
 
 import com.mycompany.tracklify.database.ConexionBD;
-import com.mycompany.tracklify.models.Estadistica;
+import com.mycompany.tracklify.models.ProgresoSemanal;
+import com.mycompany.tracklify.models.ResumenUsuario;
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Consultas de informes contra vistas SQL.
  *
  * @author imii
  */
-
 public class EstadisticaDAO {
 
-    public List<Estadistica> obtenerPorUsuario(int idUsuario) {
-        List<Estadistica> lista = new ArrayList<>();
-        String sql = "SELECT * FROM estadisticas WHERE id_usuario = ? ORDER BY fecha_generacion DESC";
+    private static ProgresoSemanal mapProgresoSemanal(ResultSet rs) throws SQLException {
+        return new ProgresoSemanal(
+            rs.getInt("id_usuario"),
+            rs.getInt("id_habito"),
+            rs.getString("nombre_habito"),
+            rs.getInt("objetivo_veces"),
+            rs.getString("periodo_objetivo"),
+            rs.getInt("anio_semana"),
+            rs.getInt("num_semana"),
+            rs.getInt("veces_completado"),
+            rs.getInt("veces_pendientes"),
+            rs.getDouble("porcentaje_completado"),
+            rs.getLong("segundos_totales_semana")
+        );
+    }
+
+    public List<ProgresoSemanal> obtenerProgresoSemanal(int idHabito) {
+        List<ProgresoSemanal> lista = new ArrayList<>();
+        String sql = "SELECT * FROM v_progreso_semanal WHERE id_habito = ?";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setInt(1, idUsuario);
+            ps.setInt(1, idHabito);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                Estadistica e = new Estadistica(
-                    rs.getInt("id_estadistica"),
-                    rs.getInt("id_usuario"),
-                    rs.getDate("fecha_generacion").toLocalDate(),
-                    rs.getBigDecimal("porcentaje_completado"),
-                    rs.getInt("racha_actual"),
-                    rs.getInt("tareas_completadas"),
-                    rs.getInt("tareas_totales")
-                );
-                lista.add(e);
+                lista.add(mapProgresoSemanal(rs));
             }
 
         } catch (SQLException e) {
@@ -47,8 +54,8 @@ public class EstadisticaDAO {
         return lista;
     }
 
-    public Estadistica obtenerUltima(int idUsuario) {
-        String sql = "SELECT * FROM estadisticas WHERE id_usuario = ? ORDER BY fecha_generacion DESC LIMIT 1";
+    public ResumenUsuario obtenerResumenUsuario(int idUsuario) {
+        String sql = "SELECT * FROM v_resumen_usuario WHERE id_usuario = ?";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -57,14 +64,13 @@ public class EstadisticaDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                return new Estadistica(
-                    rs.getInt("id_estadistica"),
+                return new ResumenUsuario(
                     rs.getInt("id_usuario"),
-                    rs.getDate("fecha_generacion").toLocalDate(),
-                    rs.getBigDecimal("porcentaje_completado"),
-                    rs.getInt("racha_actual"),
-                    rs.getInt("tareas_completadas"),
-                    rs.getInt("tareas_totales")
+                    rs.getString("nombre_usuario"),
+                    rs.getInt("total_habitos_activos"),
+                    rs.getInt("total_cumplimientos"),
+                    rs.getInt("habitos_completados_hoy"),
+                    rs.getDouble("tasa_exito_global")
                 );
             }
 
@@ -74,52 +80,23 @@ public class EstadisticaDAO {
         return null;
     }
 
-    public boolean insertar(Estadistica estadistica) {
-        String sql = "INSERT INTO estadisticas (id_usuario, fecha_generacion, porcentaje_completado, racha_actual, tareas_completadas, tareas_totales) VALUES (?, ?, ?, ?, ?, ?)";
-
-        try (Connection con = ConexionBD.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, estadistica.getIdUsuario());
-            ps.setDate(2, Date.valueOf(estadistica.getFechaGeneracion()));
-            ps.setBigDecimal(3, estadistica.getPorcentajeCompletado());
-            ps.setInt(4, estadistica.getRachaActual());
-            ps.setInt(5, estadistica.getTareasCompletadas());
-            ps.setInt(6, estadistica.getTareasTotales());
-
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public boolean generarEstadisticaHoy(int idUsuario) {
-        String sql = """
-            INSERT INTO estadisticas (id_usuario, fecha_generacion, porcentaje_completado, racha_actual, tareas_completadas, tareas_totales)
-            SELECT
-                t.usuario_id,
-                CURDATE(),
-                ROUND(SUM(rh.estado_registro) * 100.0 / COUNT(rh.id_registro), 2),
-                0,
-                SUM(rh.estado_registro),
-                COUNT(rh.id_registro)
-            FROM tareas t
-            JOIN registros_habitos rh ON rh.tarea_id = t.id_tarea
-            WHERE t.usuario_id = ? AND rh.fecha_registro = CURDATE()
-            GROUP BY t.usuario_id
-        """;
+    public List<ProgresoSemanal> obtenerInformeSemanal(int idUsuario) {
+        List<ProgresoSemanal> lista = new ArrayList<>();
+        String sql = "SELECT * FROM v_informe_semanal WHERE id_usuario = ?";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idUsuario);
-            return ps.executeUpdate() > 0;
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                lista.add(mapProgresoSemanal(rs));
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return lista;
     }
 }

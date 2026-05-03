@@ -1,13 +1,16 @@
 package com.mycompany.tracklify.controllers;
 
 import com.mycompany.tracklify.dao.EstadisticaDAO;
+import com.mycompany.tracklify.dao.HabitoDAO;
 import com.mycompany.tracklify.dao.NotificacionDAO;
-import com.mycompany.tracklify.dao.TareaDAO;
-import com.mycompany.tracklify.models.Estadistica;
+import com.mycompany.tracklify.dao.PerfilDAO;
+import com.mycompany.tracklify.models.Habito;
 import com.mycompany.tracklify.models.Notificacion;
-import com.mycompany.tracklify.models.Tarea;
+import com.mycompany.tracklify.models.Perfil;
+import com.mycompany.tracklify.models.ResumenUsuario;
 import com.mycompany.tracklify.models.Usuario;
 import com.mycompany.tracklify.utils.NotificacionScheduler;
+import com.mycompany.tracklify.utils.RachaService;
 import com.mycompany.tracklify.utils.SessionManager;
 import java.net.URL;
 import java.time.LocalDate;
@@ -44,7 +47,7 @@ import javafx.util.Duration;
  * @version 1.0
  * @see NotificacionScheduler
  * @see NotificacionDAO
- * @see TareaDAO
+ * @see HabitoDAO
  */
 public class MainViewController implements Initializable {
 
@@ -96,11 +99,15 @@ public class MainViewController implements Initializable {
 
     // ── DAOs ──────────────────────────────────────────────────────────────
 
-    /** DAO para operaciones sobre hábitos/tareas. */
-    private TareaDAO tareaDAO = new TareaDAO();
+    /** DAO para operaciones sobre hábitos. */
+    private HabitoDAO habitoDAO = new HabitoDAO();
 
-    /** DAO para operaciones sobre estadísticas. */
+    /** DAO para resúmenes e informes (vistas SQL). */
     private EstadisticaDAO estadisticaDAO = new EstadisticaDAO();
+
+    private PerfilDAO perfilDAO = new PerfilDAO();
+
+    private RachaService rachaService = new RachaService();
 
     /**
      * DAO para crear notificaciones al guardar un hábito y para
@@ -126,7 +133,11 @@ public class MainViewController implements Initializable {
         Usuario usuario = SessionManager.getInstancia().getUsuarioActual();
 
         if (usuario != null) {
-            labelBienvenida.setText("Bienvenido, " + usuario.getNombreUsuario() + " ✦");
+            Perfil perfil = perfilDAO.obtenerPorUsuario(usuario.getIdUsuario());
+            String nombreSaludo = perfil != null && perfil.getNombreUsuario() != null && !perfil.getNombreUsuario().isEmpty()
+                ? perfil.getNombreUsuario()
+                : usuario.getEmailUsuario();
+            labelBienvenida.setText("Bienvenido, " + nombreSaludo + " ✦");
             cargarTareas(usuario.getIdUsuario());
             cargarEstadisticas(usuario.getIdUsuario());
 
@@ -218,16 +229,21 @@ public class MainViewController implements Initializable {
             spinnerMinutos.getValue()
         );
 
-        // Construimos y persistimos la tarea
-        Tarea nueva = new Tarea();
-        nueva.setUsuarioId(SessionManager.getInstancia().getUsuarioActual().getIdUsuario());
-        nueva.setNombreTarea(nombre);
-        nueva.setDescripcionTarea(campoDescripcionTarea.getText().trim());
-        nueva.setFrecuenciaTarea(frecuencia);
+        String userDesc = campoDescripcionTarea.getText().trim();
+        String descripcionCombinada = userDesc.isEmpty()
+            ? frecuencia
+            : userDesc + "\n" + frecuencia;
 
-        boolean tareaGuardada = tareaDAO.insertar(nueva);
+        Habito nueva = new Habito();
+        nueva.setIdUsuario(SessionManager.getInstancia().getUsuarioActual().getIdUsuario());
+        nueva.setNombreHabito(nombre);
+        nueva.setDescripcionHabito(descripcionCombinada);
+        nueva.setFechaInicio(LocalDate.now());
+        nueva.setEstado("ACTIVO");
 
-        if (tareaGuardada) {
+        boolean habitoGuardado = habitoDAO.insertar(nueva);
+
+        if (habitoGuardado) {
 
             // Calculamos la primera fecha de notificación y la creamos en BD
             LocalDateTime fechaNotificacion = calcularProximaFecha(
@@ -270,17 +286,17 @@ public class MainViewController implements Initializable {
      * @param idUsuario identificador del usuario
      */
     private void cargarTareas(int idUsuario) {
-        List<Tarea> tareas = tareaDAO.obtenerPorUsuario(idUsuario);
-        labelTareasActivas.setText(String.valueOf(tareas.size()));
+        List<Habito> habitos = habitoDAO.obtenerPorUsuario(idUsuario);
+        labelTareasActivas.setText(String.valueOf(habitos.size()));
         contenedorTareas.getChildren().clear();
 
-        if (tareas.isEmpty()) {
+        if (habitos.isEmpty()) {
             Label sinTareas = new Label("No tienes hábitos aún. ¡Pulsa + Crear nuevo hábito!");
             sinTareas.setStyle("-fx-text-fill: #C4AADB; -fx-font-size: 12px;");
             contenedorTareas.getChildren().add(sinTareas);
         } else {
-            for (Tarea tarea : tareas) {
-                contenedorTareas.getChildren().add(crearFilaTarea(tarea));
+            for (Habito habito : habitos) {
+                contenedorTareas.getChildren().add(crearFilaHabito(habito));
             }
         }
     }
@@ -345,10 +361,16 @@ public class MainViewController implements Initializable {
      * @param idUsuario identificador del usuario
      */
     private void cargarEstadisticas(int idUsuario) {
-        Estadistica ultima = estadisticaDAO.obtenerUltima(idUsuario);
-        if (ultima != null) {
-            labelPorcentaje.setText(ultima.getPorcentajeCompletado() + "%");
-            labelRacha.setText(ultima.getRachaActual() + " días");
+        ResumenUsuario resumen = estadisticaDAO.obtenerResumenUsuario(idUsuario);
+        if (resumen != null) {
+            double tasa = resumen.getTasaExitoGlobal();
+            double porcentaje = (tasa >= 0 && tasa <= 1.0) ? tasa * 100.0 : tasa;
+            labelPorcentaje.setText(String.format("%.0f%%", porcentaje));
+            int maxRacha = 0;
+            for (Habito h : habitoDAO.obtenerPorUsuario(idUsuario)) {
+                maxRacha = Math.max(maxRacha, rachaService.calcularRachaActual(h.getIdHabito()));
+            }
+            labelRacha.setText(maxRacha + " días");
         } else {
             labelPorcentaje.setText("0%");
             labelRacha.setText("0 días");
@@ -360,10 +382,10 @@ public class MainViewController implements Initializable {
     /**
      * Construye el nodo visual de una tarea con checkbox, nombre, badge y menú.
      *
-     * @param tarea la {@link Tarea} a representar
+     * @param habito el {@link Habito} a representar
      * @return {@link HBox} con todos los elementos de la fila
      */
-    private HBox crearFilaTarea(Tarea tarea) {
+    private HBox crearFilaHabito(Habito habito) {
         HBox fila = new HBox(10);
         fila.getStyleClass().add("habito-fila");
         fila.setAlignment(Pos.CENTER_LEFT);
@@ -371,13 +393,11 @@ public class MainViewController implements Initializable {
         CheckBox checkbox = new CheckBox();
         checkbox.getStyleClass().add("habito-checkbox");
 
-        Label nombre = new Label(tarea.getNombreTarea());
+        Label nombre = new Label(habito.getNombreHabito());
         nombre.getStyleClass().add("habito-nombre");
         HBox.setHgrow(nombre, Priority.ALWAYS);
 
-        Label badge = new Label(
-            tarea.getFrecuenciaTarea() != null ? tarea.getFrecuenciaTarea() : "—"
-        );
+        Label badge = new Label(textoBadgeHorario(habito));
         badge.getStyleClass().add("badge-pendiente");
 
         Button btnMenu = new Button("···");
@@ -386,12 +406,12 @@ public class MainViewController implements Initializable {
         ContextMenu menu = new ContextMenu();
 
         MenuItem renombrar = new MenuItem("Renombrar");
-        renombrar.setOnAction(e -> mostrarDialogoRenombrar(tarea, nombre, badge));
+        renombrar.setOnAction(e -> mostrarDialogoRenombrar(habito, nombre, badge));
 
         MenuItem borrar = new MenuItem("Borrar hábito");
         borrar.setStyle("-fx-text-fill: #C0392B;");
         borrar.setOnAction(e -> {
-            tareaDAO.eliminar(tarea.getIdTarea());
+            habitoDAO.eliminar(habito.getIdHabito());
             contenedorTareas.getChildren().remove(fila);
             actualizarContadorTareas();
         });
@@ -547,7 +567,19 @@ public class MainViewController implements Initializable {
      * @param labelNombre la etiqueta visual del nombre
      * @param labelBadge  la etiqueta visual del badge
      */
-    private void mostrarDialogoRenombrar(Tarea tarea, Label labelNombre, Label labelBadge) {
+    private String textoBadgeHorario(Habito habito) {
+        String d = habito.getDescripcionHabito();
+        if (d == null || d.isEmpty()) {
+            return "—";
+        }
+        int nl = d.indexOf('\n');
+        if (nl >= 0 && nl < d.length() - 1) {
+            return d.substring(nl + 1).trim();
+        }
+        return d.trim();
+    }
+
+    private void mostrarDialogoRenombrar(Habito habito, Label labelNombre, Label labelBadge) {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Modificar hábito");
         dialog.setHeaderText(null);
@@ -558,7 +590,7 @@ public class MainViewController implements Initializable {
         contenido.setStyle("-fx-padding: 20; -fx-min-width: 360; -fx-background-color: white;");
 
         Label lblN = estiloLabel("Nombre:");
-        TextField tfNombre = new TextField(tarea.getNombreTarea());
+        TextField tfNombre = new TextField(habito.getNombreHabito());
         Label lblF = estiloLabel("Frecuencia:");
         ComboBox<String> cbFrec = new ComboBox<>();
         cbFrec.getItems().addAll("Diaria", "Semanal", "Mensual");
@@ -610,9 +642,17 @@ public class MainViewController implements Initializable {
                 cbDia.isVisible() ? cbDia.getValue() : null,
                 spH.getValue(), spM.getValue()
             );
-            tarea.setNombreTarea(nuevoNombre);
-            tarea.setFrecuenciaTarea(nuevaFrecuencia);
-            tareaDAO.actualizar(tarea);
+            String fullDesc = habito.getDescripcionHabito();
+            String userPart = "";
+            if (fullDesc != null) {
+                int nl = fullDesc.indexOf('\n');
+                if (nl >= 0) {
+                    userPart = fullDesc.substring(0, nl).trim();
+                }
+            }
+            habito.setNombreHabito(nuevoNombre);
+            habito.setDescripcionHabito(userPart.isEmpty() ? nuevaFrecuencia : userPart + "\n" + nuevaFrecuencia);
+            habitoDAO.actualizar(habito);
             labelNombre.setText(nuevoNombre);
             labelBadge.setText(nuevaFrecuencia);
         }

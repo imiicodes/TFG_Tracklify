@@ -23,7 +23,7 @@ import javafx.stage.Stage;
  * una vez verificadas las credenciales, decide a qué vista navegar
  * en función del rol y del estado del onboarding:</p>
  * <ul>
- *   <li>Rol administrador ({@code rol_id = 2}) → {@code admin_view.fxml}</li>
+ *   <li>Rol administrador ({@code rol_id = 1}) → {@code admin_view.fxml}</li>
  *   <li>Usuario con {@code onboarding_completado = 0} → {@code onboarding_view.fxml}</li>
  *   <li>Usuario con {@code onboarding_completado = 1} → {@code main_view.fxml}</li>
  * </ul>
@@ -134,8 +134,8 @@ public class LoginController {
             PREFS.putBoolean(PREF_RECORDAR, false);
         }
 
-        // Autenticación contra la BD
         Usuario usuario = usuarioDAO.login(email, password);
+        usuarioDAO.registrarIntento(email, "127.0.0.1", usuario != null ? "EXITO" : "FALLO_PASSWORD");
 
         if (usuario != null) {
 

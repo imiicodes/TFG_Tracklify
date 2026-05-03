@@ -73,12 +73,12 @@ public class SessionManager {
     /**
      * Comprueba si el usuario actual tiene rol de administrador.
      *
-     * <p>El rol de administrador tiene {@code rol_id = 2} en la base de datos.</p>
+     * <p>El rol de administrador tiene {@code rol_id = 1} en la base de datos.</p>
      *
      * @return {@code true} si el usuario es administrador, {@code false} en caso contrario
      */
     public boolean esAdministrador() {
-        return usuarioActual != null && usuarioActual.getRolId() == 2;
+        return usuarioActual != null && usuarioActual.getRolId() == 1;
     }
 
     /**

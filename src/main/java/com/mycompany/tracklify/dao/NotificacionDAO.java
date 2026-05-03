@@ -35,7 +35,7 @@ public class NotificacionDAO {
     public boolean insertar(Notificacion notificacion) {
 
         String sql = "INSERT INTO notificaciones "
-                   + "(usuario_id, mensaje_notificacion, estado_notificacion, fecha_programada) "
+                   + "(id_usuario, mensaje_notificacion, estado_notificacion, fecha_programada) "
                    + "VALUES (?, ?, 0, ?)";
 
         try (Connection con = ConexionBD.conectar();
@@ -83,7 +83,7 @@ public class NotificacionDAO {
         // Seleccionamos notificaciones cuya fecha programada ya pasó
         // y que no estén pospuestas activamente ni completadas
         String sql = "SELECT * FROM notificaciones "
-                   + "WHERE usuario_id = ? "
+                   + "WHERE id_usuario = ? "
                    + "AND estado_notificacion = 0 "
                    + "AND fecha_programada <= NOW() "
                    + "AND (pospuesta_hasta IS NULL OR pospuesta_hasta <= NOW())";
@@ -117,7 +117,7 @@ public class NotificacionDAO {
 
         List<Notificacion> lista = new ArrayList<>();
         String sql = "SELECT * FROM notificaciones "
-                   + "WHERE usuario_id = ? ORDER BY fecha_programada ASC";
+                   + "WHERE id_usuario = ? ORDER BY fecha_programada ASC";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -231,7 +231,7 @@ public class NotificacionDAO {
 
         Notificacion n = new Notificacion();
         n.setIdNotificacion(rs.getInt("id_notificacion"));
-        n.setUsuarioId(rs.getInt("usuario_id"));
+        n.setUsuarioId(rs.getInt("id_usuario"));
         n.setMensajeNotificacion(rs.getString("mensaje_notificacion"));
         n.setEstadoNotificacion(rs.getBoolean("estado_notificacion"));
 
