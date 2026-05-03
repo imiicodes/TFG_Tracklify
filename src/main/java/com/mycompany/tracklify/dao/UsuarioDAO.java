@@ -212,6 +212,28 @@ public class UsuarioDAO {
         return null;
     }
 
+    /**
+     * Actualiza solo la contraseña (hash BCrypt) y la fecha de última modificación.
+     */
+    public boolean actualizarPassword(int idUsuario, String passwordHash) {
+
+        String sql = "UPDATE usuarios SET password_usuario = ?, fecha_ult_modificacion = ? WHERE id_usuario = ?";
+
+        try (Connection con = ConexionBD.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, passwordHash);
+            ps.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setInt(3, idUsuario);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean actualizar(Usuario usuario) {
 
         String sql = "UPDATE usuarios SET email_usuario = ?, password_usuario = ?, "
