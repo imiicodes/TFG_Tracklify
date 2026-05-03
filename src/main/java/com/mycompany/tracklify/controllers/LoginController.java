@@ -3,6 +3,7 @@ package com.mycompany.tracklify.controllers;
 import com.mycompany.tracklify.dao.OnboardingDAO;
 import com.mycompany.tracklify.dao.UsuarioDAO;
 import com.mycompany.tracklify.models.Usuario;
+import com.mycompany.tracklify.utils.BloqueoIpService;
 import com.mycompany.tracklify.utils.SessionManager;
 import java.util.prefs.Preferences;
 import javafx.event.ActionEvent;
@@ -37,8 +38,12 @@ import javafx.stage.Stage;
  * @see UsuarioDAO
  * @see OnboardingDAO
  * @see SessionManager
+ * @see BloqueoIpService
  */
 public class LoginController {
+
+    /** IP del cliente; temporalmente fija hasta disponer de la IP real de la petición. */
+    private static final String IP_LOGIN = "127.0.0.1";
 
     /**
      * Campo de texto para el correo electrónico.
@@ -82,6 +87,9 @@ public class LoginController {
 
     /** DAO para comprobar el estado del onboarding del usuario. */
     private OnboardingDAO onboardingDAO = new OnboardingDAO();
+
+    /** Control de bloqueo por intentos fallidos desde una misma IP. */
+    private BloqueoIpService bloqueoIpService = new BloqueoIpService();
 
     /**
      * Se ejecuta automáticamente al cargar la vista.
@@ -134,39 +142,49 @@ public class LoginController {
             PREFS.putBoolean(PREF_RECORDAR, false);
         }
 
+        if (bloqueoIpService.estaBlockeada(IP_LOGIN)) {
+            labelMensaje.setStyle("-fx-text-fill: #B5368A;");
+            labelMensaje.setText("Demasiados intentos fallidos. Espera 1 minuto.");
+            usuarioDAO.registrarIntento(email, IP_LOGIN, "CUENTA_BLOQUEADA");
+            return;
+        }
+
         Usuario usuario = usuarioDAO.login(email, password);
-        usuarioDAO.registrarIntento(email, "127.0.0.1", usuario != null ? "EXITO" : "FALLO_PASSWORD");
 
-        if (usuario != null) {
-
-            // Guardamos el usuario en la sesión global
-            SessionManager.getInstancia().setUsuarioActual(usuario);
-
-            try {
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                String destino;
-
-                if (SessionManager.getInstancia().esAdministrador()) {
-                    destino = "/fxml/admin_view.fxml";
-                } else if (!onboardingDAO.haCompletadoOnboarding(usuario.getIdUsuario())) {
-                    destino = "/fxml/onboarding_view.fxml";
-                } else {
-                    destino = "/fxml/main_view.fxml";
-                }
-
-                FXMLLoader loader = new FXMLLoader(getClass().getResource(destino));
-                stage.setScene(new Scene(loader.load()));
-                stage.show();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                labelMensaje.setStyle("-fx-text-fill: #B5368A;");
-                labelMensaje.setText("Error al cargar la vista.");
-            }
-
-        } else {
+        if (usuario == null) {
+            bloqueoIpService.registrarFallo(IP_LOGIN);
+            usuarioDAO.registrarIntento(email, IP_LOGIN, "FALLO_PASSWORD");
             labelMensaje.setStyle("-fx-text-fill: #B5368A;");
             labelMensaje.setText("Credenciales incorrectas. Inténtalo de nuevo.");
+            return;
+        }
+
+        usuarioDAO.registrarIntento(email, IP_LOGIN, "EXITO");
+        bloqueoIpService.registrarExito(IP_LOGIN);
+
+        // Guardamos el usuario en la sesión global
+        SessionManager.getInstancia().setUsuarioActual(usuario);
+
+        try {
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            String destino;
+
+            if (SessionManager.getInstancia().esAdministrador()) {
+                destino = "/fxml/admin_view.fxml";
+            } else if (!onboardingDAO.haCompletadoOnboarding(usuario.getIdUsuario())) {
+                destino = "/fxml/onboarding_view.fxml";
+            } else {
+                destino = "/fxml/main_view.fxml";
+            }
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(destino));
+            stage.setScene(new Scene(loader.load()));
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            labelMensaje.setStyle("-fx-text-fill: #B5368A;");
+            labelMensaje.setText("Error al cargar la vista.");
         }
     }
 
