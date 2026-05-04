@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.tracklify.dao;
 
 import com.mycompany.tracklify.database.ConexionBD;
@@ -9,15 +5,19 @@ import com.mycompany.tracklify.models.RegistroHabito;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.temporal.IsoFields;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Acceso JDBC a la tabla {@code registros_habitos} (sesiones y cumplimientos de hábitos).
+ * Acceso JDBC a la tabla {@code registros_habitos}: consultas por hábito, fecha y estado,
+ * inserciones con semana ISO y agregados mensuales para vistas de calendario.
  *
- * @author imii
+ * @author Tracklify
  */
 public class RegistroHabitoDAO {
 
@@ -219,15 +219,25 @@ public class RegistroHabitoDAO {
      * @return la fila encontrada o {@code null}
      */
     public RegistroHabito obtenerRegistroHoy(int idHabito, String estado) {
+        return obtenerRegistroPorDiaYEstado(idHabito, LocalDate.now(), estado);
+    }
 
-        String sql = "SELECT * FROM registros_habitos WHERE id_habito = ? AND estado_registro = ? "
-            + "AND DATE(marca_tiempo_inicio) = CURDATE() LIMIT 1";
+    /**
+     * Obtiene un registro del hábito en la fecha dada, priorizando {@code COMPLETADO} sobre {@code PENDIENTE}.
+     *
+     * @param idHabito identificador del hábito
+     * @param fecha    día calendario de {@code marca_tiempo_inicio}
+     * @return la fila más relevante o {@code null} si no hay registros ese día
+     */
+    public RegistroHabito obtenerRegistroHoy(int idHabito, LocalDate fecha) {
+        String sql = "SELECT * FROM registros_habitos WHERE id_habito = ? AND DATE(marca_tiempo_inicio) = ? "
+            + "ORDER BY (estado_registro = 'COMPLETADO') DESC, id_registro DESC LIMIT 1";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idHabito);
-            ps.setString(2, estado);
+            ps.setDate(2, Date.valueOf(fecha));
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -238,6 +248,85 @@ public class RegistroHabitoDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Obtiene el registro del hábito en una fecha concreta y estado de registro.
+     *
+     * @param idHabito identificador del hábito
+     * @param fecha    día de la marca de inicio
+     * @param estado   valor de {@code estado_registro}
+     * @return la fila encontrada o {@code null}
+     */
+    private RegistroHabito obtenerRegistroPorDiaYEstado(int idHabito, LocalDate fecha, String estado) {
+        String sql = "SELECT * FROM registros_habitos WHERE id_habito = ? AND estado_registro = ? "
+            + "AND DATE(marca_tiempo_inicio) = ? LIMIT 1";
+
+        try (Connection con = ConexionBD.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idHabito);
+            ps.setString(2, estado);
+            ps.setDate(3, Date.valueOf(fecha));
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return mapFila(rs);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Agrupa por día los cumplimientos del mes con un identificador de hábito representativo (mínimo {@code id_habito}).
+     *
+     * @param mes        año-mes consultado
+     * @param idsHabitos identificadores de hábitos a incluir (p. ej. activos del usuario); si está vacío, mapa vacío
+     * @return mapa día → {@code id_habito} del primer cumplimiento agrupado
+     */
+    public Map<LocalDate, Integer> obtenerDiasCumplidosPorMes(YearMonth mes, List<Integer> idsHabitos) {
+        Map<LocalDate, Integer> mapa = new LinkedHashMap<>();
+        if (idsHabitos == null || idsHabitos.isEmpty()) {
+            return mapa;
+        }
+        StringBuilder in = new StringBuilder();
+        for (int i = 0; i < idsHabitos.size(); i++) {
+            if (i > 0) {
+                in.append(',');
+            }
+            in.append('?');
+        }
+        String sql = "SELECT DATE(marca_tiempo_inicio) AS dia, MIN(id_habito) AS id_habito "
+            + "FROM registros_habitos "
+            + "WHERE estado_registro = 'COMPLETADO' "
+            + "AND YEAR(marca_tiempo_inicio) = ? AND MONTH(marca_tiempo_inicio) = ? "
+            + "AND id_habito IN (" + in + ") "
+            + "GROUP BY DATE(marca_tiempo_inicio)";
+
+        try (Connection con = ConexionBD.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            int idx = 1;
+            ps.setInt(idx++, mes.getYear());
+            ps.setInt(idx++, mes.getMonthValue());
+            for (Integer id : idsHabitos) {
+                ps.setInt(idx++, id);
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Date d = rs.getDate("dia");
+                if (d != null) {
+                    mapa.put(d.toLocalDate(), rs.getInt("id_habito"));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return mapa;
     }
 
     /**
@@ -297,7 +386,11 @@ public class RegistroHabitoDAO {
     }
 
     /**
-     * Días cumplidos según la vista {@code v_dias_cumplidos}.
+     * Devuelve las fechas en las que el hábito tiene cumplimiento registrado, según la vista
+     * {@code v_dias_cumplidos} (una fila por día cumplido).
+     *
+     * @param idHabito identificador del hábito
+     * @return fechas ordenadas arbitrariamente; conviene ordenar en el llamador si se necesita
      */
     public List<LocalDate> obtenerDiasCumplidos(int idHabito) {
         List<LocalDate> dias = new ArrayList<>();

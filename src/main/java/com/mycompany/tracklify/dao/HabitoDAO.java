@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.tracklify.dao;
 
 import com.mycompany.tracklify.database.ConexionBD;
@@ -12,9 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Acceso JDBC a la tabla {@code habitos}: consulta, alta con clave generada, actualización y borrado.
+ * Acceso JDBC a la tabla {@code habitos}: consultas por usuario o por id, alta con clave generada,
+ * actualización, borrado y listados filtrados (p. ej. solo activos).
  *
- * @author imii
+ * @author Tracklify
  */
 public class HabitoDAO {
 
@@ -99,6 +96,32 @@ public class HabitoDAO {
     public List<Habito> obtenerPorUsuario(int idUsuario) {
         List<Habito> lista = new ArrayList<>();
         String sql = "SELECT * FROM habitos WHERE id_usuario = ?";
+
+        try (Connection con = ConexionBD.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idUsuario);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                lista.add(mapFila(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    /**
+     * Lista los hábitos del usuario cuyo estado es {@code ACTIVO}.
+     *
+     * @param idUsuario propietario
+     * @return lista ordenada por la consulta (posiblemente vacía)
+     */
+    public List<Habito> obtenerActivosPorUsuario(int idUsuario) {
+        List<Habito> lista = new ArrayList<>();
+        String sql = "SELECT * FROM habitos WHERE id_usuario = ? AND UPPER(TRIM(estado)) = 'ACTIVO'";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {

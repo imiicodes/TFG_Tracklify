@@ -1,23 +1,29 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.tracklify.dao;
 
 import com.mycompany.tracklify.database.ConexionBD;
 import com.mycompany.tracklify.models.ProgresoSemanal;
 import com.mycompany.tracklify.models.ResumenUsuario;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Consultas de informes contra vistas SQL.
+ * Consultas JDBC de solo lectura contra vistas SQL de informes y agregados de usuario.
  *
- * @author imii
+ * @author Tracklify
  */
 public class EstadisticaDAO {
 
+    /**
+     * Mapea una fila de {@code ResultSet} a {@link ProgresoSemanal}.
+     *
+     * @param rs cursor posicionado en la fila
+     * @return DTO construido
+     * @throws SQLException si falla la lectura de columnas
+     */
     private static ProgresoSemanal mapProgresoSemanal(ResultSet rs) throws SQLException {
         return new ProgresoSemanal(
             rs.getInt("id_usuario"),
@@ -34,6 +40,12 @@ public class EstadisticaDAO {
         );
     }
 
+    /**
+     * Lista el progreso semanal de un hábito desde la vista {@code v_progreso_semanal}.
+     *
+     * @param idHabito identificador del hábito
+     * @return filas de la vista, posiblemente vacía
+     */
     public List<ProgresoSemanal> obtenerProgresoSemanal(int idHabito) {
         List<ProgresoSemanal> lista = new ArrayList<>();
         String sql = "SELECT * FROM v_progreso_semanal WHERE id_habito = ?";
@@ -96,6 +108,12 @@ public class EstadisticaDAO {
         return null;
     }
 
+    /**
+     * Lista el informe semanal del usuario desde {@code v_informe_semanal}.
+     *
+     * @param idUsuario identificador del usuario
+     * @return filas de la vista, posiblemente vacía
+     */
     public List<ProgresoSemanal> obtenerInformeSemanal(int idUsuario) {
         List<ProgresoSemanal> lista = new ArrayList<>();
         String sql = "SELECT * FROM v_informe_semanal WHERE id_usuario = ?";

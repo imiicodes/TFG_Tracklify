@@ -1,26 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            style="-fx-background-color: #F6EEFF;">
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.mycompany.tracklify.controllers.CalendarioController"
+      spacing="16" style="-fx-background-color: #F6EEFF;">
 
-    <top>
-        <VBox style="-fx-background-color: linear-gradient(to right, #7A4578, #93588F);">
-            <padding>
-                <Insets top="18" right="24" bottom="18" left="24"/>
-            </padding>
-            <Label text="Calendario" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
-        </VBox>
-    </top>
+    <stylesheets>
+        <URL value="@/styles/main_view.css"/>
+    </stylesheets>
 
-    <center>
-        <StackPane style="-fx-background-color: #F6EEFF;">
-            <Label text="Próximamente" style="-fx-text-fill: #6B4A6E; -fx-font-size: 16px;"/>
-        </StackPane>
-    </center>
-</BorderPane>
+    <padding>
+        <Insets top="20" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <!-- Navegación mes / año -->
+    <HBox alignment="CENTER" spacing="12">
+        <Button fx:id="btnAnioAnterior" text="&lt;&lt;" styleClass="btn-navegacion-calendario"/>
+        <Button fx:id="btnMesAnterior" text="&lt;" styleClass="btn-navegacion-calendario"/>
+        <Label fx:id="labelMesAnio" text="Mayo 2026" minWidth="180" alignment="CENTER"
+               style="-fx-text-fill: #7A4578; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+        <Button fx:id="btnMesSiguiente" text="&gt;" styleClass="btn-navegacion-calendario"/>
+        <Button fx:id="btnAnioSiguiente" text="&gt;&gt;" styleClass="btn-navegacion-calendario"/>
+    </HBox>
+
+    <!-- Cabeceras + celdas -->
+    <GridPane fx:id="gridCalendario" hgap="6" vgap="6" maxWidth="Infinity">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
+        </columnConstraints>
+    </GridPane>
+
+    <!-- Panel hábitos del día -->
+    <VBox fx:id="panelHabitos" spacing="10" styleClass="metrica-tarjeta" VBox.vgrow="ALWAYS">
+        <padding>
+            <Insets top="12" right="12" bottom="12" left="12"/>
+        </padding>
+        <Label fx:id="labelFechaSeleccionada" text="Hábitos del día"
+               style="-fx-text-fill: #7A4578; -fx-font-size: 15px; -fx-font-weight: bold;"/>
+        <ScrollPane fitToWidth="true" styleClass="scroll-contenido" VBox.vgrow="ALWAYS" minHeight="120">
+            <VBox fx:id="listaHabitosDelDia" spacing="8"/>
+        </ScrollPane>
+    </VBox>
+</VBox>

@@ -254,6 +254,34 @@ public class NotificacionDAO {
     }
 
     /**
+     * Obtiene la fecha y hora de la próxima notificación pendiente futura asociada a un hábito.
+     *
+     * @param idHabito identificador del hábito
+     * @return {@code fecha_programada} de la fila más próxima, o {@code null} si no hay pendientes
+     */
+    public LocalDateTime obtenerProximaNotificacion(int idHabito) {
+        String sql = "SELECT fecha_programada FROM notificaciones "
+            + "WHERE id_habito = ? AND estado = 'PENDIENTE' AND fecha_programada >= NOW() "
+            + "ORDER BY fecha_programada ASC LIMIT 1";
+
+        try (Connection con = ConexionBD.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idHabito);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Timestamp t = rs.getTimestamp("fecha_programada");
+                return t != null ? t.toLocalDateTime() : null;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener próxima notificación: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * Construye un objeto {@link Notificacion} a partir de una fila del {@link ResultSet}.
      *
      * <p>Método auxiliar privado para evitar duplicación de código de mapeo

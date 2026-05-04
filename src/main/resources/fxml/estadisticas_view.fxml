@@ -1,26 +1,136 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            style="-fx-background-color: #F6EEFF;">
+<ScrollPane fitToWidth="true" styleClass="scroll-contenido"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.mycompany.tracklify.controllers.EstadisticasController">
 
-    <top>
-        <VBox style="-fx-background-color: linear-gradient(to right, #7A4578, #93588F);">
-            <padding>
-                <Insets top="18" right="24" bottom="18" left="24"/>
-            </padding>
-            <Label text="Estadísticas" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+    <fx:define>
+        <ToggleGroup fx:id="grupoVistaEstadisticas"/>
+    </fx:define>
+
+    <stylesheets>
+        <URL value="@/styles/main_view.css"/>
+    </stylesheets>
+
+    <VBox spacing="16" style="-fx-background-color: #F6EEFF;">
+        <padding>
+            <Insets top="20" right="24" bottom="28" left="24"/>
+        </padding>
+
+        <!-- Cabecera -->
+        <HBox alignment="CENTER_LEFT" spacing="16">
+            <Label text="Estadísticas"
+                   style="-fx-text-fill: #7A4578; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <ComboBox fx:id="comboHabito" prefWidth="220" promptText="Selecciona un hábito"/>
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <ToggleButton fx:id="btnVistaHabito" text="Por hábito" toggleGroup="$grupoVistaEstadisticas" selected="true"
+                          styleClass="filtro-pill"/>
+            <ToggleButton fx:id="btnVistaGlobal" text="Global" toggleGroup="$grupoVistaEstadisticas"
+                          styleClass="filtro-pill"/>
+        </HBox>
+
+        <!-- Cuatro métricas -->
+        <HBox spacing="12" alignment="CENTER">
+            <VBox styleClass="metrica-tarjeta" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER">
+                <Label text="Racha actual" styleClass="metrica-label"/>
+                <Label fx:id="labelRachaActual" text="—" styleClass="metrica-valor"/>
+            </VBox>
+            <VBox styleClass="metrica-tarjeta" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER">
+                <Label text="Mejor racha" styleClass="metrica-label"/>
+                <Label fx:id="labelMejorRacha" text="—" styleClass="metrica-valor"/>
+            </VBox>
+            <VBox styleClass="metrica-tarjeta" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER">
+                <Label text="Total cumplimientos" styleClass="metrica-label"/>
+                <Label fx:id="labelTotalCumplimientos" text="—" styleClass="metrica-valor"/>
+            </VBox>
+            <VBox styleClass="metrica-tarjeta" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER">
+                <Label text="Tasa de éxito" styleClass="metrica-label"/>
+                <Label fx:id="labelTasaExito" text="—" styleClass="metrica-valor"/>
+            </VBox>
+        </HBox>
+
+        <!-- Gráficos -->
+        <HBox spacing="14" alignment="CENTER">
+            <VBox spacing="8" prefWidth="400" styleClass="metrica-tarjeta">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+                <Label text="Cumplimientos por semana"
+                       style="-fx-text-fill: #2D1B2E; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                <StackPane prefHeight="250" maxHeight="250" minHeight="250">
+                    <BarChart fx:id="graficaBarras" animated="false" legendVisible="true"
+                              prefHeight="250" maxHeight="250" minHeight="250">
+                        <xAxis>
+                            <CategoryAxis label="Semana"/>
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis label="Veces" lowerBound="0" minorTickCount="0" autoRanging="true"/>
+                        </yAxis>
+                    </BarChart>
+                    <Label fx:id="labelSinDatosBarras" text="Sin datos disponibles" visible="false" managed="false"
+                           style="-fx-text-fill: #6B4A6E; -fx-font-size: 14px;"/>
+                </StackPane>
+            </VBox>
+            <VBox spacing="8" prefWidth="400" styleClass="metrica-tarjeta">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+                <Label text="Progreso semanal %"
+                       style="-fx-text-fill: #2D1B2E; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                <StackPane prefHeight="250" maxHeight="250" minHeight="250">
+                    <LineChart fx:id="graficaLineas" animated="false" legendVisible="true"
+                               prefHeight="250" maxHeight="250" minHeight="250" createSymbols="true">
+                        <xAxis>
+                            <CategoryAxis label="Semana"/>
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis fx:id="ejeYLineas" side="LEFT" lowerBound="0" upperBound="100"
+                                        autoRanging="false" tickUnit="25" minorTickCount="0" label=""/>
+                        </yAxis>
+                    </LineChart>
+                    <Label fx:id="labelSinDatosLineas" text="Sin datos disponibles" visible="false" managed="false"
+                           style="-fx-text-fill: #6B4A6E; -fx-font-size: 14px;"/>
+                </StackPane>
+            </VBox>
+        </HBox>
+
+        <!-- Calendario -->
+        <VBox spacing="8">
+            <Label text="Historial de cumplimientos"
+                   style="-fx-text-fill: #7A4578; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label text="Últimos 3 meses" style="-fx-text-fill: #6B4A6E; -fx-font-size: 12px;"/>
+            <GridPane fx:id="gridCalendario" hgap="4" vgap="4">
+                <columnConstraints>
+                    <ColumnConstraints prefWidth="32" minWidth="28"/>
+                    <ColumnConstraints prefWidth="32" minWidth="28"/>
+                    <ColumnConstraints prefWidth="32" minWidth="28"/>
+                    <ColumnConstraints prefWidth="32" minWidth="28"/>
+                    <ColumnConstraints prefWidth="32" minWidth="28"/>
+                    <ColumnConstraints prefWidth="32" minWidth="28"/>
+                    <ColumnConstraints prefWidth="32" minWidth="28"/>
+                </columnConstraints>
+            </GridPane>
         </VBox>
-    </top>
-
-    <center>
-        <StackPane style="-fx-background-color: #F6EEFF;">
-            <Label text="Próximamente" style="-fx-text-fill: #6B4A6E; -fx-font-size: 16px;"/>
-        </StackPane>
-    </center>
-</BorderPane>
+    </VBox>
+</ScrollPane>

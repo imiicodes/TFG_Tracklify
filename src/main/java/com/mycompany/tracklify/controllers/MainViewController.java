@@ -85,6 +85,12 @@ public class MainViewController implements Initializable {
             } else if ("dashboard_view.fxml".equals(fxml)) {
                 DashboardViewController d = loader.getController();
                 d.setHost(this);
+            } else if ("estadisticas_view.fxml".equals(fxml)) {
+                EstadisticasController estadisticas = loader.getController();
+                estadisticas.setHost(this);
+            } else if ("calendario_view.fxml".equals(fxml)) {
+                CalendarioController calendario = loader.getController();
+                calendario.setHost(this);
             }
             AnchorPane.setTopAnchor(vista, 0.0);
             AnchorPane.setBottomAnchor(vista, 0.0);
