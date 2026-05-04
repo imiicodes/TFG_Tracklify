@@ -1,0 +1,154 @@
+/**
+ * Tema oscuro: sustituye fondos y textos principales manteniendo la misma estructura de clases que main_view.css.
+ */
+.root-pane {
+    -fx-background-color: #1A0F1A;
+}
+.sidebar {
+    -fx-background-color: #2D1B2E;
+}
+.sidebar-item {
+    -fx-text-fill: rgba(240, 230, 240, 0.75);
+}
+.sidebar-item:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-text-fill: #F0E6F0;
+}
+.sidebar-item-activo {
+    -fx-background-color: #3D2440;
+    -fx-text-fill: #F0E6F0;
+}
+.topbar {
+    -fx-background-color: #2D1B2E;
+}
+.topbar-titulo {
+    -fx-text-fill: #F0E6F0;
+}
+.btn-logout {
+    -fx-text-fill: #F0E6F0;
+    -fx-border-color: rgba(240, 230, 240, 0.35);
+}
+.contenido {
+    -fx-background-color: #1A0F1A;
+}
+.titulo-bienvenida {
+    -fx-text-fill: #C48ABD;
+}
+.subtitulo-bienvenida {
+    -fx-text-fill: #C8A8C8;
+}
+.seccion-titulo {
+    -fx-text-fill: #B06EA8;
+}
+.habito-fila {
+    -fx-background-color: #2D1B2E;
+    -fx-border-color: #4A3550;
+}
+.habito-nombre {
+    -fx-text-fill: #F0E6F0;
+}
+.footer {
+    -fx-background-color: #2D1B2E;
+    -fx-border-color: #4A3550;
+}
+.footer-texto {
+    -fx-text-fill: #C8A8C8;
+}
+.footer-version {
+    -fx-text-fill: #9A7A9A;
+}
+.tarjeta-stat {
+    -fx-background-color: #2D1B2E;
+    -fx-border-color: #4A3550;
+}
+.stat-num {
+    -fx-text-fill: #B06EA8;
+}
+.stat-label {
+    -fx-text-fill: #C8A8C8;
+}
+.btn-primary {
+    -fx-background-color: #3D2A42;
+    -fx-text-fill: #F0E6F0;
+    -fx-border-color: #B06EA8;
+}
+.btn-primary:hover {
+    -fx-background-color: #B06EA8;
+    -fx-text-fill: #1A0F1A;
+}
+.metrica-tarjeta {
+    -fx-background-color: #2D1B2E;
+}
+.metrica-valor {
+    -fx-text-fill: #C48ABD;
+}
+.metrica-label {
+    -fx-text-fill: #C8A8C8;
+}
+.tarjeta-config {
+    -fx-background-color: #2D1B2E;
+}
+.config-subtitulo {
+    -fx-text-fill: #C48ABD;
+}
+.campo-config {
+    -fx-background-color: #1A0F1A;
+    -fx-text-fill: #F0E6F0;
+    -fx-border-color: #5C4060;
+}
+.campo-config:focused {
+    -fx-border-color: #B06EA8;
+}
+.config-titulo-seccion {
+    -fx-text-fill: #C48ABD;
+}
+.scroll-pane-config,
+.stack-config-fondo {
+    -fx-background-color: #1A0F1A;
+}
+.scroll-pane-config > .viewport {
+    -fx-background-color: #1A0F1A;
+}
+.config-subtitulo-peligro {
+    -fx-text-fill: #EF9A9A;
+}
+.config-campo-label,
+.config-campo-label-fila {
+    -fx-text-fill: #C8A8C8;
+}
+.config-texto-cuenta {
+    -fx-text-fill: #F0E6F0;
+}
+.btn-tema {
+    -fx-background-color: #2D1B2E;
+    -fx-text-fill: #F0E6F0;
+    -fx-border-color: #C48ABD;
+}
+.btn-tema:hover {
+    -fx-background-color: #3D2A42;
+}
+.toggle-button.btn-tema:selected {
+    -fx-background-color: #7A4578;
+    -fx-text-fill: white;
+    -fx-border-color: #7A4578;
+}
+.config-separador {
+    -fx-background-color: #4A3550;
+}
+.zona-peligro {
+    -fx-border-color: #8B4A50;
+    -fx-background-color: rgba(45, 27, 46, 0.6);
+}
+.btn-peligro-outline {
+    -fx-border-color: #E57373;
+    -fx-text-fill: #FFCDD2;
+}
+.btn-peligro-outline:hover {
+    -fx-background-color: rgba(198, 40, 40, 0.25);
+}
+.btn-peligro-solido {
+    -fx-background-color: #E57373;
+}
+.btn-peligro-solido:hover {
+    -fx-background-color: #C62828;
+}

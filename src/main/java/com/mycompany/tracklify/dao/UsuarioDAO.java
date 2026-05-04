@@ -255,19 +255,63 @@ public class UsuarioDAO {
         }
     }
 
+    /**
+     * Elimina el usuario y, en la misma transacción, las filas dependientes habituales
+     * (descansos, registros de hábitos, notificaciones, hábitos, tokens de email, onboarding, baneos y perfil).
+     *
+     * @param idUsuario clave del usuario a borrar
+     * @return {@code true} si se eliminó la fila de {@code usuarios}
+     */
     public boolean eliminar(int idUsuario) {
 
-        String sql = "DELETE FROM usuarios WHERE id_usuario = ?";
+        try (Connection con = ConexionBD.conectar()) {
+            con.setAutoCommit(false);
+            try {
+                ejecutarUpdate(con,
+                    "DELETE d FROM descansos d "
+                        + "INNER JOIN registros_habitos r ON d.id_registro = r.id_registro "
+                        + "INNER JOIN habitos h ON r.id_habito = h.id_habito WHERE h.id_usuario = ?",
+                    idUsuario);
+                ejecutarUpdate(con,
+                    "DELETE r FROM registros_habitos r "
+                        + "INNER JOIN habitos h ON r.id_habito = h.id_habito WHERE h.id_usuario = ?",
+                    idUsuario);
+                ejecutarUpdate(con,
+                    "DELETE n FROM notificaciones n "
+                        + "LEFT JOIN habitos h ON n.id_habito = h.id_habito "
+                        + "WHERE n.id_usuario = ? OR h.id_usuario = ?",
+                    idUsuario, idUsuario);
+                ejecutarUpdate(con, "DELETE FROM habitos WHERE id_usuario = ?", idUsuario);
+                ejecutarUpdate(con, "DELETE FROM configuracion_email WHERE id_usuario = ?", idUsuario);
+                ejecutarUpdate(con, "DELETE FROM onboarding_respuestas WHERE id_usuario = ?", idUsuario);
+                ejecutarUpdate(con, "DELETE FROM baneos_usuario WHERE id_usuario = ?", idUsuario);
+                ejecutarUpdate(con, "DELETE FROM perfiles WHERE id_usuario = ?", idUsuario);
 
-        try (Connection con = ConexionBD.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, idUsuario);
-            return ps.executeUpdate() > 0;
-
+                try (PreparedStatement ps = con.prepareStatement("DELETE FROM usuarios WHERE id_usuario = ?")) {
+                    ps.setInt(1, idUsuario);
+                    int filas = ps.executeUpdate();
+                    con.commit();
+                    return filas > 0;
+                }
+            } catch (SQLException e) {
+                con.rollback();
+                e.printStackTrace();
+                return false;
+            } finally {
+                con.setAutoCommit(true);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    private static void ejecutarUpdate(Connection con, String sql, int... params) throws SQLException {
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            for (int i = 0; i < params.length; i++) {
+                ps.setInt(i + 1, params[i]);
+            }
+            ps.executeUpdate();
         }
     }
 

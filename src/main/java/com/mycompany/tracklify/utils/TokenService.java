@@ -2,6 +2,7 @@ package com.mycompany.tracklify.utils;
 
 import com.mycompany.tracklify.dao.ConfiguracionEmailDAO;
 import com.mycompany.tracklify.dao.UsuarioDAO;
+import com.mycompany.tracklify.models.Usuario;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.mindrot.jbcrypt.BCrypt;
@@ -80,6 +81,29 @@ public class TokenService {
             return false;
         }
         String hash = BCrypt.hashpw(nuevaPassword, BCrypt.gensalt(10));
+        return usuarioDAO.actualizarPassword(idUsuario, hash);
+    }
+
+    /**
+     * Cambia la contraseña comprobando la actual con BCrypt y guardando el nuevo hash.
+     *
+     * @param idUsuario       identificador del usuario
+     * @param passwordActual  contraseña en texto plano tal como la introduce el usuario
+     * @param passwordNueva   nueva contraseña en texto plano
+     * @return {@code true} si la contraseña actual era correcta y se actualizó el hash en BD
+     */
+    public boolean cambiarPassword(int idUsuario, String passwordActual, String passwordNueva) {
+        if (passwordActual == null || passwordActual.isBlank() || passwordNueva == null) {
+            return false;
+        }
+        Usuario u = usuarioDAO.obtenerPorId(idUsuario);
+        if (u == null || u.getPasswordUsuario() == null) {
+            return false;
+        }
+        if (!BCrypt.checkpw(passwordActual, u.getPasswordUsuario())) {
+            return false;
+        }
+        String hash = BCrypt.hashpw(passwordNueva, BCrypt.gensalt(10));
         return usuarioDAO.actualizarPassword(idUsuario, hash);
     }
 }

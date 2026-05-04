@@ -1,26 +1,157 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            style="-fx-background-color: #F6EEFF;">
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.mycompany.tracklify.controllers.ConfiguracionController"
+            fitToWidth="true" hbarPolicy="NEVER" pannable="true"
+            styleClass="scroll-contenido scroll-pane-config">
 
-    <top>
-        <VBox style="-fx-background-color: linear-gradient(to right, #7A4578, #93588F);">
-            <padding>
-                <Insets top="18" right="24" bottom="18" left="24"/>
-            </padding>
-            <Label text="Configuración" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
-        </VBox>
-    </top>
+    <fx:define>
+        <ToggleGroup fx:id="grupoTema"/>
+    </fx:define>
 
-    <center>
-        <StackPane style="-fx-background-color: #F6EEFF;">
-            <Label text="Próximamente" style="-fx-text-fill: #6B4A6E; -fx-font-size: 16px;"/>
+    <content>
+        <StackPane styleClass="stack-config-fondo">
+            <HBox alignment="TOP_CENTER" StackPane.alignment="TOP_CENTER">
+                <Region HBox.hgrow="ALWAYS" minWidth="0"/>
+                <VBox maxWidth="800" spacing="20" alignment="TOP_CENTER" HBox.hgrow="NEVER">
+                <padding>
+                    <Insets top="32" right="32" bottom="40" left="32"/>
+                </padding>
+                <Label text="Configuración" styleClass="config-titulo-seccion"/>
+
+                <!-- Tarjeta Perfil -->
+                <VBox styleClass="tarjeta-config" spacing="14">
+                    <Label text="Perfil" styleClass="config-subtitulo"/>
+                    <Region styleClass="config-separador" maxWidth="Infinity"/>
+                    <HBox spacing="24" alignment="TOP_LEFT">
+                        <VBox spacing="10" alignment="TOP_CENTER">
+                            <StackPane fx:id="circuloFoto" prefWidth="80" prefHeight="80" minWidth="80" minHeight="80"
+                                       maxWidth="80" maxHeight="80">
+                                <Circle radius="40" style="-fx-fill: #7A4578;"/>
+                                <Label fx:id="labelInicialFoto" text="?" style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold;"/>
+                                <ImageView fx:id="imagePerfil" fitWidth="80" fitHeight="80" preserveRatio="true" visible="false" smooth="true"/>
+                            </StackPane>
+                            <Button fx:id="btnCambiarFoto" text="Cambiar foto" styleClass="btn-primary" onAction="#btnCambiarFotoClick"/>
+                        </VBox>
+                        <GridPane hgap="16" vgap="12" HBox.hgrow="ALWAYS">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50" hgrow="SOMETIMES" minWidth="120"/>
+                                <ColumnConstraints percentWidth="50" hgrow="SOMETIMES" minWidth="120"/>
+                            </columnConstraints>
+                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label text="Nombre" styleClass="config-campo-label"/>
+                                <TextField fx:id="campoNombre" styleClass="campo-config" prefHeight="40"/>
+                            </VBox>
+                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label text="Email" styleClass="config-campo-label"/>
+                                <TextField fx:id="campoEmail" styleClass="campo-config" prefHeight="40"/>
+                            </VBox>
+                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                <Label text="Género" styleClass="config-campo-label"/>
+                                <ComboBox fx:id="comboGenero" styleClass="campo-config" prefHeight="40" maxWidth="Infinity"/>
+                            </VBox>
+                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                <Label text="Fecha de nacimiento" styleClass="config-campo-label"/>
+                                <DatePicker fx:id="dateNacimiento" styleClass="campo-config" prefHeight="40" maxWidth="Infinity"/>
+                            </VBox>
+                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
+                                <Label text="Profesión" styleClass="config-campo-label"/>
+                                <TextField fx:id="campoProfesion" styleClass="campo-config" prefHeight="40" maxWidth="Infinity"/>
+                            </VBox>
+                        </GridPane>
+                    </HBox>
+                    <Button fx:id="btnGuardarPerfil" text="Guardar cambios" styleClass="btn-primary" maxWidth="Infinity"
+                            prefHeight="44" onAction="#guardarPerfil"/>
+                    <Label fx:id="labelMensajePerfil" wrapText="true" style="-fx-font-size: 12px;"/>
+                </VBox>
+
+                <!-- Tarjeta Apariencia -->
+                <VBox styleClass="tarjeta-config" spacing="14">
+                    <Label text="Apariencia" styleClass="config-subtitulo"/>
+                    <Region styleClass="config-separador" maxWidth="Infinity"/>
+                    <HBox spacing="16" alignment="CENTER_LEFT">
+                        <Label text="Tema" prefWidth="100" styleClass="config-campo-label-fila"/>
+                        <HBox spacing="8">
+                            <ToggleButton fx:id="btnTemaClaro" text="Claro" styleClass="btn-tema" toggleGroup="$grupoTema"/>
+                            <ToggleButton fx:id="btnTemaOscuro" text="Oscuro" styleClass="btn-tema" toggleGroup="$grupoTema"/>
+                            <ToggleButton fx:id="btnTemaSistema" text="Sistema" styleClass="btn-tema" toggleGroup="$grupoTema"/>
+                        </HBox>
+                    </HBox>
+                    <HBox spacing="16" alignment="CENTER_LEFT">
+                        <Label text="Idioma" prefWidth="100" styleClass="config-campo-label-fila"/>
+                        <ComboBox fx:id="comboIdioma" styleClass="campo-config" prefHeight="40" prefWidth="220"/>
+                    </HBox>
+                    <Button fx:id="btnAplicarApariencia" text="Aplicar" styleClass="btn-primary" maxWidth="Infinity"
+                            prefHeight="44" onAction="#aplicarApariencia"/>
+                </VBox>
+
+                <!-- Tarjeta Seguridad -->
+                <VBox styleClass="tarjeta-config" spacing="14">
+                    <Label text="Seguridad" styleClass="config-subtitulo"/>
+                    <Region styleClass="config-separador" maxWidth="Infinity"/>
+                    <VBox spacing="6">
+                        <Label text="Contraseña actual" styleClass="config-campo-label"/>
+                        <PasswordField fx:id="campoPasswordActual" styleClass="campo-config" prefHeight="40"/>
+                    </VBox>
+                    <VBox spacing="6">
+                        <Label text="Nueva contraseña" styleClass="config-campo-label"/>
+                        <PasswordField fx:id="campoPasswordNueva" styleClass="campo-config" prefHeight="40"/>
+                    </VBox>
+                    <VBox spacing="6">
+                        <Label text="Confirmar nueva contraseña" styleClass="config-campo-label"/>
+                        <PasswordField fx:id="campoPasswordConfirmar" styleClass="campo-config" prefHeight="40"/>
+                    </VBox>
+                    <VBox spacing="6">
+                        <ProgressBar fx:id="barraFortaleza" maxWidth="Infinity" prefHeight="8" progress="0"/>
+                        <Label fx:id="labelFortaleza" text=" " style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
+                    </VBox>
+                    <Button fx:id="btnCambiarPassword" text="Cambiar contraseña" styleClass="btn-primary" maxWidth="Infinity"
+                            prefHeight="44" onAction="#cambiarPassword"/>
+                    <Label fx:id="labelMensajePassword" wrapText="true" style="-fx-font-size: 12px;"/>
+                </VBox>
+
+                <!-- Tarjeta Cuenta -->
+                <VBox styleClass="tarjeta-config" spacing="14">
+                    <Label text="Gestión de cuenta" styleClass="config-subtitulo-peligro"/>
+                    <Region styleClass="config-separador" maxWidth="Infinity"/>
+                    <VBox styleClass="zona-peligro" spacing="12">
+                        <HBox spacing="16" alignment="CENTER_LEFT">
+                            <Label text="Cerrar sesión en todos los dispositivos" wrapText="true" HBox.hgrow="ALWAYS"
+                                   styleClass="config-texto-cuenta"/>
+                            <Button fx:id="btnCerrarSesiones" text="Cerrar sesiones" styleClass="btn-peligro-outline"
+                                    onAction="#btnCerrarSesionesClick"/>
+                        </HBox>
+                        <HBox spacing="16" alignment="CENTER_LEFT">
+                            <Label text="Eliminar cuenta permanentemente" wrapText="true" HBox.hgrow="ALWAYS"
+                                   styleClass="config-texto-cuenta"/>
+                            <Button fx:id="btnEliminarCuenta" text="Eliminar cuenta" styleClass="btn-peligro-solido"
+                                    onAction="#btnEliminarCuentaClick"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" minWidth="0"/>
+            </HBox>
         </StackPane>
-    </center>
-</BorderPane>
+    </content>
+</ScrollPane>

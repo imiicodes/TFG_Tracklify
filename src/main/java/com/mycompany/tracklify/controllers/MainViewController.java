@@ -1,13 +1,17 @@
 package com.mycompany.tracklify.controllers;
 
+import com.mycompany.tracklify.dao.PerfilDAO;
 import com.mycompany.tracklify.models.Habito;
+import com.mycompany.tracklify.models.Perfil;
 import com.mycompany.tracklify.models.Usuario;
 import com.mycompany.tracklify.utils.NotificacionScheduler;
 import com.mycompany.tracklify.utils.SessionManager;
+import com.mycompany.tracklify.utils.TemaService;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -68,6 +72,19 @@ public class MainViewController implements Initializable {
 
         cargarVista("dashboard_view.fxml");
         marcarItemActivo(btnNavDashboard);
+
+        Usuario usuarioTema = SessionManager.getInstancia().getUsuarioActual();
+        if (usuarioTema != null) {
+            Perfil perfil = new PerfilDAO().obtenerPorUsuario(usuarioTema.getIdUsuario());
+            if (perfil != null) {
+                Platform.runLater(() -> {
+                    Scene escena = btnNavDashboard.getScene();
+                    if (escena != null) {
+                        TemaService.aplicar(perfil.getTema(), escena);
+                    }
+                });
+            }
+        }
     }
 
     /**
@@ -91,6 +108,9 @@ public class MainViewController implements Initializable {
             } else if ("calendario_view.fxml".equals(fxml)) {
                 CalendarioController calendario = loader.getController();
                 calendario.setHost(this);
+            } else if ("configuracion_view.fxml".equals(fxml)) {
+                ConfiguracionController configuracion = loader.getController();
+                configuracion.setHost(this);
             }
             AnchorPane.setTopAnchor(vista, 0.0);
             AnchorPane.setBottomAnchor(vista, 0.0);

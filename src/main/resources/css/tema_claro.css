@@ -1,0 +1,29 @@
+/**
+ * Tema claro base: refuerza la paleta Tracklify sobre la escena cuando se elige «Claro» o «Sistema».
+ * Complementa main_view.css sin sustituirlo.
+ */
+.root-pane {
+    -fx-background-color: #F6EEFF;
+}
+.sidebar {
+    -fx-background-color: #7A4578;
+}
+.topbar {
+    -fx-background-color: #93588F;
+}
+.contenido {
+    -fx-background-color: #F6EEFF;
+}
+.footer {
+    -fx-background-color: #F6EEFF;
+}
+.scroll-pane-config,
+.stack-config-fondo {
+    -fx-background-color: #F6EEFF;
+}
+.scroll-pane-config > .viewport {
+    -fx-background-color: #F6EEFF;
+}
+.tarjeta-config {
+    -fx-background-color: #F3D9F5;
+}
