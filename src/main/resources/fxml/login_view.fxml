@@ -12,8 +12,8 @@
 <?import javafx.scene.layout.HBox?>
 
 <StackPane
-    prefWidth="800"
-    prefHeight="480"
+    minWidth="0" minHeight="0" prefWidth="Infinity" prefHeight="Infinity"
+    maxWidth="Infinity" maxHeight="Infinity"
     style="-fx-background-color:#F3E8FF;"
     xmlns="http://javafx.com/javafx/21"
     xmlns:fx="http://javafx.com/fxml/1"
@@ -23,56 +23,50 @@
         <URL value="@/styles/login_view.css"/>
     </stylesheets>
 
-    <VBox alignment="CENTER" spacing="14" maxWidth="300">
+    <VBox alignment="CENTER" spacing="14" prefWidth="440" maxWidth="520" minWidth="260">
         <padding>
-            <Insets top="30" right="40" bottom="30" left="40"/>
+            <Insets top="30" right="24" bottom="30" left="24"/>
         </padding>
 
-        <!-- Título -->
         <Label text="Iniciar sesión" styleClass="titulo"/>
 
-        <!-- Subtítulo -->
         <Label text="Bienvenido de nuevo" styleClass="subtitulo"/>
 
-        <!-- Campo email -->
         <TextField
             fx:id="campoEmail"
             promptText="Email"
             styleClass="campo"
-            maxWidth="240"/>
+            prefWidth="440"
+            maxWidth="Infinity"/>
 
-        <!-- Campo contraseña -->
         <PasswordField
             fx:id="campoPassword"
             promptText="Contraseña"
             styleClass="campo"
-            maxWidth="240"
+            prefWidth="440"
+            maxWidth="Infinity"
             onAction="#iniciarSesion"/>
 
+        <Label fx:id="labelMensaje" styleClass="label-mensaje" wrapText="true" prefWidth="440" maxWidth="Infinity"/>
 
-        <!-- Mensaje error/éxito -->
-        <Label fx:id="labelMensaje" styleClass="label-mensaje" wrapText="true" maxWidth="240"/>
-        
-        <!-- Checkbox Recordar sesión -->
-        <HBox alignment="CENTER_LEFT" spacing="8" maxWidth="240">
+        <HBox alignment="CENTER_LEFT" spacing="8" prefWidth="440" maxWidth="Infinity">
             <CheckBox fx:id="checkRecordar" styleClass="check-recordar"/>
             <Label text="Recordar sesión"
                    style="-fx-font-size: 12px; -fx-text-fill: #7E6A8A; -fx-padding: 2 0 0 0;"/>
         </HBox>
-        <!-- Botón principal -->
+
         <Button
             text="Iniciar sesión"
             styleClass="btn-primary"
-            maxWidth="240"
+            prefWidth="440"
+            maxWidth="Infinity"
             prefHeight="38"
             onAction="#iniciarSesion"/>
 
-        <!-- Volver -->
         <Button
             text="← Volver"
             styleClass="btn-volver"
             onAction="#volverALanding"/>
-        
 
     </VBox>
 

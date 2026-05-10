@@ -10,27 +10,28 @@
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.mycompany.tracklify.controllers.AdminEstadisticasController"
-      spacing="16" styleClass="contenido">
+      spacing="16" styleClass="contenido" minWidth="0" minHeight="0"
+      maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS">
     <padding>
         <Insets bottom="16" left="24" right="28" top="24"/>
     </padding>
 
     <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Estadísticas globales"/>
 
-    <HBox spacing="12">
-        <VBox prefWidth="160" spacing="4" style="-fx-border-color: #ccc; -fx-border-radius: 8; -fx-padding: 12;">
+    <HBox spacing="12" maxWidth="Infinity">
+        <VBox minWidth="0" prefWidth="160" maxWidth="Infinity" HBox.hgrow="ALWAYS" spacing="4" style="-fx-border-color: #ccc; -fx-border-radius: 8; -fx-padding: 12;">
             <Label fx:id="labelMetricUsuarios" style="-fx-font-size: 22px; -fx-font-weight: bold;" text="—"/>
             <Label style="-fx-font-size: 11px; -fx-text-fill: #555;" text="Usuarios registrados" wrapText="true"/>
         </VBox>
-        <VBox prefWidth="160" spacing="4" style="-fx-border-color: #ccc; -fx-border-radius: 8; -fx-padding: 12;">
+        <VBox minWidth="0" prefWidth="160" maxWidth="Infinity" HBox.hgrow="ALWAYS" spacing="4" style="-fx-border-color: #ccc; -fx-border-radius: 8; -fx-padding: 12;">
             <Label fx:id="labelMetricHabitos" style="-fx-font-size: 22px; -fx-font-weight: bold;" text="—"/>
             <Label style="-fx-font-size: 11px; -fx-text-fill: #555;" text="Hábitos activos (sistema)" wrapText="true"/>
         </VBox>
-        <VBox prefWidth="160" spacing="4" style="-fx-border-color: #ccc; -fx-border-radius: 8; -fx-padding: 12;">
+        <VBox minWidth="0" prefWidth="160" maxWidth="Infinity" HBox.hgrow="ALWAYS" spacing="4" style="-fx-border-color: #ccc; -fx-border-radius: 8; -fx-padding: 12;">
             <Label fx:id="labelMetricTasa" style="-fx-font-size: 22px; -fx-font-weight: bold;" text="—"/>
             <Label style="-fx-font-size: 11px; -fx-text-fill: #555;" text="Tasa éxito global (media)" wrapText="true"/>
         </VBox>
-        <VBox prefWidth="200" spacing="4" style="-fx-border-color: #ccc; -fx-border-radius: 8; -fx-padding: 12;">
+        <VBox minWidth="0" prefWidth="200" maxWidth="Infinity" HBox.hgrow="ALWAYS" spacing="4" style="-fx-border-color: #ccc; -fx-border-radius: 8; -fx-padding: 12;">
             <Label fx:id="labelMetricPopular" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="—" wrapText="true"/>
             <Label style="-fx-font-size: 11px; -fx-text-fill: #555;" text="Hábito más popular" wrapText="true"/>
         </VBox>
@@ -38,7 +39,8 @@
 
     <Label style="-fx-font-weight: bold;" text="Detalle por usuario"/>
 
-    <ScrollPane fitToHeight="true" fitToWidth="true" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+    <ScrollPane fitToHeight="true" fitToWidth="true" style="-fx-background-color: transparent;"
+                minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS">
         <TableView fx:id="tablaEstadisticas" prefHeight="360">
             <columns>
                 <TableColumn fx:id="colUsuario" prefWidth="140" text="Usuario"/>

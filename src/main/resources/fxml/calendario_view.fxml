@@ -13,7 +13,8 @@
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.mycompany.tracklify.controllers.CalendarioController"
-      spacing="16" style="-fx-background-color: #F6EEFF;">
+      spacing="16" style="-fx-background-color: #F6EEFF;" minWidth="0" minHeight="0"
+      maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS">
 
     <stylesheets>
         <URL value="@/styles/main_view.css"/>
@@ -53,8 +54,9 @@
         </padding>
         <Label fx:id="labelFechaSeleccionada" text="Hábitos del día"
                style="-fx-text-fill: #7A4578; -fx-font-size: 15px; -fx-font-weight: bold;"/>
-        <ScrollPane fitToWidth="true" styleClass="scroll-contenido" VBox.vgrow="ALWAYS" minHeight="120">
-            <VBox fx:id="listaHabitosDelDia" spacing="8"/>
+        <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="scroll-contenido"
+                    VBox.vgrow="ALWAYS" minHeight="120" minWidth="0" maxWidth="Infinity" maxHeight="Infinity">
+            <VBox fx:id="listaHabitosDelDia" spacing="8" maxWidth="Infinity"/>
         </ScrollPane>
     </VBox>
 </VBox>

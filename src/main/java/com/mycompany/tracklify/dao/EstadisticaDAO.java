@@ -41,6 +41,24 @@ public class EstadisticaDAO {
             rs.getLong("segundos_semana")
         );
     }
+    
+        // Para v_progreso_semanal (nuevo)
+    private static ProgresoSemanal mapProgresoSemanalVista(ResultSet rs) throws SQLException {
+        return new ProgresoSemanal(
+            rs.getInt("id_usuario"),
+            rs.getInt("id_habito"),
+            rs.getString("nombre_habito"),
+            rs.getInt("objetivo_veces"),
+            rs.getString("periodo_objetivo"),
+            rs.getInt("anio_semana"),
+            rs.getInt("num_semana"),
+            rs.getInt("veces_completado"),
+            rs.getInt("veces_pendientes"),
+            rs.getDouble("porcentaje_completado"),
+            rs.getLong("segundos_totales_semana")
+        );
+    }
+
 
     /**
      * Lista el progreso semanal de un hábito desde la vista {@code v_progreso_semanal}.
@@ -59,7 +77,7 @@ public class EstadisticaDAO {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                lista.add(mapProgresoSemanal(rs));
+                lista.add(mapProgresoSemanalVista(rs));
             }
 
         } catch (SQLException e) {

@@ -18,7 +18,8 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToWidth="true" styleClass="scroll-contenido"
+<ScrollPane fx:id="scrollEstadisticas" fitToWidth="true" fitToHeight="true" styleClass="scroll-contenido"
+            style="-fx-font-smoothing-type: gray;" minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity"
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.mycompany.tracklify.controllers.EstadisticasController">
 
@@ -30,7 +31,8 @@
         <URL value="@/styles/main_view.css"/>
     </stylesheets>
 
-    <VBox spacing="16" style="-fx-background-color: #F6EEFF;">
+    <VBox spacing="16" style="-fx-background-color: #F6EEFF;" maxWidth="Infinity" maxHeight="Infinity"
+          VBox.vgrow="ALWAYS">
         <padding>
             <Insets top="20" right="24" bottom="28" left="24"/>
         </padding>
@@ -51,36 +53,36 @@
         </HBox>
 
         <!-- Cuatro métricas -->
-        <HBox spacing="12" alignment="CENTER">
-            <VBox styleClass="metrica-tarjeta" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER">
+        <HBox spacing="12" alignment="CENTER" maxWidth="Infinity">
+            <VBox styleClass="metrica-tarjeta" minWidth="0" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER">
                 <Label text="Racha actual" styleClass="metrica-label"/>
                 <Label fx:id="labelRachaActual" text="—" styleClass="metrica-valor"/>
             </VBox>
-            <VBox styleClass="metrica-tarjeta" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER">
+            <VBox styleClass="metrica-tarjeta" minWidth="0" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER">
                 <Label text="Mejor racha" styleClass="metrica-label"/>
                 <Label fx:id="labelMejorRacha" text="—" styleClass="metrica-valor"/>
             </VBox>
-            <VBox styleClass="metrica-tarjeta" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER">
+            <VBox styleClass="metrica-tarjeta" minWidth="0" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER">
                 <Label text="Total cumplimientos" styleClass="metrica-label"/>
                 <Label fx:id="labelTotalCumplimientos" text="—" styleClass="metrica-valor"/>
             </VBox>
-            <VBox styleClass="metrica-tarjeta" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER">
+            <VBox styleClass="metrica-tarjeta" minWidth="0" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER">
                 <Label text="Tasa de éxito" styleClass="metrica-label"/>
                 <Label fx:id="labelTasaExito" text="—" styleClass="metrica-valor"/>
             </VBox>
         </HBox>
 
         <!-- Gráficos -->
-        <HBox spacing="14" alignment="CENTER">
-            <VBox spacing="8" prefWidth="400" styleClass="metrica-tarjeta">
+        <HBox spacing="14" alignment="CENTER" maxWidth="Infinity">
+            <VBox spacing="8" minWidth="0" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="metrica-tarjeta">
                 <padding>
                     <Insets top="10" right="10" bottom="10" left="10"/>
                 </padding>
                 <Label text="Cumplimientos por semana"
                        style="-fx-text-fill: #2D1B2E; -fx-font-size: 14px; -fx-font-weight: bold;"/>
-                <StackPane prefHeight="250" maxHeight="250" minHeight="250">
+                <StackPane prefHeight="250" maxHeight="250" minHeight="250" maxWidth="Infinity">
                     <BarChart fx:id="graficaBarras" animated="false" legendVisible="true"
-                              prefHeight="250" maxHeight="250" minHeight="250">
+                              prefHeight="250" maxHeight="250" minHeight="250" maxWidth="Infinity">
                         <xAxis>
                             <CategoryAxis label="Semana"/>
                         </xAxis>
@@ -92,15 +94,15 @@
                            style="-fx-text-fill: #6B4A6E; -fx-font-size: 14px;"/>
                 </StackPane>
             </VBox>
-            <VBox spacing="8" prefWidth="400" styleClass="metrica-tarjeta">
+            <VBox spacing="8" minWidth="0" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="metrica-tarjeta">
                 <padding>
                     <Insets top="10" right="10" bottom="10" left="10"/>
                 </padding>
                 <Label text="Progreso semanal %"
                        style="-fx-text-fill: #2D1B2E; -fx-font-size: 14px; -fx-font-weight: bold;"/>
-                <StackPane prefHeight="250" maxHeight="250" minHeight="250">
+                <StackPane prefHeight="250" maxHeight="250" minHeight="250" maxWidth="Infinity">
                     <LineChart fx:id="graficaLineas" animated="false" legendVisible="true"
-                               prefHeight="250" maxHeight="250" minHeight="250" createSymbols="true">
+                               prefHeight="250" maxHeight="250" minHeight="250" maxWidth="Infinity" createSymbols="true">
                         <xAxis>
                             <CategoryAxis label="Semana"/>
                         </xAxis>
@@ -116,7 +118,7 @@
         </HBox>
 
         <!-- Calendario -->
-        <VBox spacing="8">
+        <VBox spacing="8" maxWidth="Infinity">
             <Label text="Historial de cumplimientos"
                    style="-fx-text-fill: #7A4578; -fx-font-size: 16px; -fx-font-weight: bold;"/>
             <Label text="Últimos 3 meses" style="-fx-text-fill: #6B4A6E; -fx-font-size: 12px;"/>

@@ -5,6 +5,7 @@
 .mainFxmlClass {
 .root {
     -fx-background-color: #F3E8FF;
+    -fx-font-size: 13px;
 }
 
 /* ── Título ── */
@@ -106,5 +107,9 @@
 .check-recordar:selected .mark {
     -fx-background-color: white;
     -fx-shape: "M 0 0.5 L 0.5 1 L 1 0";
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
 }
 }

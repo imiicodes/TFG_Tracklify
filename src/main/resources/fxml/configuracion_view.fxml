@@ -22,7 +22,8 @@
 
 <ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.mycompany.tracklify.controllers.ConfiguracionController"
-            fitToWidth="true" hbarPolicy="NEVER" pannable="true"
+            fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" pannable="true"
+            minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity"
             styleClass="scroll-contenido scroll-pane-config">
 
     <fx:define>
@@ -30,10 +31,10 @@
     </fx:define>
 
     <content>
-        <StackPane styleClass="stack-config-fondo">
+        <StackPane styleClass="stack-config-fondo" minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity">
             <HBox alignment="TOP_CENTER" StackPane.alignment="TOP_CENTER">
                 <Region HBox.hgrow="ALWAYS" minWidth="0"/>
-                <VBox maxWidth="800" spacing="20" alignment="TOP_CENTER" HBox.hgrow="NEVER">
+                <VBox maxWidth="720" spacing="20" alignment="TOP_CENTER" HBox.hgrow="NEVER">
                 <padding>
                     <Insets top="32" right="32" bottom="40" left="32"/>
                 </padding>

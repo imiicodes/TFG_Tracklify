@@ -13,8 +13,8 @@
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane
-    prefWidth="800"
-    prefHeight="480"
+    minWidth="0" minHeight="0" prefWidth="800" prefHeight="480"
+    maxWidth="Infinity" maxHeight="Infinity"
     styleClass="root-pane"
     xmlns="http://javafx.com/javafx/21"
     xmlns:fx="http://javafx.com/fxml/1"
@@ -56,8 +56,9 @@
     </left>
 
     <center>
-        <AnchorPane>
+        <AnchorPane minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity">
             <AnchorPane fx:id="contenidoPrincipal" style="-fx-background-color: #F6EEFF;"
+                        minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity"
                         AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                         AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <padding>

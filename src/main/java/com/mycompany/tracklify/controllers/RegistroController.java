@@ -135,9 +135,6 @@ public class RegistroController {
             labelMensaje.setStyle("-fx-text-fill: #3A8F5F;");
             labelMensaje.setText("¡Cuenta creada! Redirigiendo al login...");
 
-            // Capturamos el Stage ANTES de la pausa
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
             // PauseTransition opera en el hilo de JavaFX — nunca mata la app
             PauseTransition pausa = new PauseTransition(Duration.seconds(1.2));
             pausa.setOnFinished(e -> {
@@ -145,7 +142,10 @@ public class RegistroController {
                     FXMLLoader loader = new FXMLLoader(
                         getClass().getResource("/fxml/login_view.fxml")
                     );
-                    stage.setScene(new Scene(loader.load()));
+                    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                    double w = stage.getWidth();
+                    double h = stage.getHeight();
+                    stage.setScene(new Scene(loader.load(), w, h));
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -188,6 +188,8 @@ public class RegistroController {
             getClass().getResource("/fxml/login_view.fxml")
         );
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(loader.load()));
+        double w = stage.getWidth();
+        double h = stage.getHeight();
+        stage.setScene(new Scene(loader.load(), w, h));
     }
 }

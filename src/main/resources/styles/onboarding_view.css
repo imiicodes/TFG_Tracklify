@@ -6,6 +6,11 @@
 /* ── Fondo general ── */
 .root-onboarding {
     -fx-background-color: #F6EEFF;
+    -fx-font-size: 13px;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
 }
 
 /* ── Tarjeta central ── */

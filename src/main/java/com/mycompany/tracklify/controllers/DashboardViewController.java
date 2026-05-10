@@ -18,9 +18,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import javafx.animation.FadeTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
@@ -38,6 +40,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
 
 /**
  * Controlador del panel central del dashboard ({@code dashboard_view.fxml}).
@@ -122,9 +126,7 @@ public class DashboardViewController implements Initializable {
         contenedorTareas.getChildren().clear();
 
         if (habitos.isEmpty()) {
-            Label sinTareas = new Label("No tienes hábitos aún. ¡Pulsa + Crear nuevo hábito!");
-            sinTareas.setStyle("-fx-text-fill: #C4AADB; -fx-font-size: 12px;");
-            contenedorTareas.getChildren().add(sinTareas);
+            contenedorTareas.getChildren().add(crearBloqueHabitosVacios());
         } else {
             for (Habito habito : habitos) {
                 contenedorTareas.getChildren().add(crearFilaHabito(habito));
@@ -195,13 +197,56 @@ public class DashboardViewController implements Initializable {
             double tasa = resumen.getTasaExitoGlobal();
             double porcentaje = (tasa >= 0 && tasa <= 1.0) ? tasa * 100.0 : tasa;
             labelPorcentaje.setText(String.format("%.0f%%", porcentaje));
-            labelRacha.setText(maxRacha + " días");
+            labelRacha.setText(maxRacha + (maxRacha == 1 ? " día" : " días"));
         } else {
             List<Habito> hlist = habitoDAO.obtenerPorUsuario(idUsuario);
             labelTareasActivas.setText(String.valueOf(hlist.size()));
             labelPorcentaje.setText("0%");
-            labelRacha.setText(maxRacha + " días");
+            labelRacha.setText(maxRacha + (maxRacha == 1 ? " día" : " días"));
         }
+    }
+
+    /**
+     * Construye el mensaje y la acción cuando el usuario aún no tiene hábitos en el dashboard.
+     *
+     * @return {@link VBox} centrado con texto y botón hacia el asistente de creación
+     */
+    private VBox crearBloqueHabitosVacios() {
+        VBox caja = new VBox(14);
+        caja.setAlignment(Pos.CENTER);
+        caja.setPadding(new Insets(40, 16, 40, 16));
+        caja.setMaxWidth(Double.MAX_VALUE);
+
+        Label mensaje = new Label("Todavía no tienes hábitos. ¡Crea tu primero!");
+        mensaje.setStyle("-fx-text-fill: #6B4A6E; -fx-font-size: 14px;");
+        mensaje.setWrapText(true);
+        mensaje.setTextAlignment(TextAlignment.CENTER);
+        mensaje.setMaxWidth(420);
+
+        Button btnPrimero = new Button("+ Crear mi primer hábito");
+        btnPrimero.getStyleClass().add("btn-primary");
+        btnPrimero.setOnAction(e -> {
+            if (host != null) {
+                host.abrirCrearHabito(false);
+            }
+        });
+
+        caja.getChildren().addAll(mensaje, btnPrimero);
+        return caja;
+    }
+
+    /**
+     * Aplica un destello de opacidad breve a la fila del hábito al marcarlo como completado.
+     *
+     * @param fila contenedor visual de la fila del hábito
+     */
+    private void animarFilaCompletado(HBox fila) {
+        FadeTransition ft = new FadeTransition(Duration.millis(300), fila);
+        ft.setFromValue(1.0);
+        ft.setToValue(0.7);
+        ft.setCycleCount(2);
+        ft.setAutoReverse(true);
+        ft.play();
     }
 
     private HBox crearFilaHabito(Habito habito) {
@@ -282,6 +327,9 @@ public class DashboardViewController implements Initializable {
             }
             aplicarEstiloFilaHabitoCompletado(nombre, badge, checkbox.isSelected());
             refrescarEstadisticas(idUsuario);
+            if (deseado) {
+                animarFilaCompletado(fila);
+            }
         });
 
         fila.getChildren().addAll(checkbox, nombre, badge, btnMenu);

@@ -1,6 +1,13 @@
 /* ── Raíz ── */
+.root {
+    -fx-font-size: 13px;
+}
 .root-pane {
     -fx-background-color: #F6EEFF;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
 }
 
 /* ── ScrollPane sin borde ── */

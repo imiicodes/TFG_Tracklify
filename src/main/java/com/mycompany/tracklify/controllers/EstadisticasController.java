@@ -36,6 +36,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
@@ -108,6 +109,9 @@ public class EstadisticasController implements Initializable {
     @FXML
     private GridPane gridCalendario;
 
+    @FXML
+    private ScrollPane scrollEstadisticas;
+
     /** DAO de vistas de informe y resumen. */
     private final EstadisticaDAO estadisticaDAO = new EstadisticaDAO();
 
@@ -153,6 +157,7 @@ public class EstadisticasController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        configurarScrollSuave(scrollEstadisticas);
         configurarEjePorcentajeLineas();
         configurarEstilosGraficasBase();
 
@@ -215,6 +220,27 @@ public class EstadisticasController implements Initializable {
         }
 
         inicializando = false;
+    }
+
+    /**
+     * Ajusta el desplazamiento vertical del panel de estadísticas con la rueda del ratón de forma más suave.
+     *
+     * @param scrollPane raíz con scroll de la vista de estadísticas
+     */
+    private void configurarScrollSuave(ScrollPane scrollPane) {
+        if (scrollPane == null) {
+            return;
+        }
+        Node content = scrollPane.getContent();
+        if (content == null) {
+            return;
+        }
+        content.setOnScroll(event -> {
+            double delta = event.getDeltaY() * -0.003;
+            double nuevo = scrollPane.getVvalue() + delta;
+            scrollPane.setVvalue(Math.max(0, Math.min(1, nuevo)));
+            event.consume();
+        });
     }
 
     /**

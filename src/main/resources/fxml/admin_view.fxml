@@ -11,8 +11,8 @@
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane
-    prefWidth="800"
-    prefHeight="480"
+    minWidth="0" minHeight="0" prefWidth="800" prefHeight="480"
+    maxWidth="Infinity" maxHeight="Infinity"
     styleClass="root-pane"
     xmlns="http://javafx.com/javafx/21"
     xmlns:fx="http://javafx.com/fxml/1"
@@ -54,7 +54,8 @@
     </left>
 
     <center>
-        <StackPane fx:id="contenidoAdmin" styleClass="contenido"/>
+        <StackPane fx:id="contenidoAdmin" styleClass="contenido"
+                   minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity"/>
     </center>
 
     <bottom>

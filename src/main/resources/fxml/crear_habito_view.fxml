@@ -10,10 +10,12 @@
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.TextFlow?>
 
-<VBox prefWidth="820" prefHeight="640" style="-fx-background-color: #F6EEFF;"
+<VBox minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity"
+      style="-fx-background-color: #F6EEFF;"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.mycompany.tracklify.controllers.CrearHabitoController"
       spacing="0" VBox.vgrow="ALWAYS">
@@ -22,7 +24,7 @@
         <URL value="@/styles/main_view.css"/>
     </stylesheets>
 
-    <VBox spacing="10" style="-fx-background-color: #F6EEFF;">
+    <VBox spacing="10" style="-fx-background-color: #F6EEFF;" maxWidth="Infinity">
         <padding>
             <Insets top="16" right="24" bottom="8" left="24"/>
         </padding>
@@ -38,8 +40,11 @@
         </VBox>
     </VBox>
 
-    <ScrollPane fitToWidth="true" styleClass="scroll-contenido" VBox.vgrow="ALWAYS">
-        <VBox spacing="18" style="-fx-background-color: #F6EEFF;">
+    <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="scroll-contenido"
+                minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS">
+        <HBox alignment="TOP_CENTER" maxWidth="Infinity" style="-fx-background-color: #F6EEFF;">
+            <Region minWidth="0" HBox.hgrow="ALWAYS"/>
+            <VBox spacing="18" maxWidth="680" HBox.hgrow="NEVER" style="-fx-background-color: #F6EEFF;">
             <padding>
                 <Insets top="8" right="24" bottom="28" left="24"/>
             </padding>
@@ -129,6 +134,8 @@
                     <Label fx:id="labelError" style="-fx-text-fill: #C0392B; -fx-font-size: 12px;" wrapText="true" managed="false" visible="false"/>
                 </VBox>
             </HBox>
-        </VBox>
+            </VBox>
+            <Region minWidth="0" HBox.hgrow="ALWAYS"/>
+        </HBox>
     </ScrollPane>
 </VBox>

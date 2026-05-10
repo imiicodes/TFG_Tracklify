@@ -12,7 +12,8 @@
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.mycompany.tracklify.controllers.AdminConfigController"
-      spacing="18" styleClass="contenido">
+      spacing="18" styleClass="contenido" minWidth="0" minHeight="0"
+      maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS">
     <padding>
         <Insets bottom="16" left="24" right="28" top="24"/>
     </padding>
@@ -26,7 +27,8 @@
         <ComboBox fx:id="comboFiltroAuditoria" prefWidth="200"/>
     </HBox>
 
-    <ScrollPane fitToHeight="true" fitToWidth="true" style="-fx-background-color: transparent;" prefHeight="280">
+    <ScrollPane fitToHeight="true" fitToWidth="true" style="-fx-background-color: transparent;"
+                minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS">
         <TableView fx:id="tablaAuditoria" prefHeight="260">
             <columns>
                 <TableColumn fx:id="colAudEmail" prefWidth="200" text="Email"/>

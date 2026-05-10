@@ -12,8 +12,8 @@
 <?import javafx.scene.shape.Rectangle?>
 
 <StackPane
-    prefWidth="800"
-    prefHeight="480"
+    minWidth="0" minHeight="0" prefWidth="Infinity" prefHeight="Infinity"
+    maxWidth="Infinity" maxHeight="Infinity"
     style="-fx-background-color:#F6EEFF;"
     xmlns="http://javafx.com/javafx/21"
     xmlns:fx="http://javafx.com/fxml/1"
@@ -23,77 +23,72 @@
         <URL value="@/styles/registro_view.css"/>
     </stylesheets>
 
-    <VBox alignment="CENTER" spacing="0" maxWidth="320">
+    <VBox alignment="CENTER" spacing="0" prefWidth="440" maxWidth="520" minWidth="260">
         <padding>
-            <Insets top="30" right="40" bottom="30" left="40"/>
+            <Insets top="30" right="24" bottom="30" left="24"/>
         </padding>
 
-        <!-- Título -->
         <Label text="Crear cuenta" styleClass="titulo"/>
 
-        <!-- Subtítulo -->
         <Label text="Únete a Tracklify hoy" styleClass="subtitulo"/>
 
-        <!-- Separador decorativo -->
         <HBox alignment="CENTER" style="-fx-padding: 12 0 20 0;">
             <Rectangle width="40" height="2"
                 style="-fx-fill:#DEA9FF; -fx-arc-width:2; -fx-arc-height:2;"/>
         </HBox>
 
-        <!-- Campo nombre -->
         <Label text="NOMBRE" styleClass="campo-label"/>
         <TextField
             fx:id="campoNombre"
             promptText="Tu nombre completo"
             styleClass="campo"
-            maxWidth="260"/>
+            prefWidth="440"
+            maxWidth="Infinity"/>
 
         <VBox style="-fx-padding: 0 0 10 0;"/>
 
-        <!-- Campo email -->
         <Label text="CORREO ELECTRÓNICO" styleClass="campo-label"/>
         <TextField
             fx:id="campoEmail"
             promptText="tu@email.com"
             styleClass="campo"
-            maxWidth="260"/>
+            prefWidth="440"
+            maxWidth="Infinity"/>
 
         <VBox style="-fx-padding: 0 0 10 0;"/>
 
-        <!-- Campo contraseña -->
         <Label text="CONTRASEÑA" styleClass="campo-label"/>
         <PasswordField
             fx:id="campoPassword"
             promptText="Mínimo 6 caracteres"
             styleClass="campo"
-            maxWidth="260"/>
+            prefWidth="440"
+            maxWidth="Infinity"/>
 
         <VBox style="-fx-padding: 0 0 10 0;"/>
 
-        <!-- Campo confirmar contraseña -->
         <Label text="CONFIRMAR CONTRASEÑA" styleClass="campo-label"/>
         <PasswordField
             fx:id="campoConfirmar"
             promptText="Repite tu contraseña"
             styleClass="campo"
-            maxWidth="260"/>
+            prefWidth="440"
+            maxWidth="Infinity"/>
 
-        <!-- Mensaje feedback -->
         <Label fx:id="labelMensaje" styleClass="label-mensaje"
-            wrapText="true" maxWidth="260"
+            wrapText="true" prefWidth="440" maxWidth="Infinity"
             style="-fx-padding: 8 0 0 0;"/>
 
-        <!-- Botón registro -->
         <Button
             text="Crear cuenta"
             styleClass="btn-primary"
-            maxWidth="260"
+            prefWidth="440"
+            maxWidth="Infinity"
             prefHeight="40"
             style="-fx-padding: 0;"
             onAction="#registrar"
         />
 
-        <!-- Volver al login -->
         <Button
             text="¿Ya tienes cuenta? Inicia sesión"
             styleClass="btn-link"

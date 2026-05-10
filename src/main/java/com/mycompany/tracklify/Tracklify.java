@@ -21,7 +21,7 @@ public class Tracklify extends Application {
         stage.setScene(scene);
         stage.show();
         stage.setMinWidth(800);
-        stage.setMinHeight(480);
+        stage.setMinHeight(600);
         stage.setResizable(true);
         stage.centerOnScreen();
     }

@@ -123,6 +123,22 @@ public class MainViewController implements Initializable {
         if (campoChatInput != null) {
             campoChatInput.setOnAction(e -> enviarMensajeChat());
         }
+
+        Platform.runLater(() -> actualizarTituloVentana("Dashboard"));
+    }
+
+    /**
+     * Establece el título de la ventana principal con el formato «Tracklify — &lt;sección&gt;».
+     *
+     * @param seccion nombre legible de la vista (p. ej. «Dashboard», «Mis hábitos»)
+     */
+    private void actualizarTituloVentana(String seccion) {
+        if (btnNavDashboard == null || btnNavDashboard.getScene() == null
+            || !(btnNavDashboard.getScene().getWindow() instanceof Stage)) {
+            return;
+        }
+        Stage stage = (Stage) btnNavDashboard.getScene().getWindow();
+        stage.setTitle("Tracklify — " + seccion);
     }
 
     /**
@@ -188,6 +204,7 @@ public class MainViewController implements Initializable {
     public void mostrarDashboard(ActionEvent event) {
         marcarItemActivo(btnNavDashboard);
         cargarVista("dashboard_view.fxml");
+        actualizarTituloVentana("Dashboard");
     }
 
     /**
@@ -199,6 +216,7 @@ public class MainViewController implements Initializable {
     public void mostrarMisHabitos(ActionEvent event) {
         marcarItemActivo(btnNavMisHabitos);
         cargarVista("mis_habitos_view.fxml");
+        actualizarTituloVentana("Mis hábitos");
     }
 
     /**
@@ -210,6 +228,7 @@ public class MainViewController implements Initializable {
     public void mostrarCalendario(ActionEvent event) {
         marcarItemActivo(btnNavCalendario);
         cargarVista("calendario_view.fxml");
+        actualizarTituloVentana("Calendario");
     }
 
     /**
@@ -221,6 +240,7 @@ public class MainViewController implements Initializable {
     public void mostrarEstadisticas(ActionEvent event) {
         marcarItemActivo(btnNavEstadisticas);
         cargarVista("estadisticas_view.fxml");
+        actualizarTituloVentana("Estadísticas");
     }
 
     /**
@@ -232,6 +252,7 @@ public class MainViewController implements Initializable {
     public void mostrarInformes(ActionEvent event) {
         marcarItemActivo(btnNavInformes);
         cargarVista("informes_view.fxml");
+        actualizarTituloVentana("Informes");
     }
 
     /**
@@ -243,6 +264,7 @@ public class MainViewController implements Initializable {
     public void mostrarConfiguracion(ActionEvent event) {
         marcarItemActivo(btnNavConfiguracion);
         cargarVista("configuracion_view.fxml");
+        actualizarTituloVentana("Configuración");
     }
 
     /**
@@ -437,6 +459,8 @@ public class MainViewController implements Initializable {
             getClass().getResource("/fxml/landing_view.fxml")
         );
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(loader.load()));
+        double w = stage.getWidth();
+        double h = stage.getHeight();
+        stage.setScene(new Scene(loader.load(), w, h));
     }
 }

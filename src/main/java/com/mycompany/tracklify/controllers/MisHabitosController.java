@@ -107,6 +107,28 @@ public class MisHabitosController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         recargarHabitosDesdeBd();
         aplicarFiltro(FILTRO_ACTIVO);
+        configurarScrollSuave(scrollLista);
+    }
+
+    /**
+     * Ajusta el desplazamiento vertical del listado con la rueda del ratón de forma más suave.
+     *
+     * @param scrollPane panel con scroll de la lista de hábitos
+     */
+    private void configurarScrollSuave(ScrollPane scrollPane) {
+        if (scrollPane == null) {
+            return;
+        }
+        javafx.scene.Node content = scrollPane.getContent();
+        if (content == null) {
+            return;
+        }
+        content.setOnScroll(event -> {
+            double delta = event.getDeltaY() * -0.003;
+            double nuevo = scrollPane.getVvalue() + delta;
+            scrollPane.setVvalue(Math.max(0, Math.min(1, nuevo)));
+            event.consume();
+        });
     }
 
     /**

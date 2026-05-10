@@ -12,7 +12,8 @@
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.mycompany.tracklify.controllers.AdminDashboardController"
-      spacing="18" styleClass="contenido">
+      spacing="18" styleClass="contenido" minWidth="0" minHeight="0"
+      maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS">
     <padding>
         <Insets bottom="16" left="24" right="28" top="28"/>
     </padding>
@@ -22,12 +23,12 @@
         <Label styleClass="subtitulo-bienvenida" text="Administra usuarios, roles y estadísticas globales"/>
     </VBox>
 
-    <HBox spacing="12">
-        <VBox prefWidth="140" styleClass="tarjeta-stat">
+    <HBox spacing="12" maxWidth="Infinity">
+        <VBox minWidth="0" prefWidth="140" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="tarjeta-stat">
             <Label fx:id="labelTotalUsuarios" styleClass="stat-num" text="—"/>
             <Label styleClass="stat-label" text="Usuarios totales"/>
         </VBox>
-        <VBox prefWidth="140" styleClass="tarjeta-stat">
+        <VBox minWidth="0" prefWidth="140" maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="tarjeta-stat">
             <Label fx:id="labelTotalAdmins" styleClass="stat-num" text="—"/>
             <Label styleClass="stat-label" text="Administradores"/>
         </VBox>

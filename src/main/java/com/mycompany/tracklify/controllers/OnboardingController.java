@@ -468,7 +468,9 @@ public class OnboardingController implements Initializable {
                 getClass().getResource("/fxml/main_view.fxml")
             );
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(loader.load()));
+            double w = stage.getWidth();
+            double h = stage.getHeight();
+            stage.setScene(new Scene(loader.load(), w, h));
             stage.show();
 
         } catch (Exception e) {

@@ -13,7 +13,8 @@
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.mycompany.tracklify.controllers.AdminReportesController"
-      spacing="14" styleClass="contenido">
+      spacing="14" styleClass="contenido" minWidth="0" minHeight="0"
+      maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS">
     <padding>
         <Insets bottom="16" left="24" right="28" top="24"/>
     </padding>
@@ -27,7 +28,8 @@
         <Button fx:id="btnExportarTodo" mnemonicParsing="false" text="Exportar todo"/>
     </HBox>
 
-    <ScrollPane fitToHeight="true" fitToWidth="true" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+    <ScrollPane fitToHeight="true" fitToWidth="true" style="-fx-background-color: transparent;"
+                minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS">
         <TableView fx:id="tablaReportes" prefHeight="400">
             <columns>
                 <TableColumn fx:id="colRepUsuario" prefWidth="130" text="Usuario"/>

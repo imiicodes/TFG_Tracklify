@@ -178,7 +178,9 @@ public class LoginController {
             }
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource(destino));
-            stage.setScene(new Scene(loader.load()));
+            double w = stage.getWidth();
+            double h = stage.getHeight();
+            stage.setScene(new Scene(loader.load(), w, h));
             stage.show();
 
         } catch (Exception e) {
@@ -200,6 +202,8 @@ public class LoginController {
             getClass().getResource("/fxml/landing_view.fxml")
         );
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(loader.load()));
+        double w = stage.getWidth();
+        double h = stage.getHeight();
+        stage.setScene(new Scene(loader.load(), w, h));
     }
 }

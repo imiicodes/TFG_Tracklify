@@ -13,21 +13,25 @@ import javafx.stage.Stage;
 
 public class Landing_viewController {
 
-    @FXML
-    public void irALogin(ActionEvent event) throws Exception {
-        FXMLLoader loader = new FXMLLoader(
-            getClass().getResource("/fxml/login_view.fxml")
-        );
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(loader.load()));
-    }
+@FXML
+public void irALogin(ActionEvent event) throws Exception {
+    FXMLLoader loader = new FXMLLoader(
+        getClass().getResource("/fxml/login_view.fxml")
+    );
+    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+    double width = stage.getWidth();
+    double height = stage.getHeight();
+    stage.setScene(new Scene(loader.load(), width, height));
+}
 
-    @FXML
-    public void irARegistro(ActionEvent event) throws Exception {
-        FXMLLoader loader = new FXMLLoader(
-            getClass().getResource("/fxml/registro_view.fxml")
-        );
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(loader.load()));
-    }
+@FXML
+public void irARegistro(ActionEvent event) throws Exception {
+    FXMLLoader loader = new FXMLLoader(
+        getClass().getResource("/fxml/registro_view.fxml")
+    );
+    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+    double width = stage.getWidth();
+    double height = stage.getHeight();
+    stage.setScene(new Scene(loader.load(), width, height));
+}
 }

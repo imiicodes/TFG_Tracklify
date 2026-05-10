@@ -11,13 +11,15 @@
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.mycompany.tracklify.controllers.MisHabitosController"
-      spacing="0" style="-fx-background-color: #F6EEFF;" VBox.vgrow="ALWAYS">
+      spacing="0" style="-fx-background-color: #F6EEFF;" minWidth="0" minHeight="0"
+      maxWidth="Infinity" maxHeight="Infinity" VBox.vgrow="ALWAYS">
 
     <stylesheets>
         <URL value="@/styles/main_view.css"/>
     </stylesheets>
 
-    <VBox spacing="12" style="-fx-background-color: #F6EEFF;" VBox.vgrow="ALWAYS">
+    <VBox spacing="12" style="-fx-background-color: #F6EEFF;" maxWidth="Infinity" maxHeight="Infinity"
+          VBox.vgrow="ALWAYS">
         <padding>
             <Insets top="20" right="24" bottom="8" left="24"/>
         </padding>
@@ -44,8 +46,10 @@
             <padding>
                 <Insets top="4" right="16" bottom="16" left="16"/>
             </padding>
-            <ScrollPane fx:id="scrollLista" fitToWidth="true" styleClass="scroll-contenido" VBox.vgrow="ALWAYS">
-                <VBox fx:id="listaHabitos" spacing="10">
+            <ScrollPane fx:id="scrollLista" fitToWidth="true" fitToHeight="true" styleClass="scroll-contenido"
+                        style="-fx-font-smoothing-type: gray;" maxWidth="Infinity" maxHeight="Infinity"
+                        VBox.vgrow="ALWAYS">
+                <VBox fx:id="listaHabitos" spacing="10" maxWidth="Infinity">
                     <padding>
                         <Insets top="4" right="8" bottom="16" left="8"/>
                     </padding>

@@ -5,6 +5,7 @@
 .mainFxmlClass {
 .root {
     -fx-background-color: #F6EEFF;
+    -fx-font-size: 13px;
 }
 
 .titulo {
@@ -99,5 +100,9 @@
     -fx-text-fill: #B5368A;
     -fx-alignment: center;
     -fx-text-alignment: center;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
 }
 }
