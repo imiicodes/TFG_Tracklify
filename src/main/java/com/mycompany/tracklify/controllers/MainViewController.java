@@ -1,31 +1,44 @@
 package com.mycompany.tracklify.controllers;
 
+import com.mycompany.tracklify.dao.HabitoDAO;
 import com.mycompany.tracklify.dao.PerfilDAO;
 import com.mycompany.tracklify.models.Habito;
 import com.mycompany.tracklify.models.Perfil;
 import com.mycompany.tracklify.models.Usuario;
 import com.mycompany.tracklify.utils.NotificacionScheduler;
+import com.mycompany.tracklify.utils.RachaService;
 import com.mycompany.tracklify.utils.SessionManager;
 import com.mycompany.tracklify.utils.TemaService;
+import com.mycompany.tracklify.utils.TokenService;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
  * Controlador del marco principal ({@code main_view.fxml}): barra superior, barra lateral
- * fija y un {@link AnchorPane} central donde se cargan las distintas vistas FXML sin
- * sustituir el {@link Stage} ni la {@link Scene} tras el inicio de sesión.
+ * fija, un {@link AnchorPane} central donde se cargan las distintas vistas FXML sin
+ * sustituir el {@link Stage} ni la {@link Scene} tras el inicio de sesión, y el asistente
+ * de chat flotante enlazado al webhook configurado.
  *
  * @author Tracklify
  */
@@ -51,6 +64,27 @@ public class MainViewController implements Initializable {
 
     @FXML
     private Button btnNavConfiguracion;
+
+    @FXML
+    private Button btnChatbot;
+
+    @FXML
+    private VBox panelChatbot;
+
+    @FXML
+    private ScrollPane scrollChat;
+
+    @FXML
+    private VBox mensajesChat;
+
+    @FXML
+    private TextField campoChatInput;
+
+    @FXML
+    private Button btnEnviarChat;
+
+    /** {@code true} tras mostrar una vez el mensaje de bienvenida del asistente. */
+    private boolean bienvenidaChatMostrada;
 
     /** Botones laterales para aplicar o quitar la clase de ítem activo. */
     private final List<Button> botonesSidebar = new ArrayList<>();
@@ -84,6 +118,10 @@ public class MainViewController implements Initializable {
                     }
                 });
             }
+        }
+
+        if (campoChatInput != null) {
+            campoChatInput.setOnAction(e -> enviarMensajeChat());
         }
     }
 
@@ -202,6 +240,120 @@ public class MainViewController implements Initializable {
     public void mostrarConfiguracion(ActionEvent event) {
         marcarItemActivo(btnNavConfiguracion);
         cargarVista("configuracion_view.fxml");
+    }
+
+    /**
+     * Muestra u oculta el panel del asistente y, al abrirlo, lo sitúa por encima del resto de nodos.
+     */
+    @FXML
+    void toggleChatbot() {
+        boolean abierto = !panelChatbot.isVisible();
+        panelChatbot.setVisible(abierto);
+        panelChatbot.setManaged(abierto);
+        if (abierto) {
+            panelChatbot.toFront();
+            btnChatbot.toFront();
+            if (!bienvenidaChatMostrada) {
+                agregarBurbuja(
+                    "¡Hola! Soy tu asistente de Tracklify. ¿En qué puedo ayudarte hoy?",
+                    false
+                );
+                bienvenidaChatMostrada = true;
+            }
+            campoChatInput.requestFocus();
+        }
+    }
+
+    /**
+     * Envía el texto del campo al webhook del asistente y muestra la respuesta en el hilo de JavaFX.
+     */
+    @FXML
+    void enviarMensajeChat() {
+        String mensaje = campoChatInput.getText().trim();
+        if (mensaje.isEmpty()) {
+            return;
+        }
+
+        Usuario usuario = SessionManager.getInstancia().getUsuarioActual();
+        if (usuario == null) {
+            agregarBurbuja("Debes iniciar sesión para usar el asistente.", false);
+            campoChatInput.clear();
+            return;
+        }
+
+        agregarBurbuja(mensaje, true);
+        campoChatInput.clear();
+
+        Thread hiloChat = new Thread(() -> {
+            try {
+                Perfil perfil = new PerfilDAO().obtenerPorUsuario(usuario.getIdUsuario());
+                List<Habito> habitos = new HabitoDAO().obtenerActivosPorUsuario(usuario.getIdUsuario());
+                String nombresHabitos = habitos.stream()
+                    .map(Habito::getNombreHabito)
+                    .map(n -> n != null ? n : "")
+                    .collect(Collectors.joining(", "));
+                int racha = habitos.isEmpty()
+                    ? 0
+                    : new RachaService().calcularRachaActual(habitos.get(0).getIdHabito());
+
+                String nombreCtx = "Usuario";
+                if (perfil != null && perfil.getNombreUsuario() != null && !perfil.getNombreUsuario().isBlank()) {
+                    nombreCtx = perfil.getNombreUsuario();
+                }
+
+                Map<String, String> datos = Map.of(
+                    "nombre", nombreCtx,
+                    "habitos", nombresHabitos,
+                    "racha", String.valueOf(racha),
+                    "mensaje", mensaje
+                );
+                String respuesta = TokenService.llamarWebhookConRespuesta(
+                    "http://localhost:5678/webhook/chatbot",
+                    datos
+                );
+
+                Platform.runLater(() -> agregarBurbuja(respuesta, false));
+
+            } catch (Exception e) {
+                Platform.runLater(() -> agregarBurbuja("Error al conectar con el asistente.", false));
+            }
+        });
+        hiloChat.setDaemon(true);
+        hiloChat.start();
+    }
+
+    /**
+     * Añade una burbuja de mensaje al listado del chat (usuario a la derecha, asistente a la izquierda).
+     *
+     * @param texto   contenido del mensaje
+     * @param esUsuario {@code true} si lo envió el usuario; {@code false} si es respuesta del asistente
+     */
+    private void agregarBurbuja(String texto, boolean esUsuario) {
+        Label burbuja = new Label(texto);
+        burbuja.setWrapText(true);
+        burbuja.setMaxWidth(240);
+        burbuja.setPadding(new Insets(8, 12, 8, 12));
+        if (esUsuario) {
+            burbuja.setStyle(
+                "-fx-background-color: #7A4578; -fx-text-fill: white; "
+                    + "-fx-background-radius: 12 12 0 12;"
+            );
+            HBox fila = new HBox(burbuja);
+            fila.setAlignment(Pos.CENTER_RIGHT);
+            fila.setPadding(new Insets(4, 8, 4, 8));
+            mensajesChat.getChildren().add(fila);
+        } else {
+            burbuja.setStyle(
+                "-fx-background-color: #F3D9F5; -fx-text-fill: #2D1B2E; "
+                    + "-fx-background-radius: 12 12 12 0;"
+            );
+            HBox fila = new HBox(burbuja);
+            fila.setAlignment(Pos.CENTER_LEFT);
+            fila.setPadding(new Insets(4, 8, 4, 8));
+            mensajesChat.getChildren().add(fila);
+        }
+        scrollChat.layout();
+        Platform.runLater(() -> scrollChat.setVvalue(1.0));
     }
 
     /**

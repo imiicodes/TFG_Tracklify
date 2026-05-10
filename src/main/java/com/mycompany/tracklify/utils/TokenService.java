@@ -107,39 +107,106 @@ public class TokenService {
         String hash = BCrypt.hashpw(passwordNueva, BCrypt.gensalt(10));
         return usuarioDAO.actualizarPassword(idUsuario, hash);
     }
-        /**
-         * Envía una petición POST a un webhook de n8n con los datos indicados.
-         *
-         * @param urlWebhook URL completa del webhook de n8n
-         * @param datos      mapa con los parámetros a enviar en el body JSON
-         */
-        public static void llamarWebhook(String urlWebhook, Map<String, String> datos) {
-            try {
-                StringBuilder json = new StringBuilder("{");
-                datos.forEach((k, v) -> 
-                    json.append("\"").append(k).append("\":\"").append(v).append("\",")
-                );
-                json.deleteCharAt(json.length() - 1).append("}");
 
-                java.net.URL url = new java.net.URL(urlWebhook);
-                java.net.HttpURLConnection con = (java.net.HttpURLConnection) url.openConnection();
-                con.setRequestMethod("POST");
-                con.setRequestProperty("Content-Type", "application/json");
-                con.setDoOutput(true);
-                con.setConnectTimeout(5000);
-                con.setReadTimeout(5000);
+    /**
+     * Envía una petición POST a un webhook de n8n con los datos indicados (sin leer el cuerpo de respuesta).
+     *
+     * @param urlWebhook URL completa del webhook de n8n
+     * @param datos      mapa con los parámetros a enviar en el body JSON
+     */
+    public static void llamarWebhook(String urlWebhook, Map<String, String> datos) {
+        try {
+            String json = construirJsonWebhook(datos);
 
-                try (java.io.OutputStream os = con.getOutputStream()) {
-                    os.write(json.toString().getBytes("UTF-8"));
-                }
+            java.net.URL url = new java.net.URL(urlWebhook);
+            java.net.HttpURLConnection con = (java.net.HttpURLConnection) url.openConnection();
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setDoOutput(true);
+            con.setConnectTimeout(5000);
+            con.setReadTimeout(5000);
 
-                int status = con.getResponseCode();
-                System.out.println("Webhook response: " + status);
-                con.disconnect();
-
-            } catch (Exception e) {
-                System.err.println("Error llamando webhook n8n: " + e.getMessage());
-                e.printStackTrace();
+            try (java.io.OutputStream os = con.getOutputStream()) {
+                os.write(json.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             }
+
+            int status = con.getResponseCode();
+            System.out.println("Webhook response: " + status);
+            con.disconnect();
+
+        } catch (Exception e) {
+            System.err.println("Error llamando webhook n8n: " + e.getMessage());
+            e.printStackTrace();
         }
+    }
+
+    /**
+     * Envía una petición POST al webhook y devuelve el cuerpo de la respuesta como texto.
+     *
+     * @param urlWebhook URL completa del endpoint (por ejemplo n8n)
+     * @param datos      pares clave-valor serializados como objeto JSON plano (valores escapados)
+     * @return cuerpo de la respuesta HTTP, o un mensaje de error legible si falla la conexión
+     */
+    public static String llamarWebhookConRespuesta(String urlWebhook, Map<String, String> datos) {
+        try {
+            String json = construirJsonWebhook(datos);
+
+            java.net.URL url = new java.net.URL(urlWebhook);
+            java.net.HttpURLConnection con = (java.net.HttpURLConnection) url.openConnection();
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setDoOutput(true);
+            con.setConnectTimeout(10000);
+            con.setReadTimeout(30000);
+
+            try (java.io.OutputStream os = con.getOutputStream()) {
+                os.write(json.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            }
+
+            StringBuilder respuesta = new StringBuilder();
+            try (java.io.BufferedReader br = new java.io.BufferedReader(
+                new java.io.InputStreamReader(con.getInputStream(), java.nio.charset.StandardCharsets.UTF_8)
+            )) {
+                String linea;
+                while ((linea = br.readLine()) != null) {
+                    respuesta.append(linea);
+                }
+            }
+            con.disconnect();
+            return respuesta.toString();
+
+        } catch (Exception e) {
+            System.err.println("Error webhook: " + e.getMessage());
+            return "Lo siento, no puedo responder ahora mismo.";
+        }
+    }
+
+    /**
+     * Construye un JSON {@code {"clave":"valor",...}} escapando comillas y saltos en los valores.
+     *
+     * @param datos mapa de campos; si está vacío devuelve {@code {}}
+     * @return cadena JSON UTF-8
+     */
+    private static String construirJsonWebhook(Map<String, String> datos) {
+        if (datos == null || datos.isEmpty()) {
+            return "{}";
+        }
+        StringBuilder json = new StringBuilder("{");
+        datos.forEach((k, v) -> {
+            String valor = v != null ? v : "";
+            json.append("\"").append(escaparJson(k)).append("\":\"")
+                .append(escaparJson(valor)).append("\",");
+        });
+        json.deleteCharAt(json.length() - 1);
+        json.append("}");
+        return json.toString();
+    }
+
+    private static String escaparJson(String s) {
+        return s.replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\r", "\\r")
+            .replace("\n", "\\n")
+            .replace("\t", "\\t");
+    }
 }
