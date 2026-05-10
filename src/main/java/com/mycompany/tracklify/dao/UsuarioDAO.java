@@ -208,6 +208,12 @@ public class UsuarioDAO {
         return usuarios;
     }
 
+    /**
+     * Obtiene un usuario por su clave primaria.
+     *
+     * @param idUsuario identificador {@code id_usuario}
+     * @return entidad mapeada o {@code null} si no existe o falla la consulta
+     */
     public Usuario obtenerPorId(int idUsuario) {
 
         String sql = "SELECT * FROM usuarios WHERE id_usuario = ?";

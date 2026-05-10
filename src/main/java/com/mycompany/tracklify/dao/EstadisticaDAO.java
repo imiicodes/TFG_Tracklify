@@ -29,14 +29,16 @@ public class EstadisticaDAO {
             rs.getInt("id_usuario"),
             rs.getInt("id_habito"),
             rs.getString("nombre_habito"),
-            rs.getInt("objetivo_veces"),
-            rs.getString("periodo_objetivo"),
-            rs.getInt("anio_semana"),
-            rs.getInt("num_semana"),
-            rs.getInt("veces_completado"),
-            rs.getInt("veces_pendientes"),
-            rs.getDouble("porcentaje_completado"),
-            rs.getLong("segundos_totales_semana")
+            rs.getInt("objetivo_semana"),
+            "SEMANA",
+            rs.getInt("anio"),
+            rs.getInt("semana_actual"),
+            rs.getInt("completados_esta_semana"),
+            Math.max(rs.getInt("objetivo_semana") - rs.getInt("completados_esta_semana"), 0),
+            rs.getInt("objetivo_semana") > 0
+                ? Math.round(rs.getInt("completados_esta_semana") * 100.0 / rs.getInt("objetivo_semana") * 10) / 10.0
+                : 0.0,
+            rs.getLong("segundos_semana")
         );
     }
 

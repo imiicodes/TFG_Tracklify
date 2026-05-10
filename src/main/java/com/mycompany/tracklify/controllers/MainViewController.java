@@ -149,6 +149,9 @@ public class MainViewController implements Initializable {
             } else if ("configuracion_view.fxml".equals(fxml)) {
                 ConfiguracionController configuracion = loader.getController();
                 configuracion.setHost(this);
+            } else if ("informes_view.fxml".equals(fxml)) {
+                InformesController informes = loader.getController();
+                informes.setHost(this);
             }
             AnchorPane.setTopAnchor(vista, 0.0);
             AnchorPane.setBottomAnchor(vista, 0.0);

@@ -1,9 +1,10 @@
 package com.mycompany.tracklify.controllers;
 
 import com.mycompany.tracklify.dao.AdminReportesDAO;
-import com.mycompany.tracklify.dao.EstadisticaDAO;
+import com.mycompany.tracklify.dao.UsuarioDAO;
 import com.mycompany.tracklify.models.AdminReporteUsuarioFila;
-import com.mycompany.tracklify.models.ProgresoSemanal;
+import com.mycompany.tracklify.models.Usuario;
+import com.mycompany.tracklify.utils.InformeService;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,11 +21,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
 /**
  * Sección de informes por usuario del administrador ({@code admin/admin_reportes.fxml}).
  *
- * <p>El resumen mostrado en el diálogo proviene de {@code v_informe_semanal}.</p>
+ * <p>«Ver informe» genera el PDF semanal del usuario con {@link InformeService}.</p>
  *
  * @author Tracklify
  */
@@ -60,7 +62,7 @@ public class AdminReportesController implements Initializable {
 
     private final AdminReportesDAO adminReportesDAO = new AdminReportesDAO();
 
-    private final EstadisticaDAO estadisticaDAO = new EstadisticaDAO();
+    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
     /** Copia base recargada desde JDBC antes de ordenar en memoria. */
     private List<AdminReporteUsuarioFila> datosBase = new ArrayList<>();
@@ -83,12 +85,25 @@ public class AdminReportesController implements Initializable {
             private final Button btn = new Button("Ver informe");
 
             {
-                btn.setOnAction(evt -> {
+                btn.setOnAction(e -> {
                     int idx = getIndex();
-                    if (idx >= 0 && idx < getTableView().getItems().size()) {
-                        AdminReporteUsuarioFila fila = getTableView().getItems().get(idx);
-                        mostrarInformeUsuario(fila.getIdUsuario());
+                    if (idx < 0 || idx >= getTableView().getItems().size()) {
+                        return;
                     }
+                    AdminReporteUsuarioFila fila = getTableView().getItems().get(idx);
+                    Usuario usuarioDeLaFila = usuarioDAO.obtenerPorId(fila.getIdUsuario());
+                    if (usuarioDeLaFila == null) {
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.setTitle("Usuario no encontrado");
+                        alert.setHeaderText(null);
+                        alert.setContentText("No existe el usuario con id " + fila.getIdUsuario() + ".");
+                        alert.showAndWait();
+                        return;
+                    }
+                    new InformeService().generarInformeSemanal(
+                        usuarioDeLaFila,
+                        (Stage) btn.getScene().getWindow()
+                    );
                 });
             }
 
@@ -142,40 +157,5 @@ public class AdminReportesController implements Initializable {
         }
         copia.sort(cmp);
         tablaReportes.setItems(FXCollections.observableArrayList(copia));
-    }
-
-    /**
-     * Construye el texto del informe semanal y lo muestra en un {@link Alert} informativo.
-     *
-     * @param idUsuario usuario cuyo informe se consulta
-     */
-    private void mostrarInformeUsuario(int idUsuario) {
-        List<ProgresoSemanal> filas = estadisticaDAO.obtenerInformeSemanal(idUsuario);
-        String contenido;
-        if (filas.isEmpty()) {
-            contenido = "No hay filas en v_informe_semanal para este usuario.";
-        } else {
-            StringBuilder sb = new StringBuilder();
-            for (ProgresoSemanal p : filas) {
-                sb.append(String.format(
-                    "• %s | Semana %d/%d | Completado: %.0f%% (%d hecho / %d pendientes)%n",
-                    p.getNombreHabito(),
-                    p.getNumSemana(),
-                    p.getAnioSemana(),
-                    p.getPorcentajeCompletado(),
-                    p.getVecesCompletado(),
-                    p.getVecesPendientes()
-                ));
-            }
-            contenido = sb.toString().trim();
-        }
-
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Informe semanal");
-        alert.setHeaderText("Resumen (vista v_informe_semanal)");
-        alert.setContentText(contenido);
-        alert.setResizable(true);
-        alert.getDialogPane().setPrefWidth(520);
-        alert.showAndWait();
     }
 }
