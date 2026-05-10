@@ -1,22 +1,13 @@
 package com.mycompany.tracklify.controllers;
 
-import com.mycompany.tracklify.dao.BaneoUsuarioDAO;
-import com.mycompany.tracklify.dao.BloqueoIpDAO;
 import com.mycompany.tracklify.dao.PerfilDAO;
-import com.mycompany.tracklify.dao.UsuarioDAO;
-import com.mycompany.tracklify.models.BaneoUsuario;
-import com.mycompany.tracklify.models.BloqueoIpVigente;
 import com.mycompany.tracklify.models.Perfil;
 import com.mycompany.tracklify.models.Usuario;
-import com.mycompany.tracklify.utils.BloqueoIpService;
 import com.mycompany.tracklify.utils.SessionManager;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -24,19 +15,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import org.mindrot.jbcrypt.BCrypt;
 
 /**
- * Controlador del panel de administración ({@code admin_view.fxml}).
+ * Marco principal del panel de administración ({@code admin_view.fxml}): barra superior,
+ * barra lateral por secciones y un {@link StackPane} central donde se cargan los FXML
+ * bajo {@code /fxml/admin/}.
  *
  * <p>Accesible únicamente para usuarios con {@code rol_id = 1} (administrador).</p>
  *
@@ -49,66 +36,29 @@ public class AdminViewController implements Initializable {
     private Label labelAdminNombre;
 
     @FXML
-    private Label labelTotalUsuarios;
+    private StackPane contenidoAdmin;
 
     @FXML
-    private Label labelTotalAdmins;
+    private Button btnAdminDashboard;
 
     @FXML
-    private TableView<Usuario> tablaUsuarios;
+    private Button btnAdminUsuarios;
 
     @FXML
-    private TableColumn<Usuario, Integer> colId;
+    private Button btnAdminEstadisticas;
 
     @FXML
-    private TableColumn<Usuario, String> colNombre;
+    private Button btnAdminReportes;
 
     @FXML
-    private TableColumn<Usuario, String> colEmail;
+    private Button btnAdminConfig;
 
-    @FXML
-    private TableColumn<Usuario, Integer> colRol;
+    private final PerfilDAO perfilDAO = new PerfilDAO();
 
-    @FXML
-    private TableView<BloqueoIpVigente> tablaIpsBloqueadas;
-
-    @FXML
-    private TableColumn<BloqueoIpVigente, String> colIpAddr;
-
-    @FXML
-    private TableColumn<BloqueoIpVigente, Integer> colIpIntentos;
-
-    @FXML
-    private TableColumn<BloqueoIpVigente, String> colIpUltIntento;
-
-    @FXML
-    private TableColumn<BloqueoIpVigente, String> colIpBloqueadaHasta;
-
-    private UsuarioDAO usuarioDAO = new UsuarioDAO();
-
-    private PerfilDAO perfilDAO = new PerfilDAO();
-
-    private BaneoUsuarioDAO baneoUsuarioDAO = new BaneoUsuarioDAO();
-
-    private BloqueoIpDAO bloqueoIpDAO = new BloqueoIpDAO();
-
-    private BloqueoIpService bloqueoIpService = new BloqueoIpService();
-
-    @FXML
-    private TextField campoNuevoNombre;
-
-    @FXML
-    private TextField campoNuevoEmail;
-
-    @FXML
-    private PasswordField campoNuevoPassword;
-
-    @FXML
-    private Label labelMensajeAdmin;
+    private final List<Button> botonesNav = new ArrayList<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
         Usuario admin = SessionManager.getInstancia().getUsuarioActual();
         if (admin != null) {
             Perfil perfil = perfilDAO.obtenerPorUsuario(admin.getIdUsuario());
@@ -118,304 +68,114 @@ public class AdminViewController implements Initializable {
             labelAdminNombre.setText("Administrador: " + nombre);
         }
 
-        colId.setCellValueFactory(new PropertyValueFactory<>("idUsuario"));
-        colNombre.setCellValueFactory(cellData -> {
-            Perfil p = perfilDAO.obtenerPorUsuario(cellData.getValue().getIdUsuario());
-            String texto = p != null && p.getNombreUsuario() != null ? p.getNombreUsuario() : "";
-            return new ReadOnlyStringWrapper(texto);
-        });
-        colEmail.setCellValueFactory(new PropertyValueFactory<>("emailUsuario"));
-        colRol.setCellValueFactory(new PropertyValueFactory<>("rolId"));
+        botonesNav.clear();
+        botonesNav.add(btnAdminDashboard);
+        botonesNav.add(btnAdminUsuarios);
+        botonesNav.add(btnAdminEstadisticas);
+        botonesNav.add(btnAdminReportes);
+        botonesNav.add(btnAdminConfig);
 
-        colIpAddr.setCellValueFactory(new PropertyValueFactory<>("ipAddress"));
-        colIpIntentos.setCellValueFactory(new PropertyValueFactory<>("intentosFallidos"));
-        colIpUltIntento.setCellValueFactory(cd -> {
-            var f = cd.getValue().getFechaUltIntento();
-            return new ReadOnlyStringWrapper(f != null ? f.toString() : "—");
-        });
-        colIpBloqueadaHasta.setCellValueFactory(cd -> {
-            var h = cd.getValue().getBloqueadaHasta();
-            return new ReadOnlyStringWrapper(h != null ? h.toString() : "—");
-        });
-
-        cargarUsuarios();
-        cargarEstadisticasGlobales();
-        cargarIpsBloqueadas();
+        marcarNavActivo(btnAdminDashboard);
+        cargarSeccion("admin_dashboard.fxml");
     }
 
     /**
-     * Recarga la tabla de IPs con bloqueo temporal vigente.
+     * Carga un FXML de sección en el área central, sustituyendo el contenido anterior.
+     *
+     * @param fxml nombre del archivo dentro de {@code /fxml/admin/}
      */
-    private void cargarIpsBloqueadas() {
-        List<BloqueoIpVigente> ips = bloqueoIpDAO.obtenerBloqueosVigentes();
-        tablaIpsBloqueadas.setItems(FXCollections.observableArrayList(ips));
-    }
-
-    /**
-     * Abre un diálogo para el motivo y registra un baneo permanente del usuario seleccionado,
-     * desactivando su cuenta.
-     */
-    @FXML
-    public void banearUsuario(ActionEvent event) {
-
-        Usuario seleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
-        Usuario adminActual = SessionManager.getInstancia().getUsuarioActual();
-
-        if (seleccionado == null) {
-            mostrarAlerta("Selección requerida", "Selecciona un usuario en la tabla.");
-            return;
-        }
-        if (adminActual == null) {
-            return;
-        }
-        if (seleccionado.getIdUsuario() == adminActual.getIdUsuario()) {
-            mostrarAlerta("Acción no permitida", "No puedes banear tu propia cuenta.");
-            return;
-        }
-        if (baneoUsuarioDAO.estaActualmenteBaneado(seleccionado.getIdUsuario())) {
-            mostrarAlerta("Sin cambios", "Este usuario ya tiene un baneo activo.");
-            return;
-        }
-
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Banear usuario");
-        dialog.setHeaderText("Indica el motivo del baneo (obligatorio).");
-        dialog.setContentText("Motivo:");
-
-        Optional<String> resultado = dialog.showAndWait();
-        if (resultado.isEmpty()) {
-            return;
-        }
-        String motivo = resultado.get().trim();
-        if (motivo.isEmpty()) {
-            mostrarAlerta("Motivo requerido", "Debes escribir un motivo para el baneo.");
-            return;
-        }
-
-        boolean ok = baneoUsuarioDAO.banear(seleccionado.getIdUsuario(), adminActual.getIdUsuario(), motivo);
-        if (ok) {
-            mostrarAlerta("Éxito", "Usuario baneado y cuenta desactivada.");
-            cargarUsuarios();
-            cargarEstadisticasGlobales();
-        } else {
-            mostrarAlerta("Error", "No se pudo registrar el baneo.");
+    private void cargarSeccion(String fxml) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin/" + fxml));
+            Node vista = loader.load();
+            contenidoAdmin.getChildren().setAll(vista);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error al cargar sección");
+            alert.setHeaderText(null);
+            alert.setContentText("No se pudo cargar la vista: " + fxml + "\n" + e.getMessage());
+            alert.showAndWait();
         }
     }
 
     /**
-     * Localiza el baneo activo del usuario seleccionado y lo cierra, reactivando la cuenta.
+     * Marca un botón del menú lateral como activo y quita el estilo al resto.
+     *
+     * @param activo botón seleccionado o {@code null} para limpiar todos
      */
-    @FXML
-    public void desbanearUsuario(ActionEvent event) {
-
-        Usuario seleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
-        Usuario adminActual = SessionManager.getInstancia().getUsuarioActual();
-
-        if (seleccionado == null) {
-            mostrarAlerta("Selección requerida", "Selecciona un usuario en la tabla.");
-            return;
+    private void marcarNavActivo(Button activo) {
+        for (Button b : botonesNav) {
+            b.getStyleClass().remove("nav-activo");
         }
-        if (adminActual == null) {
-            return;
-        }
-
-        Optional<Integer> idBaneo = baneoUsuarioDAO.obtenerBaneosActivos().stream()
-            .filter(b -> b.getIdUsuario() == seleccionado.getIdUsuario())
-            .map(BaneoUsuario::getIdBaneo)
-            .findFirst();
-
-        if (idBaneo.isEmpty()) {
-            mostrarAlerta("Sin baneo activo", "El usuario seleccionado no tiene un baneo activo.");
-            return;
-        }
-
-        boolean ok = baneoUsuarioDAO.desbanear(idBaneo.get(), adminActual.getIdUsuario());
-        if (ok) {
-            mostrarAlerta("Éxito", "Baneo revocado y cuenta reactivada.");
-            cargarUsuarios();
-            cargarEstadisticasGlobales();
-        } else {
-            mostrarAlerta("Error", "No se pudo desbanear al usuario.");
+        if (activo != null && !activo.getStyleClass().contains("nav-activo")) {
+            activo.getStyleClass().add("nav-activo");
         }
     }
 
     /**
-     * Invoca {@link BloqueoIpService#registrarExito(String)} sobre la IP seleccionada para quitar el bloqueo temporal.
+     * Muestra el dashboard (resumen y gestión de usuarios / IPs).
+     *
+     * @param event evento de navegación
      */
     @FXML
-    public void desbloquearIp(ActionEvent event) {
-
-        BloqueoIpVigente fila = tablaIpsBloqueadas.getSelectionModel().getSelectedItem();
-        if (fila == null || fila.getIpAddress() == null || fila.getIpAddress().isBlank()) {
-            mostrarAlerta("Selección requerida", "Selecciona una IP en la tabla de IPs bloqueadas.");
-            return;
-        }
-
-        bloqueoIpService.registrarExito(fila.getIpAddress());
-        mostrarAlerta("Éxito", "Bloqueo de IP eliminado.");
-        cargarIpsBloqueadas();
+    public void mostrarDashboard(ActionEvent event) {
+        marcarNavActivo(btnAdminDashboard);
+        cargarSeccion("admin_dashboard.fxml");
     }
 
-    private void cargarUsuarios() {
-
-        List<Usuario> usuarios = usuarioDAO.obtenerTodos();
-        ObservableList<Usuario> lista = FXCollections.observableArrayList(usuarios);
-        tablaUsuarios.setItems(lista);
-    }
-
-    private void cargarEstadisticasGlobales() {
-
-        List<Usuario> todos = usuarioDAO.obtenerTodos();
-        labelTotalUsuarios.setText(String.valueOf(todos.size()));
-
-        List<Usuario> admins = usuarioDAO.obtenerPorRol(1);
-        labelTotalAdmins.setText(String.valueOf(admins.size()));
-    }
-
+    /**
+     * Muestra la misma vista de gestión de usuarios que el dashboard (tabla, baneos e IPs).
+     *
+     * @param event evento de navegación
+     */
     @FXML
-    public void hacerAdmin(ActionEvent event) {
-
-        Usuario seleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
-
-        if (seleccionado == null) {
-            mostrarAlerta("Selección requerida", "Por favor selecciona un usuario de la tabla.");
-            return;
-        }
-
-        if (seleccionado.getRolId() == 1) {
-            mostrarAlerta("Sin cambios", "Este usuario ya es administrador.");
-            return;
-        }
-
-        boolean exito = usuarioDAO.cambiarRol(seleccionado.getIdUsuario(), 1);
-
-        if (exito) {
-            mostrarAlerta("Éxito", "El usuario ahora es administrador.");
-            cargarUsuarios();
-            cargarEstadisticasGlobales();
-        } else {
-            mostrarAlerta("Error", "No se pudo cambiar el rol.");
-        }
+    public void mostrarUsuarios(ActionEvent event) {
+        marcarNavActivo(btnAdminUsuarios);
+        cargarSeccion("admin_dashboard.fxml");
     }
 
+    /**
+     * Muestra estadísticas globales y el detalle por usuario.
+     *
+     * @param event evento de navegación
+     */
     @FXML
-    public void quitarAdmin(ActionEvent event) {
-
-        Usuario seleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
-        Usuario adminActual = SessionManager.getInstancia().getUsuarioActual();
-
-        if (seleccionado == null) {
-            mostrarAlerta("Selección requerida", "Por favor selecciona un usuario de la tabla.");
-            return;
-        }
-
-        if (seleccionado.getIdUsuario() == adminActual.getIdUsuario()) {
-            mostrarAlerta("Acción no permitida", "No puedes quitarte tus propios privilegios.");
-            return;
-        }
-
-        boolean exito = usuarioDAO.cambiarRol(seleccionado.getIdUsuario(), 2);
-
-        if (exito) {
-            mostrarAlerta("Éxito", "Se han retirado los privilegios de administrador.");
-            cargarUsuarios();
-            cargarEstadisticasGlobales();
-        } else {
-            mostrarAlerta("Error", "No se pudo cambiar el rol.");
-        }
+    public void mostrarEstadisticas(ActionEvent event) {
+        marcarNavActivo(btnAdminEstadisticas);
+        cargarSeccion("admin_estadisticas.fxml");
     }
 
+    /**
+     * Muestra el listado de informes por usuario.
+     *
+     * @param event evento de navegación
+     */
     @FXML
-    public void eliminarUsuario(ActionEvent event) {
-
-        Usuario seleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
-        Usuario adminActual = SessionManager.getInstancia().getUsuarioActual();
-
-        if (seleccionado == null) {
-            mostrarAlerta("Selección requerida", "Por favor selecciona un usuario de la tabla.");
-            return;
-        }
-
-        if (seleccionado.getIdUsuario() == adminActual.getIdUsuario()) {
-            mostrarAlerta("Acción no permitida", "No puedes eliminar tu propia cuenta.");
-            return;
-        }
-
-        Perfil perfilSel = perfilDAO.obtenerPorUsuario(seleccionado.getIdUsuario());
-        String nombreMostrar = perfilSel != null && perfilSel.getNombreUsuario() != null && !perfilSel.getNombreUsuario().isEmpty()
-            ? perfilSel.getNombreUsuario()
-            : seleccionado.getEmailUsuario();
-
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Confirmar eliminación");
-        confirmacion.setHeaderText("¿Eliminar a " + nombreMostrar + "?");
-        confirmacion.setContentText("Esta acción no se puede deshacer.");
-
-        if (confirmacion.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-            boolean exito = usuarioDAO.eliminar(seleccionado.getIdUsuario());
-
-            if (exito) {
-                mostrarAlerta("Éxito", "Usuario eliminado correctamente.");
-                cargarUsuarios();
-                cargarEstadisticasGlobales();
-            } else {
-                mostrarAlerta("Error", "No se pudo eliminar el usuario.");
-            }
-        }
+    public void mostrarReportes(ActionEvent event) {
+        marcarNavActivo(btnAdminReportes);
+        cargarSeccion("admin_reportes.fxml");
     }
 
+    /**
+     * Muestra auditoría de accesos y utilidades de sistema.
+     *
+     * @param event evento de navegación
+     */
     @FXML
-    public void crearUsuario(ActionEvent event) {
-
-        String nombre = campoNuevoNombre.getText().trim();
-        String email = campoNuevoEmail.getText().trim();
-        String password = campoNuevoPassword.getText();
-
-        if (nombre.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            labelMensajeAdmin.setStyle("-fx-text-fill: #B5368A;");
-            labelMensajeAdmin.setText("Por favor rellena todos los campos.");
-            return;
-        }
-
-        if (!email.contains("@") || !email.contains(".")) {
-            labelMensajeAdmin.setStyle("-fx-text-fill: #B5368A;");
-            labelMensajeAdmin.setText("El correo electrónico no es válido.");
-            return;
-        }
-
-        if (password.length() < 6) {
-            labelMensajeAdmin.setStyle("-fx-text-fill: #B5368A;");
-            labelMensajeAdmin.setText("La contraseña debe tener al menos 6 caracteres.");
-            return;
-        }
-
-        Usuario nuevoUsuario = new Usuario();
-        nuevoUsuario.setEmailUsuario(email);
-        nuevoUsuario.setPasswordUsuario(BCrypt.hashpw(password, BCrypt.gensalt(10)));
-        nuevoUsuario.setRolId(2);
-
-        int id = usuarioDAO.registrar(nuevoUsuario, nombre);
-
-        if (id > 0) {
-            labelMensajeAdmin.setStyle("-fx-text-fill: #3A8F5F;");
-            labelMensajeAdmin.setText("✔ Usuario '" + nombre + "' creado correctamente.");
-
-            campoNuevoNombre.clear();
-            campoNuevoEmail.clear();
-            campoNuevoPassword.clear();
-
-            cargarUsuarios();
-            cargarEstadisticasGlobales();
-
-        } else {
-            labelMensajeAdmin.setStyle("-fx-text-fill: #B5368A;");
-            labelMensajeAdmin.setText("❌ Ese email ya está registrado en el sistema.");
-        }
+    public void mostrarConfig(ActionEvent event) {
+        marcarNavActivo(btnAdminConfig);
+        cargarSeccion("admin_config.fxml");
     }
 
+    /**
+     * Cierra la sesión y vuelve a la pantalla de landing.
+     *
+     * @param event evento del botón «Cerrar sesión»
+     * @throws Exception si no se puede cargar el FXML de landing
+     */
     @FXML
     public void cerrarSesion(ActionEvent event) throws Exception {
-
         SessionManager.getInstancia().cerrarSesion();
 
         FXMLLoader loader = new FXMLLoader(
@@ -423,13 +183,5 @@ public class AdminViewController implements Initializable {
         );
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(new Scene(loader.load()));
-    }
-
-    private void mostrarAlerta(String titulo, String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
     }
 }

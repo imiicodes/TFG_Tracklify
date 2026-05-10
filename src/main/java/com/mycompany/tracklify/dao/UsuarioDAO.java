@@ -159,11 +159,19 @@ public class UsuarioDAO {
     }
 
     /**
-     * Inserta un intento de login en la tabla de auditoría.
+     * Inserta un intento de login en la tabla de auditoría, incluyendo la marca temporal.
+     *
+     * <p>La tabla {@code auditoria_login} debe disponer de la columna {@code fecha_intento}
+     * (por ejemplo {@code TIMESTAMP} con valor por defecto o explícito {@code NOW()}).</p>
+     *
+     * @param email     correo usado en el intento
+     * @param ip        dirección IP del cliente
+     * @param resultado código de resultado (p. ej. {@code EXITO}, {@code FALLO_PASSWORD})
      */
     public void registrarIntento(String email, String ip, String resultado) {
 
-        String sql = "INSERT INTO auditoria_login (email_intento, ip_address, resultado) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO auditoria_login (email_intento, ip_address, resultado, fecha_intento) "
+            + "VALUES (?, ?, ?, NOW())";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
