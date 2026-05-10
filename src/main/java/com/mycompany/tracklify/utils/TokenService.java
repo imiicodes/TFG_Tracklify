@@ -4,6 +4,7 @@ import com.mycompany.tracklify.dao.ConfiguracionEmailDAO;
 import com.mycompany.tracklify.dao.UsuarioDAO;
 import com.mycompany.tracklify.models.Usuario;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -106,4 +107,39 @@ public class TokenService {
         String hash = BCrypt.hashpw(passwordNueva, BCrypt.gensalt(10));
         return usuarioDAO.actualizarPassword(idUsuario, hash);
     }
+        /**
+         * Envía una petición POST a un webhook de n8n con los datos indicados.
+         *
+         * @param urlWebhook URL completa del webhook de n8n
+         * @param datos      mapa con los parámetros a enviar en el body JSON
+         */
+        public static void llamarWebhook(String urlWebhook, Map<String, String> datos) {
+            try {
+                StringBuilder json = new StringBuilder("{");
+                datos.forEach((k, v) -> 
+                    json.append("\"").append(k).append("\":\"").append(v).append("\",")
+                );
+                json.deleteCharAt(json.length() - 1).append("}");
+
+                java.net.URL url = new java.net.URL(urlWebhook);
+                java.net.HttpURLConnection con = (java.net.HttpURLConnection) url.openConnection();
+                con.setRequestMethod("POST");
+                con.setRequestProperty("Content-Type", "application/json");
+                con.setDoOutput(true);
+                con.setConnectTimeout(5000);
+                con.setReadTimeout(5000);
+
+                try (java.io.OutputStream os = con.getOutputStream()) {
+                    os.write(json.toString().getBytes("UTF-8"));
+                }
+
+                int status = con.getResponseCode();
+                System.out.println("Webhook response: " + status);
+                con.disconnect();
+
+            } catch (Exception e) {
+                System.err.println("Error llamando webhook n8n: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
 }

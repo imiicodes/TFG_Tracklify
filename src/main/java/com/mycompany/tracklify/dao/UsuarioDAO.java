@@ -3,10 +3,12 @@ package com.mycompany.tracklify.dao;
 import com.mycompany.tracklify.database.ConexionBD;
 import com.mycompany.tracklify.models.Perfil;
 import com.mycompany.tracklify.models.Usuario;
+import com.mycompany.tracklify.utils.TokenService;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.mindrot.jbcrypt.BCrypt;
 
 /**
@@ -105,7 +107,7 @@ public class UsuarioDAO {
      * @return id del usuario insertado, o {@code 0} si falla (p. ej. email duplicado)
      */
     public int registrar(Usuario usuario, String nombrePerfil) {
-
+        System.out.println("REGISTRAR llamado para: " + usuario.getEmailUsuario());
         String sql = "INSERT INTO usuarios (email_usuario, password_usuario, rol_id, onboarding_completado, "
             + "email_confirmado, cuenta_activa, fecha_registro, fecha_ult_modificacion) "
             + "VALUES (?, ?, ?, 0, 0, 1, ?, ?)";
@@ -140,6 +142,11 @@ public class UsuarioDAO {
                 if (!perfilDAO.insertar(perfil)) {
                     return 0;
                 }
+                System.out.println("Llamando webhook bienvenida para: " + usuario.getEmailUsuario());
+                TokenService.llamarWebhook(
+                    "http://localhost:5678/webhook/bienvenida",
+                    Map.of("email", usuario.getEmailUsuario(), "nombre", nombrePerfil)
+                );
                 return id;
             }
 
@@ -147,6 +154,8 @@ public class UsuarioDAO {
             e.printStackTrace();
             return 0;
         }
+        
+
     }
 
     /**
@@ -359,4 +368,5 @@ public class UsuarioDAO {
 
         return usuarios;
     }
+    
 }
