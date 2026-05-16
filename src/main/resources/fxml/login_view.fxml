@@ -69,5 +69,12 @@
             onAction="#volverALanding"/>
 
     </VBox>
-
+        <Label text="¿Necesitas ayuda? Contacta: imi.codes@gmail.com"
+               onMouseClicked="#abrirSoporte"
+               style="-fx-text-fill: #93588F; -fx-font-size: 11px; -fx-cursor: hand;"
+               StackPane.alignment="TOP_RIGHT">
+            <StackPane.margin>
+                <Insets top="16" right="16"/>
+            </StackPane.margin>
+        </Label>
 </StackPane>

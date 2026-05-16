@@ -206,4 +206,14 @@ public class LoginController {
         double h = stage.getHeight();
         stage.setScene(new Scene(loader.load(), w, h));
     }
+    @FXML
+    void abrirSoporte() {
+        try {
+            java.awt.Desktop.getDesktop().mail(
+                new java.net.URI("mailto:tumail@gmail.com?subject=Soporte Tracklify")
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
