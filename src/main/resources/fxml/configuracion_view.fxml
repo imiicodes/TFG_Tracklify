@@ -22,7 +22,7 @@
 
 <ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.mycompany.tracklify.controllers.ConfiguracionController"
-            fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" pannable="true"
+            fitToWidth="true" fitToHeight="false" hbarPolicy="NEVER" pannable="true"
             minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity"
             styleClass="scroll-contenido scroll-pane-config">
 

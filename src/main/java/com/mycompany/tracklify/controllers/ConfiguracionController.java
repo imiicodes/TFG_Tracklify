@@ -183,6 +183,9 @@ public class ConfiguracionController implements Initializable {
      * Recorta la foto de perfil en forma circular.
      */
     private void prepararClipFotoPerfil() {
+        imagePerfil.setFitWidth(80);
+        imagePerfil.setFitHeight(80);
+        imagePerfil.setPreserveRatio(false);
         Circle clip = new Circle(40);
         clip.setCenterX(40);
         clip.setCenterY(40);
@@ -351,8 +354,11 @@ public class ConfiguracionController implements Initializable {
         }
 
         Scene escena = circuloFoto.getScene();
+        System.out.println("Escena: " + escena);
+        System.out.println("Stylesheets antes: " + escena.getStylesheets());
         if (escena != null) {
             TemaService.aplicar(temaSeleccionado, escena);
+            System.out.println("Stylesheets después: " + escena.getStylesheets());
         }
 
         Alert info = new Alert(Alert.AlertType.INFORMATION);
@@ -477,7 +483,7 @@ public class ConfiguracionController implements Initializable {
 
             perfilActual.setFotoPerfilUrl(destino.toAbsolutePath().toString());
             if (perfilDAO.actualizar(perfilActual)) {
-                Image img = new Image(destino.toUri().toString(), 160, 160, true, true);
+                Image img = new Image(destino.toUri().toString(), 80, 80, false, true);
                 imagePerfil.setImage(img);
                 imagePerfil.setVisible(true);
                 labelInicialFoto.setVisible(false);

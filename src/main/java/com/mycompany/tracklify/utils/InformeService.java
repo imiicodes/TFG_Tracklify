@@ -123,7 +123,7 @@ public class InformeService {
             java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear()) + " / " + LocalDate.now().getYear());
         double tasa = resumen != null ? resumen.getTasaExitoGlobal() : 0;
         double tasaPct = (tasa >= 0 && tasa <= 1.0) ? tasa * 100.0 : tasa;
-        parametros.put("TASA_EXITO", String.format("%.0f%%", tasaPct));
+        parametros.put("TASA_EXITO", String.format("%.0f", tasaPct));
         parametros.put("RACHA_ACTUAL", rachaMax + (rachaMax == 1 ? " día" : " días"));
         parametros.put("TOTAL_HABITOS", resumen != null
             ? String.valueOf(resumen.getTotalHabitosActivos()) : "0");

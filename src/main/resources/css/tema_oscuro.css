@@ -1,6 +1,32 @@
 /**
  * Tema oscuro: sustituye fondos y textos principales manteniendo la misma estructura de clases que main_view.css.
  */
+/*.root {
+    -fx-background-color: #1A0F1A;
+}
+
+* {
+    -fx-background-color: inherit;
+}
+
+.label {
+    -fx-text-fill: #F0E6F0;
+}
+
+.text-field, .password-field, .combo-box, .date-picker {
+    -fx-background-color: #2D1B2E;
+    -fx-text-fill: #F0E6F0;
+    -fx-border-color: #5C4060;
+}
+
+.scroll-pane, .scroll-pane > .viewport {
+    -fx-background-color: #1A0F1A;
+}
+
+.list-view, .table-view {
+    -fx-background-color: #2D1B2E;
+    -fx-text-fill: #F0E6F0;
+}*/
 .root-pane {
     -fx-background-color: #1A0F1A;
 }

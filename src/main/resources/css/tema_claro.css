@@ -2,6 +2,9 @@
  * Tema claro base: refuerza la paleta Tracklify sobre la escena cuando se elige «Claro» o «Sistema».
  * Complementa main_view.css sin sustituirlo.
  */
+/*.root {
+    -fx-background-color: #F6EEFF;
+}*/
 .root-pane {
     -fx-background-color: #F6EEFF;
 }
