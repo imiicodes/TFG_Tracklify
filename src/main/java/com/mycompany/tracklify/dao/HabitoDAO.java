@@ -26,7 +26,7 @@ public class HabitoDAO {
     }
 
     private static Habito mapFila(ResultSet rs) throws SQLException {
-        return new Habito(
+        Habito h = new Habito(
             rs.getInt("id_habito"),
             rs.getInt("id_usuario"),
             getInteger(rs, "id_categoria"),
@@ -42,6 +42,17 @@ public class HabitoDAO {
             getInteger(rs, "objetivo_periodo_id"),
             rs.getString("estado")
         );
+        h.setDiasSemana(rs.getString("dias_semana"));
+        return h;
+    }
+
+    private static void setStringOrNull(PreparedStatement ps, int index, String value)
+            throws SQLException {
+        if (value == null) {
+            ps.setNull(index, Types.VARCHAR);
+        } else {
+            ps.setString(index, value);
+        }
     }
 
     private static void setIntegerOrNull(PreparedStatement ps, int index, Integer value)
@@ -148,8 +159,8 @@ public class HabitoDAO {
     public int insertar(Habito habito) {
         String sql = "INSERT INTO habitos (id_usuario, id_categoria, nombre_habito, descripcion_habito, "
             + "duracion_valor, duracion_periodo_id, fecha_inicio, fecha_fin, "
-            + "notif_frecuencia_valor, notif_frecuencia_id, objetivo_veces, objetivo_periodo_id, estado) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            + "notif_frecuencia_valor, notif_frecuencia_id, objetivo_veces, objetivo_periodo_id, dias_semana, estado) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -166,7 +177,8 @@ public class HabitoDAO {
             setIntegerOrNull(ps, 10, habito.getNotifFrecuenciaId());
             ps.setInt(11, habito.getObjetivoVeces());
             setIntegerOrNull(ps, 12, habito.getObjetivoPeriodoId());
-            ps.setString(13, habito.getEstado() != null ? habito.getEstado() : "ACTIVO");
+            setStringOrNull(ps, 13, habito.getDiasSemana());
+            ps.setString(14, habito.getEstado() != null ? habito.getEstado() : "ACTIVO");
 
             if (ps.executeUpdate() <= 0) {
                 return 0;
@@ -226,7 +238,8 @@ public class HabitoDAO {
     public boolean actualizar(Habito habito) {
         String sql = "UPDATE habitos SET id_usuario=?, id_categoria=?, nombre_habito=?, descripcion_habito=?, "
             + "duracion_valor=?, duracion_periodo_id=?, fecha_inicio=?, fecha_fin=?, "
-            + "notif_frecuencia_valor=?, notif_frecuencia_id=?, objetivo_veces=?, objetivo_periodo_id=?, estado=? "
+            + "notif_frecuencia_valor=?, notif_frecuencia_id=?, objetivo_veces=?, objetivo_periodo_id=?, "
+            + "dias_semana=?, estado=? "
             + "WHERE id_habito=?";
 
         try (Connection con = ConexionBD.conectar();
@@ -244,8 +257,9 @@ public class HabitoDAO {
             setIntegerOrNull(ps, 10, habito.getNotifFrecuenciaId());
             ps.setInt(11, habito.getObjetivoVeces());
             setIntegerOrNull(ps, 12, habito.getObjetivoPeriodoId());
-            ps.setString(13, habito.getEstado() != null ? habito.getEstado() : "ACTIVO");
-            ps.setInt(14, habito.getIdHabito());
+            setStringOrNull(ps, 13, habito.getDiasSemana());
+            ps.setString(14, habito.getEstado() != null ? habito.getEstado() : "ACTIVO");
+            ps.setInt(15, habito.getIdHabito());
 
             return ps.executeUpdate() > 0;
 

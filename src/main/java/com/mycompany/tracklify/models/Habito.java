@@ -25,6 +25,8 @@ public class Habito {
     private Integer notifFrecuenciaId;
     private int objetivoVeces = 1;
     private Integer objetivoPeriodoId;
+    /** Días de la semana en que aplica el objetivo semanal (p. ej. {@code LUNES,MIERCOLES}). */
+    private String diasSemana;
     private String estado = "ACTIVO";
 
     public Habito() {
@@ -153,6 +155,14 @@ public class Habito {
 
     public void setObjetivoPeriodoId(Integer objetivoPeriodoId) {
         this.objetivoPeriodoId = objetivoPeriodoId;
+    }
+
+    public String getDiasSemana() {
+        return diasSemana;
+    }
+
+    public void setDiasSemana(String diasSemana) {
+        this.diasSemana = diasSemana;
     }
 
     public String getEstado() {

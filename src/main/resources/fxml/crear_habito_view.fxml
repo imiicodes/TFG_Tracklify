@@ -9,6 +9,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
@@ -117,6 +118,15 @@
                     <HBox spacing="10" alignment="CENTER_LEFT">
                         <Spinner fx:id="spinnerObjetivoVeces" editable="true" prefWidth="90"/>
                         <ComboBox fx:id="comboObjetivoPeriodo" prefWidth="130"/>
+                    </HBox>
+                    <HBox fx:id="contenedorDiasSemana" spacing="6" alignment="CENTER_LEFT" visible="false" managed="false">
+                        <ToggleButton fx:id="btnLunes" text="L" minWidth="40" prefWidth="40" maxWidth="40" styleClass="filtro-pill-dia"/>
+                        <ToggleButton fx:id="btnMartes" text="M" minWidth="40" prefWidth="40" maxWidth="40" styleClass="filtro-pill-dia"/>
+                        <ToggleButton fx:id="btnMiercoles" text="X" minWidth="40" prefWidth="40" maxWidth="40" styleClass="filtro-pill-dia"/>
+                        <ToggleButton fx:id="btnJueves" text="J" minWidth="40" prefWidth="40" maxWidth="40" styleClass="filtro-pill-dia"/>
+                        <ToggleButton fx:id="btnViernes" text="V" minWidth="40" prefWidth="40" maxWidth="40" styleClass="filtro-pill-dia"/>
+                        <ToggleButton fx:id="btnSabado" text="S" minWidth="40" prefWidth="40" maxWidth="40" styleClass="filtro-pill-dia"/>
+                        <ToggleButton fx:id="btnDomingo" text="D" minWidth="40" prefWidth="40" maxWidth="40" styleClass="filtro-pill-dia"/>
                     </HBox>
                     <Label fx:id="labelEjemploObjetivo" style="-fx-text-fill: #93588F; -fx-font-size: 11px;" wrapText="true"/>
                 </VBox>

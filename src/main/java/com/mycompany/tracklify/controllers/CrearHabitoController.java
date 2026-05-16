@@ -15,6 +15,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javafx.beans.InvalidationListener;
 import javafx.event.ActionEvent;
@@ -26,6 +28,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.util.StringConverter;
@@ -96,6 +100,30 @@ public class CrearHabitoController implements Initializable {
 
     @FXML
     private ComboBox<Periodo> comboObjetivoPeriodo;
+
+    @FXML
+    private HBox contenedorDiasSemana;
+
+    @FXML
+    private ToggleButton btnLunes;
+
+    @FXML
+    private ToggleButton btnMartes;
+
+    @FXML
+    private ToggleButton btnMiercoles;
+
+    @FXML
+    private ToggleButton btnJueves;
+
+    @FXML
+    private ToggleButton btnViernes;
+
+    @FXML
+    private ToggleButton btnSabado;
+
+    @FXML
+    private ToggleButton btnDomingo;
 
     @FXML
     private Label labelEjemploObjetivo;
@@ -192,7 +220,13 @@ public class CrearHabitoController implements Initializable {
         comboNotifPeriodo.valueProperty().addListener(alCambiar);
         spinnerObjetivoVeces.getEditor().textProperty().addListener(alCambiar);
         comboObjetivoPeriodo.valueProperty().addListener(alCambiar);
+        comboObjetivoPeriodo.valueProperty().addListener((obs, oldVal, newVal) -> actualizarVisibilidadDiasSemana());
 
+        for (ToggleButton btn : obtenerBotonesDiasSemana()) {
+            btn.selectedProperty().addListener((obs, oldVal, newVal) -> actualizarResumen());
+        }
+
+        actualizarVisibilidadDiasSemana();
         vistaLista = true;
         actualizarResumen();
     }
@@ -272,6 +306,8 @@ public class CrearHabitoController implements Initializable {
 
         spinnerObjetivoVeces.getValueFactory().setValue(Math.max(1, habitoAEditar.getObjetivoVeces()));
         seleccionarComboPorId(comboObjetivoPeriodo, habitoAEditar.getObjetivoPeriodoId());
+        actualizarVisibilidadDiasSemana();
+        precargarDiasSemanaSeleccionados();
 
         btnCrearHabito.setText("Guardar cambios");
         ocultarError();
@@ -331,7 +367,6 @@ public class CrearHabitoController implements Initializable {
 
         int durValor = leerSpinnerSeguro(spinnerDuracionValor, 1);
         int notifValor = leerSpinnerSeguro(spinnerNotifValor, 1);
-        int objVeces = leerSpinnerSeguro(spinnerObjetivoVeces, 1);
 
         LocalDate hoy = LocalDate.now();
         Habito h = new Habito();
@@ -368,8 +403,19 @@ public class CrearHabitoController implements Initializable {
         h.setNotifFrecuenciaId(pn != null ? pn.getIdPeriodo() : null);
 
         Periodo po = comboObjetivoPeriodo.getValue();
-        h.setObjetivoVeces(objVeces);
         h.setObjetivoPeriodoId(po != null ? po.getIdPeriodo() : null);
+        if (po != null && "SEMANA".equalsIgnoreCase(po.getNombre())) {
+            int diasMarcados = contarDiasSeleccionados();
+            if (diasMarcados == 0) {
+                mostrarError("Selecciona al menos un día");
+                return;
+            }
+            h.setObjetivoVeces(diasMarcados);
+            h.setDiasSemana(obtenerDiasSeleccionados());
+        } else {
+            h.setObjetivoVeces(leerSpinnerSeguro(spinnerObjetivoVeces, 1));
+            h.setDiasSemana(null);
+        }
 
         if (modoEdicion && habitoAEditar != null) {
             if (!habitoDAO.actualizar(h)) {
@@ -419,6 +465,7 @@ public class CrearHabitoController implements Initializable {
         Periodo pn = comboNotifPeriodo.getValue();
         int ov = leerSpinnerSeguro(spinnerObjetivoVeces, 4);
         Periodo po = comboObjetivoPeriodo.getValue();
+        boolean objetivoSemanal = po != null && "SEMANA".equalsIgnoreCase(po.getNombre());
 
         textFlowResumen.getChildren().clear();
         textFlowResumen.getChildren().add(new Text("Quiero "));
@@ -432,14 +479,139 @@ public class CrearHabitoController implements Initializable {
         textFlowResumen.getChildren().add(new Text(" y quiero que se me avise cada "));
         textFlowResumen.getChildren().add(crearChip(nv + " " + etiquetaPlural(pn, nv)));
         textFlowResumen.getChildren().add(new Text(" para completar mi objetivo "));
-        textFlowResumen.getChildren().add(crearChip(ov + " veces"));
-        textFlowResumen.getChildren().add(new Text(" a la "));
-        textFlowResumen.getChildren().add(crearChip(po != null ? etiquetaEspanol(po.getNombre()) : "…"));
-        textFlowResumen.getChildren().add(new Text("."));
+        if (objetivoSemanal) {
+            String etiquetasDias = obtenerEtiquetasDiasResumen();
+            textFlowResumen.getChildren().add(new Text("los "));
+            textFlowResumen.getChildren().add(crearChip(etiquetasDias.isEmpty() ? "…" : etiquetasDias));
+            textFlowResumen.getChildren().add(new Text(" de cada semana."));
+        } else {
+            textFlowResumen.getChildren().add(crearChip(ov + " veces"));
+            textFlowResumen.getChildren().add(new Text(" a la "));
+            textFlowResumen.getChildren().add(crearChip(po != null ? etiquetaEspanol(po.getNombre()) : "…"));
+            textFlowResumen.getChildren().add(new Text("."));
+        }
 
         labelEjemploDuracion.setText(textoEjemploDuracion(dv, pd));
         labelEjemploNotif.setText(textoEjemploNotif(nv, pn));
         labelEjemploObjetivo.setText(textoEjemploObjetivo(ov, po));
+    }
+
+    /**
+     * Muestra u oculta el selector de días y el spinner de veces según el periodo del objetivo.
+     */
+    private void actualizarVisibilidadDiasSemana() {
+        Periodo p = comboObjetivoPeriodo.getValue();
+        boolean semanal = p != null && "SEMANA".equalsIgnoreCase(p.getNombre());
+        contenedorDiasSemana.setVisible(semanal);
+        contenedorDiasSemana.setManaged(semanal);
+        spinnerObjetivoVeces.setVisible(!semanal);
+        spinnerObjetivoVeces.setManaged(!semanal);
+    }
+
+    /**
+     * @return etiquetas cortas de los días seleccionados (p. ej. {@code L, X, V})
+     */
+    private String obtenerEtiquetasDiasResumen() {
+        StringBuilder sb = new StringBuilder();
+        for (ToggleButton btn : obtenerBotonesDiasSemana()) {
+            if (btn.isSelected()) {
+                if (sb.length() > 0) {
+                    sb.append(", ");
+                }
+                sb.append(btn.getText());
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * @return cantidad de días de la semana seleccionados en el formulario
+     */
+    private int contarDiasSeleccionados() {
+        int total = 0;
+        for (ToggleButton btn : obtenerBotonesDiasSemana()) {
+            if (btn.isSelected()) {
+                total++;
+            }
+        }
+        return total;
+    }
+
+    /**
+     * Devuelve los días de la semana marcados en el formulario, en mayúsculas y separados por coma.
+     *
+     * @return cadena tipo {@code LUNES,MIERCOLES,VIERNES}, o vacía si ninguno está seleccionado
+     */
+    private String obtenerDiasSeleccionados() {
+        StringBuilder sb = new StringBuilder();
+        if (btnLunes.isSelected()) {
+            sb.append("LUNES");
+        }
+        if (btnMartes.isSelected()) {
+            agregarDia(sb, "MARTES");
+        }
+        if (btnMiercoles.isSelected()) {
+            agregarDia(sb, "MIERCOLES");
+        }
+        if (btnJueves.isSelected()) {
+            agregarDia(sb, "JUEVES");
+        }
+        if (btnViernes.isSelected()) {
+            agregarDia(sb, "VIERNES");
+        }
+        if (btnSabado.isSelected()) {
+            agregarDia(sb, "SABADO");
+        }
+        if (btnDomingo.isSelected()) {
+            agregarDia(sb, "DOMINGO");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Añade un nombre de día al acumulador, precedido de coma si ya hay contenido.
+     *
+     * @param sb  acumulador
+     * @param dia constante del día (p. ej. {@code LUNES})
+     */
+    private static void agregarDia(StringBuilder sb, String dia) {
+        if (sb.length() > 0) {
+            sb.append(',');
+        }
+        sb.append(dia);
+    }
+
+    /**
+     * Marca los botones de día según el valor {@link Habito#getDiasSemana()} del hábito en edición.
+     */
+    private void precargarDiasSemanaSeleccionados() {
+        for (ToggleButton btn : obtenerBotonesDiasSemana()) {
+            btn.setSelected(false);
+        }
+        if (habitoAEditar == null || habitoAEditar.getDiasSemana() == null
+                || habitoAEditar.getDiasSemana().isBlank()) {
+            return;
+        }
+        Set<String> dias = new HashSet<>();
+        for (String parte : habitoAEditar.getDiasSemana().split(",")) {
+            dias.add(parte.trim().toUpperCase());
+        }
+        btnLunes.setSelected(dias.contains("LUNES"));
+        btnMartes.setSelected(dias.contains("MARTES"));
+        btnMiercoles.setSelected(dias.contains("MIERCOLES"));
+        btnJueves.setSelected(dias.contains("JUEVES"));
+        btnViernes.setSelected(dias.contains("VIERNES"));
+        btnSabado.setSelected(dias.contains("SABADO"));
+        btnDomingo.setSelected(dias.contains("DOMINGO"));
+    }
+
+    /**
+     * @return los siete botones de día de la semana del formulario
+     */
+    private ToggleButton[] obtenerBotonesDiasSemana() {
+        return new ToggleButton[]{
+            btnLunes, btnMartes, btnMiercoles, btnJueves, btnViernes, btnSabado, btnDomingo
+        };
     }
 
     /**
@@ -719,6 +891,13 @@ public class CrearHabitoController implements Initializable {
     private String textoEjemploObjetivo(int v, Periodo p) {
         if (p == null) {
             return "";
+        }
+        if ("SEMANA".equalsIgnoreCase(p.getNombre())) {
+            String etiquetas = obtenerEtiquetasDiasResumen();
+            if (etiquetas.isEmpty()) {
+                return "Ejemplo: elige los días de la semana en los que quieres cumplir el hábito.";
+            }
+            return "Ejemplo: los días " + etiquetas + " de cada semana.";
         }
         return "Ejemplo: objetivo de " + v + " veces por " + etiquetaEspanol(p.getNombre()).toLowerCase() + ".";
     }

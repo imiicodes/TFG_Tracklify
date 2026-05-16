@@ -8,6 +8,7 @@ import com.mycompany.tracklify.models.RegistroHabito;
 import com.mycompany.tracklify.models.Usuario;
 import com.mycompany.tracklify.utils.SessionManager;
 import java.net.URL;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -25,7 +26,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -53,6 +53,7 @@ public class CalendarioController implements Initializable {
 
     private static final String[] CABECERAS_SEMANA = {"DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SAB"};
     private static final int CELDAS_CALENDARIO = 42;
+    private static final int MAX_PUNTOS_POR_CELDA = 4;
 
     @FXML
     private Button btnAnioAnterior;
@@ -102,6 +103,9 @@ public class CalendarioController implements Initializable {
     /** Color de marca por identificador de hábito. */
     private final Map<Integer, Color> coloresPorHabito = new HashMap<>();
 
+    /** Hábitos activos indexados por {@code id_habito} para consultas rápidas en la rejilla. */
+    private final Map<Integer, Habito> habitoPorId = new HashMap<>();
+
     /** Referencia al marco principal (opcional). */
     @SuppressWarnings("unused")
     private MainViewController host;
@@ -143,10 +147,13 @@ public class CalendarioController implements Initializable {
         Usuario usuario = SessionManager.getInstancia().getUsuarioActual();
         if (usuario == null) {
             habitosActivos = new ArrayList<>();
+            habitoPorId.clear();
         } else {
             habitosActivos = habitoDAO.obtenerActivosPorUsuario(usuario.getIdUsuario());
+            habitoPorId.clear();
             for (int i = 0; i < habitosActivos.size(); i++) {
                 Habito h = habitosActivos.get(i);
+                habitoPorId.put(h.getIdHabito(), h);
                 coloresPorHabito.put(h.getIdHabito(), Color.web(PALETA_COLORES.get(i % PALETA_COLORES.size())));
             }
         }
@@ -196,7 +203,7 @@ public class CalendarioController implements Initializable {
     }
 
     /**
-     * Construye una celda de 60×60 px para un día concreto, con estilos de mes actual, hoy, selección y punto de cumplimiento.
+     * Construye una celda de 60×64 px para un día concreto, con estilos de mes actual, hoy, selección y puntos de hábito.
      *
      * @param fecha           día representado
      * @param cumplidosPorDia mapa día → {@code id_habito} para el indicador inferior
@@ -204,9 +211,9 @@ public class CalendarioController implements Initializable {
      */
     private StackPane crearCeldaDia(LocalDate fecha, Map<LocalDate, Integer> cumplidosPorDia) {
         StackPane celda = new StackPane();
-        celda.setPrefSize(60, 60);
-        celda.setMinSize(60, 60);
-        celda.setMaxSize(60, 60);
+        celda.setPrefSize(60, 64);
+        celda.setMinSize(60, 64);
+        celda.setMaxSize(60, 64);
         celda.getStyleClass().add("celda-calendario");
 
         boolean enMesVisible = YearMonth.from(fecha).equals(mesActual);
@@ -227,28 +234,29 @@ public class CalendarioController implements Initializable {
             celda.getChildren().add(fondoHoy);
         }
 
-        Label num = new Label(String.valueOf(fecha.getDayOfMonth()));
-        num.setMouseTransparent(true);
-        if (esHoy) {
-            num.setStyle("-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;");
-        } else if (!enMesVisible) {
-            num.getStyleClass().add("dia-otro-mes");
-        } else {
-            num.setStyle("-fx-text-fill: #2D1B2E; -fx-font-size: 15px; -fx-font-weight: bold;");
-        }
-        StackPane.setAlignment(num, Pos.CENTER);
-        celda.getChildren().add(num);
+        VBox contenido = new VBox(2);
+        contenido.setAlignment(Pos.CENTER);
+        contenido.setPrefSize(60, 64);
+        contenido.setMinSize(60, 64);
+        contenido.setMaxSize(60, 64);
+        contenido.setStyle("-fx-background-color: transparent;");
+        contenido.setMouseTransparent(true);
 
-        Integer idHabitoMarca = cumplidosPorDia.get(fecha);
-        if (idHabitoMarca != null) {
-            Color color = coloresPorHabito.getOrDefault(idHabitoMarca, Color.web("#7A4578"));
-            Circle punto = new Circle(4);
-            punto.setFill(color);
-            punto.setMouseTransparent(true);
-            StackPane.setAlignment(punto, Pos.BOTTOM_CENTER);
-            StackPane.setMargin(punto, new Insets(0, 0, 6, 0));
-            celda.getChildren().add(punto);
+        Label labelDia = new Label(String.valueOf(fecha.getDayOfMonth()));
+        labelDia.setMouseTransparent(true);
+        if (esHoy) {
+            labelDia.setStyle("-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;");
+        } else if (!enMesVisible) {
+            labelDia.getStyleClass().add("dia-otro-mes");
+        } else {
+            labelDia.setStyle("-fx-text-fill: #2D1B2E; -fx-font-size: 15px; -fx-font-weight: bold;");
         }
+        contenido.getChildren().add(labelDia);
+
+        agregarPuntosHabitosDelDia(contenido, fecha, cumplidosPorDia);
+
+        StackPane.setAlignment(contenido, Pos.CENTER);
+        celda.getChildren().add(contenido);
 
         celda.setOnMouseClicked(ev -> {
             diaSeleccionado = fecha;
@@ -262,6 +270,90 @@ public class CalendarioController implements Initializable {
     }
 
     /**
+     * Añade en el contenido de la celda un punto por cada hábito activo que corresponde a ese día de la semana.
+     *
+     * @param contenido       columna vertical con número del día y puntos
+     * @param fecha           fecha de la celda
+     * @param cumplidosPorDia mapa de cumplimientos del mes
+     */
+    private void agregarPuntosHabitosDelDia(VBox contenido, LocalDate fecha,
+            Map<LocalDate, Integer> cumplidosPorDia) {
+        Integer idCumplido = cumplidosPorDia.get(fecha);
+        HBox puntos = new HBox(3);
+        puntos.setAlignment(Pos.CENTER);
+        puntos.setMouseTransparent(true);
+        int anadidos = 0;
+        for (Habito habito : habitosActivos) {
+            if (!aplicaHabitoEnFecha(habito, fecha)) {
+                continue;
+            }
+            Color color = coloresPorHabito.getOrDefault(habito.getIdHabito(), Color.web("#7A4578"));
+            Circle punto = new Circle(3);
+            punto.setFill(color);
+            boolean cumplido = idCumplido != null && idCumplido.equals(habito.getIdHabito());
+            if (!cumplido) {
+                punto.setOpacity(0.5);
+            }
+            puntos.getChildren().add(punto);
+            anadidos++;
+            if (anadidos >= MAX_PUNTOS_POR_CELDA) {
+                break;
+            }
+        }
+        if (anadidos > 0) {
+            contenido.getChildren().add(puntos);
+        }
+    }
+
+    /**
+     * Indica si el hábito aplica al día consultado según {@link Habito#getDiasSemana()}.
+     *
+     * @param habito hábito activo
+     * @param fecha  día consultado
+     * @return {@code true} si no hay filtro de días o el día de la semana coincide
+     */
+    private boolean aplicaHabitoEnFecha(Habito habito, LocalDate fecha) {
+        String diasSemana = habito.getDiasSemana();
+        if (diasSemana == null || diasSemana.isBlank()) {
+            return true;
+        }
+        String constante = diaSemanaAConstante(fecha.getDayOfWeek());
+        for (String parte : diasSemana.split(",")) {
+            if (constante.equalsIgnoreCase(parte.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Convierte un {@link DayOfWeek} a la constante usada en {@link Habito#getDiasSemana()}.
+     *
+     * @param dia día de la semana de Java
+     * @return nombre en español en mayúsculas (p. ej. {@code LUNES})
+     */
+    private static String diaSemanaAConstante(DayOfWeek dia) {
+        switch (dia) {
+            case MONDAY:
+                return "LUNES";
+            case TUESDAY:
+                return "MARTES";
+            case WEDNESDAY:
+                return "MIERCOLES";
+            case THURSDAY:
+                return "JUEVES";
+            case FRIDAY:
+                return "VIERNES";
+            case SATURDAY:
+                return "SABADO";
+            case SUNDAY:
+                return "DOMINGO";
+            default:
+                return "";
+        }
+    }
+
+    /**
      * Rellena el panel inferior con una fila por hábito activo y la hora de la próxima notificación si existe.
      *
      * @param fecha día seleccionado
@@ -271,16 +363,21 @@ public class CalendarioController implements Initializable {
 
         listaHabitosDelDia.getChildren().clear();
 
-        if (habitosActivos.isEmpty()) {
-            Label vacio = new Label("No hay hábitos para este día");
+        List<Habito> habitosDelDia = habitosActivos.stream()
+            .filter(h -> aplicaHabitoEnFecha(h, fecha))
+            .collect(Collectors.toList());
+
+        if (habitosDelDia.isEmpty()) {
+            Label vacio = new Label("No hay hábitos programados para este día");
             vacio.setStyle("-fx-text-fill: #6B4A6E; -fx-font-size: 13px;");
             vacio.setMaxWidth(Double.MAX_VALUE);
             vacio.setAlignment(Pos.CENTER);
+            vacio.setWrapText(true);
             listaHabitosDelDia.getChildren().add(vacio);
             return;
         }
 
-        for (Habito habito : habitosActivos) {
+        for (Habito habito : habitosDelDia) {
             listaHabitosDelDia.getChildren().add(crearFilaHabitoDelDia(habito, fecha));
         }
     }

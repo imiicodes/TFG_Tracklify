@@ -34,29 +34,31 @@
         <Button fx:id="btnAnioSiguiente" text="&gt;&gt;" styleClass="btn-navegacion-calendario"/>
     </HBox>
 
-    <!-- Cabeceras + celdas -->
-    <GridPane fx:id="gridCalendario" hgap="6" vgap="6" maxWidth="Infinity">
-        <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
-        </columnConstraints>
-    </GridPane>
+    <ScrollPane fitToWidth="true" styleClass="scroll-contenido" VBox.vgrow="ALWAYS"
+                minWidth="0" minHeight="0" maxWidth="Infinity" maxHeight="Infinity">
+        <VBox spacing="16" maxWidth="Infinity">
+            <!-- Cabeceras + celdas -->
+            <GridPane fx:id="gridCalendario" hgap="6" vgap="6" maxWidth="Infinity">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="60" prefWidth="80"/>
+                </columnConstraints>
+            </GridPane>
 
-    <!-- Panel hábitos del día -->
-    <VBox fx:id="panelHabitos" spacing="10" styleClass="metrica-tarjeta" VBox.vgrow="ALWAYS">
-        <padding>
-            <Insets top="12" right="12" bottom="12" left="12"/>
-        </padding>
-        <Label fx:id="labelFechaSeleccionada" text="Hábitos del día"
-               style="-fx-text-fill: #7A4578; -fx-font-size: 15px; -fx-font-weight: bold;"/>
-        <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="scroll-contenido"
-                    VBox.vgrow="ALWAYS" minHeight="120" minWidth="0" maxWidth="Infinity" maxHeight="Infinity">
-            <VBox fx:id="listaHabitosDelDia" spacing="8" maxWidth="Infinity"/>
-        </ScrollPane>
-    </VBox>
+            <!-- Panel hábitos del día -->
+            <VBox fx:id="panelHabitos" spacing="10" styleClass="metrica-tarjeta">
+                <padding>
+                    <Insets top="12" right="12" bottom="12" left="12"/>
+                </padding>
+                <Label fx:id="labelFechaSeleccionada" text="Hábitos del día"
+                       style="-fx-text-fill: #7A4578; -fx-font-size: 15px; -fx-font-weight: bold;"/>
+                <VBox fx:id="listaHabitosDelDia" spacing="8" maxWidth="Infinity"/>
+            </VBox>
+        </VBox>
+    </ScrollPane>
 </VBox>
