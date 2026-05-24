@@ -57,6 +57,12 @@ public class AdminViewController implements Initializable {
 
     private final List<Button> botonesNav = new ArrayList<>();
 
+    /**
+     * Muestra el nombre del administrador en sesión y carga la sección dashboard por defecto.
+     *
+     * @param url            ubicación del FXML
+     * @param resourceBundle recursos de internacionalización; no usado
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         Usuario admin = SessionManager.getInstancia().getUsuarioActual();

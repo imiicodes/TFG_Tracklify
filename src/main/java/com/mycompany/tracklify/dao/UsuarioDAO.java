@@ -45,6 +45,13 @@ public class UsuarioDAO {
         return u;
     }
 
+    /**
+     * Autentica un usuario por email y contraseña verificando el hash BCrypt.
+     *
+     * @param email    correo registrado
+     * @param password contraseña en texto plano
+     * @return usuario mapeado si las credenciales son válidas; {@code null} en caso contrario
+     */
     public Usuario login(String email, String password) {
 
         String sql = "SELECT * FROM usuarios WHERE email_usuario = ?";
@@ -286,6 +293,12 @@ public class UsuarioDAO {
         }
     }
 
+    /**
+     * Actualiza email, hash de contraseña y fecha de última modificación del usuario.
+     *
+     * @param usuario entidad con {@code id_usuario} y campos a persistir
+     * @return {@code true} si se modificó al menos una fila
+     */
     public boolean actualizar(Usuario usuario) {
 
         String sql = "UPDATE usuarios SET email_usuario = ?, password_usuario = ?, "
@@ -371,7 +384,7 @@ public class UsuarioDAO {
 
     /**
      * Elimina el usuario y, en la misma transacción, las filas dependientes habituales
-     * (descansos, registros de hábitos, notificaciones, hábitos, tokens de email, onboarding, baneos y perfil).
+     * (registros de hábitos, notificaciones, hábitos, tokens de email, onboarding, baneos y perfil).
      *
      * @param idUsuario clave del usuario a borrar
      * @return {@code true} si se eliminó la fila de {@code usuarios}
@@ -381,11 +394,6 @@ public class UsuarioDAO {
         try (Connection con = ConexionBD.conectar()) {
             con.setAutoCommit(false);
             try {
-                ejecutarUpdate(con,
-                    "DELETE d FROM descansos d "
-                        + "INNER JOIN registros_habitos r ON d.id_registro = r.id_registro "
-                        + "INNER JOIN habitos h ON r.id_habito = h.id_habito WHERE h.id_usuario = ?",
-                    idUsuario);
                 ejecutarUpdate(con,
                     "DELETE r FROM registros_habitos r "
                         + "INNER JOIN habitos h ON r.id_habito = h.id_habito WHERE h.id_usuario = ?",
@@ -450,6 +458,12 @@ public class UsuarioDAO {
         }
     }
 
+    /**
+     * Lista usuarios cuyo {@code rol_id} coincide, ordenados por nombre de perfil o email.
+     *
+     * @param rolId identificador del rol (p. ej. {@code 1} administrador, {@code 2} usuario)
+     * @return lista de usuarios; vacía si no hay coincidencias o falla la consulta
+     */
     public List<Usuario> obtenerPorRol(int rolId) {
 
         List<Usuario> usuarios = new ArrayList<>();

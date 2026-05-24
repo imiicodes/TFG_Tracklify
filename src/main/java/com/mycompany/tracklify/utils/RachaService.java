@@ -16,10 +16,14 @@ public class RachaService {
 
     private final RegistroHabitoDAO registroHabitoDAO;
 
+    /** Crea el servicio con un {@link RegistroHabitoDAO} por defecto. */
     public RachaService() {
         this.registroHabitoDAO = new RegistroHabitoDAO();
     }
 
+    /**
+     * @param registroHabitoDAO DAO usado para consultar días cumplidos
+     */
     public RachaService(RegistroHabitoDAO registroHabitoDAO) {
         this.registroHabitoDAO = registroHabitoDAO;
     }

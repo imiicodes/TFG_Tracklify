@@ -21,11 +21,16 @@ public class TokenService {
     private final ConfiguracionEmailDAO configuracionEmailDAO;
     private final UsuarioDAO usuarioDAO;
 
+    /** Crea el servicio con DAOs por defecto para tokens y usuarios. */
     public TokenService() {
         this.configuracionEmailDAO = new ConfiguracionEmailDAO();
         this.usuarioDAO = new UsuarioDAO();
     }
 
+    /**
+     * @param configuracionEmailDAO DAO de la tabla {@code configuracion_email}
+     * @param usuarioDAO          DAO de usuarios para validar tokens
+     */
     public TokenService(ConfiguracionEmailDAO configuracionEmailDAO, UsuarioDAO usuarioDAO) {
         this.configuracionEmailDAO = configuracionEmailDAO;
         this.usuarioDAO = usuarioDAO;

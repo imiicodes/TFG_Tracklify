@@ -59,6 +59,12 @@ public class AdminConfigController implements Initializable {
 
     private final AuditoriaLoginDAO auditoriaLoginDAO = new AuditoriaLoginDAO();
 
+    /**
+     * Configura filtros de auditoría, tabla de intentos de login y datos del administrador.
+     *
+     * @param url            ubicación del FXML
+     * @param resourceBundle recursos de internacionalización; no usado
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         comboFiltroAuditoria.getItems().setAll(

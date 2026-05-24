@@ -33,6 +33,12 @@ public class InformesController implements Initializable {
     /** Marco principal que carga esta vista en el {@code AnchorPane} central. */
     private MainViewController host;
 
+    /**
+     * Punto de inicialización de la vista; reservado para configuración futura según sesión.
+     *
+     * @param url            ubicación del FXML
+     * @param resourceBundle recursos de internacionalización; no usado
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Reservado para futuras inicializaciones (p. ej. estado según sesión).

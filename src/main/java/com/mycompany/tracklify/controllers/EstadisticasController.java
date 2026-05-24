@@ -175,11 +175,19 @@ public class EstadisticasController implements Initializable {
 
         habitosActivos = habitoDAO.obtenerActivosPorUsuario(usuario.getIdUsuario());
         comboHabito.setConverter(new StringConverter<>() {
+            /**
+             * @param h hábito seleccionado en el combo
+             * @return nombre del hábito o cadena vacía si es {@code null}
+             */
             @Override
             public String toString(Habito h) {
                 return h == null ? "" : h.getNombreHabito();
             }
 
+            /**
+             * @param s texto introducido en el editor del combo
+             * @return siempre {@code null}; la selección se hace por ítem, no por texto
+             */
             @Override
             public Habito fromString(String s) {
                 return null;
@@ -257,11 +265,19 @@ public class EstadisticasController implements Initializable {
         ejeYLineas.setTickUnit(25);
         ejeYLineas.setMinorTickCount(0);
         ejeYLineas.setTickLabelFormatter(new javafx.util.StringConverter<>() {
+            /**
+             * @param n valor numérico del tick del eje Y
+             * @return porcentaje entero con sufijo {@code %} o cadena vacía si es {@code null}
+             */
             @Override
             public String toString(Number n) {
                 return n == null ? "" : n.intValue() + "%";
             }
 
+            /**
+             * @param string etiqueta mostrada en el eje
+             * @return {@code 0} (no se usa la conversión inversa en este eje)
+             */
             @Override
             public Number fromString(String string) {
                 return 0;

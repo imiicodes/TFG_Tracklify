@@ -128,6 +128,12 @@ public class ConfiguracionController implements Initializable {
         this.host = host;
     }
 
+    /**
+     * Inicializa combos, tema, fortaleza de contraseña y carga perfil del usuario en sesión.
+     *
+     * @param url            ubicación del FXML
+     * @param resourceBundle recursos de internacionalización; no usado
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         etiquetaGeneroABd.put("Masculino", "MASCULINO");

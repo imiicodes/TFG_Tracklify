@@ -91,6 +91,12 @@ public class DashboardViewController implements Initializable {
         this.host = host;
     }
 
+    /**
+     * Carga saludo, tareas del día, estadísticas y recordatorios del usuario en sesión.
+     *
+     * @param url            ubicación del FXML
+     * @param resourceBundle recursos de internacionalización; no usado
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 

@@ -89,6 +89,12 @@ public class MainViewController implements Initializable {
     /** Botones laterales para aplicar o quitar la clase de ítem activo. */
     private final List<Button> botonesSidebar = new ArrayList<>();
 
+    /**
+     * Registra botones de navegación, aplica tema, comprueba onboarding y muestra el dashboard.
+     *
+     * @param url            ubicación del FXML
+     * @param resourceBundle recursos de internacionalización; no usado
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         botonesSidebar.clear();

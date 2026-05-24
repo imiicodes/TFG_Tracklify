@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.tracklify.dao;
 
 import com.mycompany.tracklify.database.ConexionBD;
@@ -11,13 +7,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Acceso JDBC a la tabla {@code roles}: listado y consulta por identificador.
  *
- * @author imii
+ * @author Tracklify
  */
-
-
 public class RolDAO {
 
+    /**
+     * Obtiene todos los roles definidos en la base de datos.
+     *
+     * @return lista de roles; vacía si no hay filas o falla la consulta
+     */
     public List<Rol> obtenerTodos() {
         List<Rol> roles = new ArrayList<>();
         String sql = "SELECT * FROM roles";
@@ -41,6 +41,12 @@ public class RolDAO {
         return roles;
     }
 
+    /**
+     * Busca un rol por su clave primaria.
+     *
+     * @param idRol identificador {@code id_rol}
+     * @return entidad encontrada, o {@code null} si no existe o falla la consulta
+     */
     public Rol obtenerPorId(int idRol) {
         String sql = "SELECT * FROM roles WHERE id_rol = ?";
 

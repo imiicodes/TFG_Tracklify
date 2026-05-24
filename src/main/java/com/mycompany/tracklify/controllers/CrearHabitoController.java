@@ -712,11 +712,19 @@ public class CrearHabitoController implements Initializable {
     private void configurarCombo(ComboBox<Periodo> combo, List<Periodo> items) {
         combo.getItems().setAll(items);
         combo.setConverter(new StringConverter<>() {
+            /**
+             * @param p periodo seleccionado en el combo
+             * @return etiqueta en español o cadena vacía si es {@code null}
+             */
             @Override
             public String toString(Periodo p) {
                 return p == null ? "" : etiquetaEspanol(p.getNombre());
             }
 
+            /**
+             * @param s texto introducido en el editor del combo
+             * @return siempre {@code null}; la selección se hace por ítem, no por texto
+             */
             @Override
             public Periodo fromString(String s) {
                 return null;

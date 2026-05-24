@@ -1,13 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.tracklify.models;
 
 /**
- * DTO de solo lectura mapeado desde la vista {@code v_resumen_usuario}.
- *
- * @author imii
+ * DTO de solo lectura con métricas agregadas de actividad de un usuario.
+ * Se mapea desde la vista {@code v_resumen_usuario} para el panel y el dashboard.
  */
 public class ResumenUsuario {
 
@@ -18,6 +13,14 @@ public class ResumenUsuario {
     private final int habitosCompletadosHoy;
     private final double tasaExitoGlobal;
 
+    /**
+     * @param idUsuario               identificador del usuario
+     * @param nombreUsuario           nombre para saludo o listados
+     * @param totalHabitosActivos     hábitos en estado activo
+     * @param totalCumplimientos      cumplimientos históricos
+     * @param habitosCompletadosHoy   hábitos distintos completados hoy
+     * @param tasaExitoGlobal         ratio o porcentaje de éxito agregado
+     */
     public ResumenUsuario(int idUsuario, String nombreUsuario, int totalHabitosActivos,
                           int totalCumplimientos, int habitosCompletadosHoy, double tasaExitoGlobal) {
         this.idUsuario = idUsuario;
@@ -28,26 +31,32 @@ public class ResumenUsuario {
         this.tasaExitoGlobal = tasaExitoGlobal;
     }
 
+    /** @return identificador del usuario */
     public int getIdUsuario() {
         return idUsuario;
     }
 
+    /** @return nombre mostrado del usuario */
     public String getNombreUsuario() {
         return nombreUsuario;
     }
 
+    /** @return cantidad de hábitos en estado activo */
     public int getTotalHabitosActivos() {
         return totalHabitosActivos;
     }
 
+    /** @return total histórico de cumplimientos registrados */
     public int getTotalCumplimientos() {
         return totalCumplimientos;
     }
 
+    /** @return hábitos con objetivo cumplido en el día actual */
     public int getHabitosCompletadosHoy() {
         return habitosCompletadosHoy;
     }
 
+    /** @return tasa de éxito global en porcentaje o proporción */
     public double getTasaExitoGlobal() {
         return tasaExitoGlobal;
     }

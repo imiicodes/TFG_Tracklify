@@ -102,6 +102,12 @@ public class AdminDashboardController implements Initializable {
     @FXML
     private Label labelMensajeAdmin;
 
+    /**
+     * Configura tablas de usuarios e IPs bloqueadas y carga datos iniciales del panel.
+     *
+     * @param url            ubicación del FXML
+     * @param resourceBundle recursos de internacionalización; no usado
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         colId.setCellValueFactory(new PropertyValueFactory<>("idUsuario"));

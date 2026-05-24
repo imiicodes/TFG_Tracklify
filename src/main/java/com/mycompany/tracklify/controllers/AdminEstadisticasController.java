@@ -64,6 +64,12 @@ public class AdminEstadisticasController implements Initializable {
 
     private final RachaService rachaService = new RachaService();
 
+    /**
+     * Enlaza columnas de la tabla y carga métricas globales y filas por usuario.
+     *
+     * @param url            ubicación del FXML
+     * @param resourceBundle recursos de internacionalización; no usado
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         colUsuario.setCellValueFactory(new PropertyValueFactory<>("nombreUsuario"));

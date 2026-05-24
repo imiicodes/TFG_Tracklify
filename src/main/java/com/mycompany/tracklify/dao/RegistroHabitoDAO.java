@@ -59,6 +59,12 @@ public class RegistroHabitoDAO {
         }
     }
 
+    /**
+     * Devuelve todos los registros de un hábito, del más reciente al más antiguo.
+     *
+     * @param idHabito clave del hábito
+     * @return lista de registros; vacía si no hay filas o falla la consulta
+     */
     public List<RegistroHabito> obtenerPorHabito(int idHabito) {
         List<RegistroHabito> lista = new ArrayList<>();
         String sql = "SELECT * FROM registros_habitos WHERE id_habito = ? ORDER BY marca_tiempo_inicio DESC";
@@ -79,6 +85,13 @@ public class RegistroHabitoDAO {
         return lista;
     }
 
+    /**
+     * Registros cuyo inicio cae en la fecha indicada (comparación por día calendario).
+     *
+     * @param idHabito clave del hábito
+     * @param fecha    día a filtrar
+     * @return lista de registros ese día; vacía si no hay coincidencias
+     */
     public List<RegistroHabito> obtenerPorFecha(int idHabito, LocalDate fecha) {
         List<RegistroHabito> lista = new ArrayList<>();
         String sql = "SELECT * FROM registros_habitos WHERE id_habito = ? AND DATE(marca_tiempo_inicio) = ?";
@@ -100,6 +113,12 @@ public class RegistroHabitoDAO {
         return lista;
     }
 
+    /**
+     * Inserta un registro de hábito con los campos de la entidad, incluida semana ISO si aplica.
+     *
+     * @param registro datos del registro a persistir
+     * @return {@code true} si la inserción fue correcta
+     */
     public boolean insertar(RegistroHabito registro) {
         String sql = "INSERT INTO registros_habitos (id_habito, marca_tiempo_inicio, marca_tiempo_fin, "
             + "duracion_segundos, estado_registro, es_objetivo, comentario, anio_semana, num_semana) "
@@ -415,6 +434,12 @@ public class RegistroHabitoDAO {
         return dias;
     }
 
+    /**
+     * Marca un registro existente como {@code COMPLETADO} sin alterar marcas de tiempo.
+     *
+     * @param idRegistro clave {@code id_registro}
+     * @return {@code true} si se actualizó al menos una fila
+     */
     public boolean marcarCompletado(int idRegistro) {
         String sql = "UPDATE registros_habitos SET estado_registro = 'COMPLETADO' WHERE id_registro = ?";
 

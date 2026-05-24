@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.tracklify.database;
 
 import java.io.IOException;
@@ -11,6 +7,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * Gestiona la conexión JDBC a MySQL leyendo URL, usuario y contraseña desde
+ * {@code config.properties} en el classpath.
+ *
+ * @author Tracklify
+ */
 public class ConexionBD {
 
     private static final String URL;
@@ -32,6 +34,11 @@ public class ConexionBD {
         }
     }
 
+    /**
+     * Abre una conexión con la base de datos usando las credenciales cargadas al iniciar la clase.
+     *
+     * @return conexión activa, o {@code null} si falla el intento (se registra el error en consola)
+     */
     public static Connection conectar() {
         Connection conexion = null;
 

@@ -67,6 +67,12 @@ public class AdminReportesController implements Initializable {
     /** Copia base recargada desde JDBC antes de ordenar en memoria. */
     private List<AdminReporteUsuarioFila> datosBase = new ArrayList<>();
 
+    /**
+     * Configura filtros, columnas de la tabla y acciones de informe por usuario.
+     *
+     * @param url            ubicación del FXML
+     * @param resourceBundle recursos de internacionalización; no usado
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         comboFiltroReportes.getItems().setAll(ORDEN_RECIENTES, ORDEN_NOMBRE, ORDEN_HABITOS);
