@@ -24,10 +24,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.Button;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -59,6 +61,9 @@ public class AdminDashboardController implements Initializable {
 
     @FXML
     private TableColumn<Usuario, Integer> colRol;
+
+    @FXML
+    private TableColumn<Usuario, Void> colAcciones;
 
     @FXML
     private TableView<BloqueoIpVigente> tablaIpsBloqueadas;
@@ -107,6 +112,7 @@ public class AdminDashboardController implements Initializable {
         });
         colEmail.setCellValueFactory(new PropertyValueFactory<>("emailUsuario"));
         colRol.setCellValueFactory(new PropertyValueFactory<>("rolId"));
+        configurarColumnaAcciones();
 
         colIpAddr.setCellValueFactory(new PropertyValueFactory<>("ipAddress"));
         colIpIntentos.setCellValueFactory(new PropertyValueFactory<>("intentosFallidos"));
@@ -244,16 +250,93 @@ public class AdminDashboardController implements Initializable {
      * Recarga la tabla de usuarios desde la base de datos.
      */
     private void cargarUsuarios() {
-        List<Usuario> usuarios = usuarioDAO.obtenerTodos();
-        ObservableList<Usuario> lista = FXCollections.observableArrayList(usuarios);
-        tablaUsuarios.setItems(lista);
+        List<Usuario> usuarios = usuarioDAO.obtenerTodosUsuarios();
+        tablaUsuarios.setItems(FXCollections.observableArrayList(usuarios));
+    }
+
+    /**
+     * Añade un botón «Eliminar» por fila en la tabla de usuarios.
+     */
+    private void configurarColumnaAcciones() {
+        colAcciones.setCellFactory(columna -> new TableCell<>() {
+            private final Button btnEliminar = new Button("Eliminar");
+
+            {
+                btnEliminar.getStyleClass().addAll("btn-tabla-accion", "btn-danger");
+                btnEliminar.setOnAction(e -> {
+                    Usuario usuario = getTableView().getItems().get(getIndex());
+                    if (usuario != null) {
+                        confirmarYEliminarUsuario(usuario);
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
+                Usuario usuario = getTableRow() != null ? getTableRow().getItem() : null;
+                if (usuario == null) {
+                    setGraphic(null);
+                    return;
+                }
+                Usuario adminActual = SessionManager.getInstancia().getUsuarioActual();
+                boolean esYo = adminActual != null && usuario.getIdUsuario() == adminActual.getIdUsuario();
+                setGraphic(esYo ? null : btnEliminar);
+            }
+        });
+    }
+
+    /**
+     * Pide confirmación y elimina físicamente al usuario de la base de datos.
+     *
+     * @param usuario fila seleccionada
+     */
+    private void confirmarYEliminarUsuario(Usuario usuario) {
+        Usuario adminActual = SessionManager.getInstancia().getUsuarioActual();
+        if (adminActual != null && usuario.getIdUsuario() == adminActual.getIdUsuario()) {
+            mostrarAlerta("Acción no permitida", "No puedes eliminar tu propia cuenta.");
+            return;
+        }
+
+        String nombre = nombreVisibleUsuario(usuario);
+        String email = usuario.getEmailUsuario() != null ? usuario.getEmailUsuario() : "";
+
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Eliminar cuenta");
+        confirmacion.setHeaderText(null);
+        confirmacion.setContentText(
+            "¿Eliminar la cuenta de " + nombre + " (" + email + ")? Esta acción no se puede deshacer.");
+
+        if (confirmacion.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
+            return;
+        }
+
+        if (usuarioDAO.eliminarUsuario(usuario.getIdUsuario())) {
+            tablaUsuarios.getItems().remove(usuario);
+            cargarEstadisticasGlobales();
+            mostrarAlerta("Éxito", "Usuario eliminado correctamente.");
+        } else {
+            mostrarAlerta("Error", "No se pudo eliminar el usuario.");
+        }
+    }
+
+    private String nombreVisibleUsuario(Usuario usuario) {
+        Perfil perfil = perfilDAO.obtenerPorUsuario(usuario.getIdUsuario());
+        if (perfil != null && perfil.getNombreUsuario() != null && !perfil.getNombreUsuario().isBlank()) {
+            return perfil.getNombreUsuario();
+        }
+        return usuario.getEmailUsuario() != null ? usuario.getEmailUsuario() : "Usuario";
     }
 
     /**
      * Actualiza las tarjetas de totales (usuarios y administradores).
      */
     private void cargarEstadisticasGlobales() {
-        List<Usuario> todos = usuarioDAO.obtenerTodos();
+        List<Usuario> todos = usuarioDAO.obtenerTodosUsuarios();
         labelTotalUsuarios.setText(String.valueOf(todos.size()));
 
         List<Usuario> admins = usuarioDAO.obtenerPorRol(1);
@@ -318,49 +401,6 @@ public class AdminDashboardController implements Initializable {
             cargarEstadisticasGlobales();
         } else {
             mostrarAlerta("Error", "No se pudo cambiar el rol.");
-        }
-    }
-
-    /**
-     * Elimina definitivamente el usuario seleccionado tras confirmación.
-     *
-     * @param event evento del botón
-     */
-    @FXML
-    public void eliminarUsuario(ActionEvent event) {
-        Usuario seleccionado = tablaUsuarios.getSelectionModel().getSelectedItem();
-        Usuario adminActual = SessionManager.getInstancia().getUsuarioActual();
-
-        if (seleccionado == null) {
-            mostrarAlerta("Selección requerida", "Por favor selecciona un usuario de la tabla.");
-            return;
-        }
-
-        if (adminActual != null && seleccionado.getIdUsuario() == adminActual.getIdUsuario()) {
-            mostrarAlerta("Acción no permitida", "No puedes eliminar tu propia cuenta.");
-            return;
-        }
-
-        Perfil perfilSel = perfilDAO.obtenerPorUsuario(seleccionado.getIdUsuario());
-        String nombreMostrar = perfilSel != null && perfilSel.getNombreUsuario() != null && !perfilSel.getNombreUsuario().isEmpty()
-            ? perfilSel.getNombreUsuario()
-            : seleccionado.getEmailUsuario();
-
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Confirmar eliminación");
-        confirmacion.setHeaderText("¿Eliminar a " + nombreMostrar + "?");
-        confirmacion.setContentText("Esta acción no se puede deshacer.");
-
-        if (confirmacion.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-            boolean exito = usuarioDAO.eliminar(seleccionado.getIdUsuario());
-
-            if (exito) {
-                mostrarAlerta("Éxito", "Usuario eliminado correctamente.");
-                cargarUsuarios();
-                cargarEstadisticasGlobales();
-            } else {
-                mostrarAlerta("Error", "No se pudo eliminar el usuario.");
-            }
         }
     }
 

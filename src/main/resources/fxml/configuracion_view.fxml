@@ -142,14 +142,12 @@
                             <Button fx:id="btnCerrarSesiones" text="Cerrar sesiones" styleClass="btn-peligro-outline"
                                     onAction="#btnCerrarSesionesClick"/>
                         </HBox>
-                        <HBox spacing="16" alignment="CENTER_LEFT">
-                            <Label text="Eliminar cuenta permanentemente" wrapText="true" HBox.hgrow="ALWAYS"
-                                   styleClass="config-texto-cuenta"/>
-                            <Button fx:id="btnEliminarCuenta" text="Eliminar cuenta" styleClass="btn-peligro-solido"
-                                    onAction="#btnEliminarCuentaClick"/>
-                        </HBox>
                     </VBox>
                 </VBox>
+
+                <Region minHeight="8" maxHeight="8"/>
+                <Button fx:id="btnEliminarCuenta" text="Eliminar cuenta" styleClass="btn-peligro-solido"
+                        maxWidth="Infinity" prefHeight="44" onAction="#btnEliminarCuentaClick"/>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS" minWidth="0"/>
             </HBox>

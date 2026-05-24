@@ -41,7 +41,8 @@
             <TableColumn fx:id="colId" prefWidth="50" text="ID"/>
             <TableColumn fx:id="colNombre" prefWidth="180" text="Nombre"/>
             <TableColumn fx:id="colEmail" prefWidth="220" text="Email"/>
-            <TableColumn fx:id="colRol" prefWidth="80" text="Rol"/>
+            <TableColumn fx:id="colRol" prefWidth="70" text="Rol"/>
+            <TableColumn fx:id="colAcciones" prefWidth="120" text="Acciones" sortable="false"/>
         </columns>
     </TableView>
 
@@ -59,7 +60,6 @@
     <HBox spacing="10" style="-fx-padding: 0 0 8 0;">
         <Button onAction="#hacerAdmin" prefHeight="36" styleClass="btn-primary" text="⬆ Hacer administrador"/>
         <Button onAction="#quitarAdmin" prefHeight="36" styleClass="btn-secondary" text="⬇ Quitar administrador"/>
-        <Button onAction="#eliminarUsuario" prefHeight="36" styleClass="btn-danger" text="✕ Eliminar usuario"/>
         <Button onAction="#banearUsuario" prefHeight="36" styleClass="btn-danger" text="⛔ Banear usuario"/>
         <Button onAction="#desbanearUsuario" prefHeight="36" styleClass="btn-secondary" text="✓ Desbanear"/>
     </HBox>

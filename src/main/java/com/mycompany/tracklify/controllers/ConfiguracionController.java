@@ -36,6 +36,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
@@ -499,7 +500,7 @@ public class ConfiguracionController implements Initializable {
     }
 
     /**
-     * Solicita confirmación y elimina la cuenta, la sesión y vuelve al login.
+     * Solicita confirmación, verifica la contraseña, desactiva la cuenta y vuelve al login.
      */
     @FXML
     public void btnEliminarCuentaClick() {
@@ -510,19 +511,59 @@ public class ConfiguracionController implements Initializable {
         confirm.setTitle("Eliminar cuenta");
         confirm.setHeaderText(null);
         confirm.setContentText(
-            "Esta acción es irreversible. Tu cuenta y todos tus datos serán eliminados permanentemente.");
-        Optional<ButtonType> res = confirm.showAndWait();
-        if (res.isEmpty() || res.get() != ButtonType.OK) {
+            "¿Estás seguro? Esta acción no se puede deshacer. "
+                + "Tu cuenta y todos tus hábitos serán eliminados permanentemente.");
+        Optional<ButtonType> resConfirm = confirm.showAndWait();
+        if (resConfirm.isEmpty() || resConfirm.get() != ButtonType.OK) {
             return;
         }
-        if (usuarioDAO.eliminar(usuarioActual.getIdUsuario())) {
+
+        PasswordField campoPasswordConfirmacion = new PasswordField();
+        campoPasswordConfirmacion.setPromptText("Contraseña actual");
+        campoPasswordConfirmacion.setMaxWidth(Double.MAX_VALUE);
+        GridPane panelPassword = new GridPane();
+        panelPassword.setHgap(10);
+        panelPassword.setVgap(10);
+        panelPassword.setMaxWidth(Double.MAX_VALUE);
+        panelPassword.add(new Label("Contraseña:"), 0, 0);
+        panelPassword.add(campoPasswordConfirmacion, 1, 0);
+        GridPane.setHgrow(campoPasswordConfirmacion, javafx.scene.layout.Priority.ALWAYS);
+
+        Alert alertPassword = new Alert(Alert.AlertType.CONFIRMATION);
+        alertPassword.setTitle("Verificar identidad");
+        alertPassword.setHeaderText(null);
+        alertPassword.setContentText("Introduce tu contraseña actual para confirmar la eliminación de la cuenta.");
+        alertPassword.getDialogPane().setContent(panelPassword);
+        Optional<ButtonType> resPassword = alertPassword.showAndWait();
+        if (resPassword.isEmpty() || resPassword.get() != ButtonType.OK) {
+            return;
+        }
+
+        String password = campoPasswordConfirmacion.getText();
+        if (!usuarioDAO.verificarPassword(usuarioActual.getIdUsuario(), password)) {
+            Alert err = new Alert(Alert.AlertType.ERROR);
+            err.setTitle("Eliminar cuenta");
+            err.setHeaderText(null);
+            err.setContentText("Contraseña incorrecta. No se ha eliminado la cuenta.");
+            err.showAndWait();
+            return;
+        }
+
+        if (usuarioDAO.desactivarCuenta(usuarioActual.getIdUsuario())) {
             try {
                 navegarALogin();
             } catch (Exception e) {
                 e.printStackTrace();
+                Alert err = new Alert(Alert.AlertType.ERROR);
+                err.setTitle("Eliminar cuenta");
+                err.setHeaderText(null);
+                err.setContentText("La cuenta se desactivó pero no se pudo volver al inicio de sesión.");
+                err.showAndWait();
             }
         } else {
             Alert err = new Alert(Alert.AlertType.ERROR);
+            err.setTitle("Eliminar cuenta");
+            err.setHeaderText(null);
             err.setContentText("No se pudo eliminar la cuenta. Inténtalo de nuevo más tarde.");
             err.showAndWait();
         }

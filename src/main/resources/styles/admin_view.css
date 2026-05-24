@@ -166,6 +166,14 @@
     -fx-background-color: #EDE3F6;
 }
 
+.btn-tabla-accion {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 4 10 4 10;
+}
+
 /* ── Botones de acción ── */
 .btn-primary {
     -fx-background-color: #93588F;

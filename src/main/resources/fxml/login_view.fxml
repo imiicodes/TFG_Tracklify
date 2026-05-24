@@ -8,8 +8,6 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.layout.HBox?>
 
 <StackPane
     minWidth="0" minHeight="0" prefWidth="Infinity" prefHeight="Infinity"
@@ -48,12 +46,6 @@
             onAction="#iniciarSesion"/>
 
         <Label fx:id="labelMensaje" styleClass="label-mensaje" wrapText="true" prefWidth="440" maxWidth="Infinity"/>
-
-        <HBox alignment="CENTER_LEFT" spacing="8" prefWidth="440" maxWidth="Infinity">
-            <CheckBox fx:id="checkRecordar" styleClass="check-recordar"/>
-            <Label text="Recordar sesión"
-                   style="-fx-font-size: 12px; -fx-text-fill: #7E6A8A; -fx-padding: 2 0 0 0;"/>
-        </HBox>
 
         <Button
             text="Iniciar sesión"

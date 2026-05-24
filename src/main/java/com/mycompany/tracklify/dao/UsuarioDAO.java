@@ -186,10 +186,17 @@ public class UsuarioDAO {
         }
     }
 
-    public List<Usuario> obtenerTodos() {
-
+    /**
+     * Lista todos los usuarios para el panel de administración (sin {@code cuenta_activa}).
+     *
+     * @return lista ordenada por nombre de perfil o email
+     */
+    public List<Usuario> obtenerTodosUsuarios() {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT u.* FROM usuarios u "
+        String sql = "SELECT u.id_usuario, u.email_usuario, u.password_usuario, u.rol_id, "
+            + "u.onboarding_completado, u.email_confirmado, u.fecha_registro, "
+            + "u.fecha_confirmacion_email, u.fecha_ult_modificacion, u.fecha_ult_acceso "
+            + "FROM usuarios u "
             + "LEFT JOIN perfiles p ON p.id_usuario = u.id_usuario "
             + "ORDER BY COALESCE(p.nombre_usuario, u.email_usuario) ASC";
 
@@ -198,7 +205,7 @@ public class UsuarioDAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                usuarios.add(mapUsuario(rs));
+                usuarios.add(mapUsuarioListado(rs));
             }
 
         } catch (SQLException e) {
@@ -206,6 +213,28 @@ public class UsuarioDAO {
         }
 
         return usuarios;
+    }
+
+    /**
+     * @see #obtenerTodosUsuarios()
+     */
+    public List<Usuario> obtenerTodos() {
+        return obtenerTodosUsuarios();
+    }
+
+    private static Usuario mapUsuarioListado(ResultSet rs) throws SQLException {
+        Usuario u = new Usuario();
+        u.setIdUsuario(rs.getInt("id_usuario"));
+        u.setEmailUsuario(rs.getString("email_usuario"));
+        u.setPasswordUsuario(rs.getString("password_usuario"));
+        u.setRolId(rs.getInt("rol_id"));
+        u.setOnboardingCompletado(getBool01(rs, "onboarding_completado", false));
+        u.setEmailConfirmado(getBool01(rs, "email_confirmado", false));
+        u.setFechaRegistro(getTsOrNull(rs, "fecha_registro"));
+        u.setFechaConfirmacionEmail(getTsOrNull(rs, "fecha_confirmacion_email"));
+        u.setFechaUltModificacion(getTsOrNull(rs, "fecha_ult_modificacion"));
+        u.setFechaUltAcceso(getTsOrNull(rs, "fecha_ult_acceso"));
+        return u;
     }
 
     /**
@@ -270,6 +299,68 @@ public class UsuarioDAO {
             ps.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
             ps.setInt(4, usuario.getIdUsuario());
 
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Comprueba si la contraseña en texto plano coincide con el hash almacenado del usuario.
+     *
+     * @param idUsuario      identificador del usuario
+     * @param passwordPlano  contraseña introducida
+     * @return {@code true} si la verificación BCrypt es correcta
+     */
+    public boolean verificarPassword(int idUsuario, String passwordPlano) {
+        if (passwordPlano == null || passwordPlano.isBlank()) {
+            return false;
+        }
+        Usuario u = obtenerPorId(idUsuario);
+        if (u == null || u.getPasswordUsuario() == null) {
+            return false;
+        }
+        return BCrypt.checkpw(passwordPlano, u.getPasswordUsuario());
+    }
+
+    /**
+     * Desactiva la cuenta del usuario (soft delete: {@code cuenta_activa = 0}).
+     *
+     * @param idUsuario clave del usuario
+     * @return {@code true} si se actualizó al menos una fila activa
+     */
+    public boolean desactivarCuenta(int idUsuario) {
+        String sql = "UPDATE usuarios SET cuenta_activa = 0, fecha_ult_modificacion = ? "
+            + "WHERE id_usuario = ? AND cuenta_activa = 1";
+
+        try (Connection con = ConexionBD.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setInt(2, idUsuario);
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Elimina físicamente un usuario (las FK con CASCADE gestionan dependencias).
+     *
+     * @param idUsuario clave del usuario
+     * @return {@code true} si se borró la fila
+     */
+    public boolean eliminarUsuario(int idUsuario) {
+        String sql = "DELETE FROM usuarios WHERE id_usuario = ?";
+
+        try (Connection con = ConexionBD.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idUsuario);
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
